@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fluxo - Perfil & Pessoas</title>
+<style>
+:root {
+  --bg-main: #007782;
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-mut: #64748b;
+  --border-color: #e2e8f0;
+  --primary-green: #0d9488;
+  --primary-green-hover: #0f766e;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+  padding: 30px;
+  min-height: 100vh;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.box-menu, .box-edit {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 380px;
+}
+
+.box-edit {
+  max-width: 560px;
+  position: relative;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.avatar {
+  width: 56px;
+  height: 56px;
+  background: var(--primary-green);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-edit {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.user-meta h4 { margin: 0 0 2px; font-size: 16px; font-weight: 700; }
+.user-meta p { margin: 0; color: var(--text-mut); font-size: 13px; }
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-mut);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 50%;
+  transition: all 0.2s;
+  z-index: 10;
+}
+.close-btn:hover { color: #dc2626; background: #fee2e2; }
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.menu-item:hover { background: #f1f5f9; }
+.menu-item.active { background: #f8fafc; font-weight: 600; border-left: 3px solid var(--primary-green); }
+.menu-item svg { width: 18px; height: 18px; stroke: var(--text-main); fill: none; stroke-width: 2; margin-right: 10px; }
+.menu-item-left { display: flex; align-items: center; }
+
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 14px;
+}
+
+.form-row:last-of-type { border-bottom: none; margin-bottom: 16px; }
+
+.form-label { color: var(--text-main); font-weight: 500; }
+.form-value { color: var(--text-mut); background: none; border: none; text-align: right; font: inherit; outline: none; width: 60%; }
+.form-value:focus { color: var(--text-main); }
+
+.btn-action {
+  background: var(--primary-green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s;
+}
+.btn-action:hover { background: var(--primary-green-hover); }
+
+.input-add-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 12px;
+}
+.input-add-group input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+.input-add-group input:focus { border-color: var(--primary-green); }
+
+.lista-pessoas {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.item-pessoa {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.msg-vazio {
+  color: var(--text-mut);
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+#toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  display: none;
+  z-index: 99;
+}
+</style>
+</head>
+<body>
+
+  <div class="box-menu">
+    <div class="profile-header" style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
+      <div class="avatar" id="avatar-mini">A</div>
+      <div class="user-meta">
+        <h4 id="mini-nome">adm</h4>
+        <p id="mini-user">@adm</p>
+      </div>
+    </div>
+
+    <div class="menu-list">
+      <button type="button" class="menu-item active" id="btn-tab-perfil" onclick="mudarAbaPainel('perfil')">
+        <span class="menu-item-left">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Meu perfil
+        </span>
+        <span>›</span>
+      </button>
+
+      <button type="button" class="menu-item" id="btn-tab-pessoas" onclick="mudarAbaPainel('pessoas')">
+        <span class="menu-item-left">
+          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+          Adicionar pessoa
+        </span>
+        <span>›</span>
+      </button>
+
+      <div class="menu-item">
+        <span class="menu-item-left">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Notificação
+        </span>
+        <span style="color:var(--text-mut); font-size:13px;">Permitir ▾</span>
+      </div>
+
+      <button type="button" class="menu-item" onclick="sairConta()" style="color: #dc2626; margin-top: 6px;">
+        <span class="menu-item-left">
+          <svg viewBox="0 0 24 24" style="stroke: #dc2626;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Sair
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="box-edit" id="painel-perfil">
+    <button type="button" class="close-btn" onclick="voltarIndex()" title="Voltar ao Menu Inicial">✕</button>
+
+    <div class="profile-header">
+      <div class="avatar">
+        <span id="avatar-text">A</span>
+        <img id="avatar-img" style="display:none;" alt="">
+      </div>
+      <label class="avatar-edit" title="Alterar foto">
+        ✏️
+        <input type="file" id="file-foto" accept="image/*" style="display:none" onchange="trocarFoto(this)">
+      </label>
+      <div class="user-meta">
+        <h4 id="big-nome">adm</h4>
+        <p id="big-user">@adm</p>
+      </div>
+    </div>
+
+    <form onsubmit="salvarPerfil(event)">
+      <div class="form-row">
+        <span class="form-label">Nome</span>
+        <input type="text" id="inp-nome" class="form-value" placeholder="seu nome" required>
+      </div>
+
+      <div class="form-row">
+        <span class="form-label">Usuário</span>
+        <input type="text" id="inp-user" class="form-value" disabled style="opacity: 0.6;">
+      </div>
+
+      <div class="form-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="form-label">Código de recuperação</span>
+          <button type="button" class="btn-action" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="gerarCodigo()">Gerar Novo</button>
+        </div>
+        <input type="text" id="inp-codigo" class="form-value" readonly style="width: 100%; background: #f1f5f9; padding: 10px; border-radius: 8px; text-align: left;" placeholder="Nenhum código gerado">
+      </div>
+
+      <div class="form-row">
+        <span class="form-label">Localização</span>
+        <input type="text" id="inp-local" class="form-value" placeholder="Adicionar local">
+      </div>
+
+      <button type="submit" class="btn-action" style="margin-top: 10px;">Salvar alterações</button>
+    </form>
+  </div>
+
+  <div class="box-edit" id="painel-pessoas" style="display: none;">
+    <button type="button" class="close-btn" onclick="voltarIndex()" title="Voltar ao Menu Inicial">✕</button>
+
+    <h3 style="margin: 0 0 6px;">Adicionar Pessoa</h3>
+    <p style="color: var(--text-mut); font-size: 13px; margin: 0 0 16px;">
+      Informe o <b>nome de usuário</b> da pessoa que deseja adicionar.
+    </p>
+
+    <form onsubmit="adicionarPessoa(event)">
+      <div class="input-add-group">
+        <input type="text" id="inp-add-user" placeholder="Usuário (ex.: ruan.luz)" required>
+        <button type="submit" class="btn-action" style="width: auto;">Adicionar</button>
+      </div>
+    </form>
+
+    <div class="lista-pessoas" id="lista-pessoas-container">
+      <div style="font-size: 12px; color: var(--text-mut); margin-top: 10px;">Pessoas adicionadas:</div>
+      <div class="msg-vazio" id="msg-sem-pessoas">Não tem pessoas adicionadas ainda.</div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let fotoBase64 = '';
+let currentUserId = null;
+
+function voltarIndex() {
+  window.location.href = 'indexIncial.html';
+}
+
+function aviso(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3500);
+}
+
+function mudarAbaPainel(aba) {
+  if (aba === 'perfil') {
+    $('painel-perfil').style.display = 'block';
+    $('painel-pessoas').style.display = 'none';
+    $('btn-tab-perfil').classList.add('active');
+    $('btn-tab-pessoas').classList.remove('active');
+  } else {
+    $('painel-perfil').style.display = 'none';
+    $('painel-pessoas').style.display = 'block';
+    $('btn-tab-perfil').classList.remove('active');
+    $('btn-tab-pessoas').classList.add('active');
+    carregarEquipe();
+  }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data: { session } } = await db.auth.getSession();
+  if (!session) {
+    voltarIndex();
+    return;
+  }
+
+  currentUserId = session.user.id;
+  const email = session.user.email;
+  const username = email.split('@')[0];
+  
+  $('big-user').textContent = '@' + username;
+  $('mini-user').textContent = '@' + username;
+  $('inp-user').value = '@' + username;
+  $('avatar-text').textContent = username[0].toUpperCase();
+  $('avatar-mini').textContent = username[0].toUpperCase();
+
+  const { data } = await db.from('perfis').select('nome, foto, localizacao').maybeSingle();
+  if (data) {
+    $('big-nome').textContent = data.nome || username;
+    $('mini-nome').textContent = data.nome || username;
+    $('inp-nome').value = data.nome || username;
+    if (data.localizacao) $('inp-local').value = data.localizacao;
+    if (data.foto) {
+      fotoBase64 = data.foto;
+      $('avatar-img').src = fotoBase64;
+      $('avatar-img').style.display = 'block';
+      $('avatar-text').style.display = 'none';
+    }
+  } else {
+    $('big-nome').textContent = username;
+    $('mini-nome').textContent = username;
+    $('inp-nome').value = username;
+  }
+});
+
+function trocarFoto(inp) {
+  const f = inp.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    fotoBase64 = e.target.result;
+    $('avatar-img').src = fotoBase64;
+    $('avatar-img').style.display = 'block';
+    $('avatar-text').style.display = 'none';
+  };
+  reader.readAsDataURL(f);
+}
+
+async function gerarCodigo() {
+  const { data, error } = await db.rpc('gerar_codigo_recuperacao');
+  if (error) {
+    aviso('Erro ao gerar código.');
+    return;
+  }
+  $('inp-codigo').value = data;
+  aviso('Novo código gerado com sucesso!');
+}
+
+async function salvarPerfil(e) {
+  e.preventDefault();
+  const nome = $('inp-nome').value.trim();
+  const localizacao = $('inp-local').value.trim();
+
+  const { error } = await db.from('perfis').upsert({
+    user_id: currentUserId,
+    nome: nome,
+    localizacao: localizacao,
+    foto: fotoBase64,
+    atualizado_em: new Date().toISOString()
+  });
+
+  if (error) {
+    aviso('Erro ao salvar perfil.');
+  } else {
+    $('big-nome').textContent = nome;
+    $('mini-nome').textContent = nome;
+    aviso('Perfil salvo com sucesso!');
+  }
+}
+
+async function carregarEquipe() {
+  const container = $('lista-pessoas-container');
+  // Mantém o título fixo
+  container.innerHTML = '<div style="font-size: 12px; color: var(--text-mut); margin-top: 10px;">Pessoas adicionadas:</div>';
+
+  const { data, error } = await db.from('equipe').select('membro_id');
+  if (error || !data || data.length === 0) {
+    const divVazio = document.createElement('div');
+    divVazio.className = 'msg-vazio';
+    divVazio.id = 'msg-sem-pessoas';
+    divVazio.textContent = 'Não tem pessoas adicionadas ainda.';
+    container.appendChild(divVazio);
+    return;
+  }
+
+  // Buscar os emails/nomes dos membros na tabela auth (ou perfis)
+  for (let item of data) {
+    // Como a tabela auth.users é interna, podemos procurar na tabela perfis se houver, ou exibir o ID/placeholder
+    const div = document.createElement('div');
+    div.className = 'item-pessoa';
+    div.innerHTML = `<span>Membro ID: ${item.membro_id.substring(0,8)}...</span><span style="color: var(--primary-green);">Ativo</span>`;
+    container.appendChild(div);
+  }
+}
+
+async function adicionarPessoa(e) {
+  e.preventDefault();
+  const usuarioInput = $('inp-add-user').value.trim();
+  if (!usuarioInput) return;
+
+  const { data, error } = await db.rpc('adicionar_membro_por_usuario', { p_usuario: usuarioInput });
+
+  if (error || !data) {
+    aviso('Utilizador não encontrado ou inválido.');
+    return;
+  }
+
+  aviso(`Utilizador @${usuarioInput.replace('@','')} adicionado com sucesso!`);
+  $('inp-add-user').value = '';
+  carregarEquipe();
+}
+
+async function sairConta() {
+  await db.auth.signOut();
+  window.location.href = 'indexIncial.html';
+}
+</script>
+</body>
+</html>

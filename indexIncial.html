@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fluxo - Organização & Gestão de Prontuários</title>
+<style>
+/* Temas e Variáveis */
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --tx: #0f172a;
+  --mut: #64748b;
+  --pri: #0d9488;
+  --pri-hover: #0f766e;
+  --pri-light: #f0fdf4;
+  --bd: #cbd5e1;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  --folha-bg: #ffffff;
+  --footer-bg: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --tx: #f8fafc;
+  --mut: #9ca3af;
+  --pri: #14b8a6;
+  --pri-hover: #0d9488;
+  --pri-light: #042f2e;
+  --bd: #334155;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
+  --folha-bg: #ffffff;
+  --footer-bg: #0f172a;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: background 0.3s, color 0.3s;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Canvas de Fundo Animado */
+#bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Garantir que o conteúdo fique acima do canvas */
+header, .menu-container, .app-container, footer, .screen {
+  position: relative;
+  z-index: 2;
+}
+
+/* Telas do App */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* 1. Tela de Login */
+#screen-login {
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  flex: 1;
+}
+
+.login-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  background: var(--card);
+  padding: 36px 28px;
+  border-radius: 16px;
+  border: 1px solid var(--bd);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: floatUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(30px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.logo-svg {
+  width: 180px;
+  height: auto;
+  margin-bottom: 16px;
+}
+
+.login-card h2 {
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.login-card p {
+  color: var(--mut);
+  font-size: 14px;
+  margin: 0 0 24px;
+}
+
+.input-login-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-login-group input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--bd);
+  border-radius: 12px;
+  font-size: 16px;
+  background: var(--bg);
+  color: var(--tx);
+  outline: none;
+}
+
+.input-login-group input:focus { border-color: var(--pri); }
+
+.btn-login {
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: none;
+  background: var(--pri);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+.btn-login:hover { background: var(--pri-hover); }
+
+.btn-adm {
+  background: #0d9488;
+  color: #ffffff;
+  margin-top: 4px;
+}
+.btn-adm:hover { background: #0f766e; }
+
+/* 2. Menu Inicial (Dashboard de Cards) */
+.menu-container {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 24px;
+  width: 100%;
+  flex: 1;
+}
+
+.menu-title {
+  font-size: 26px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.menu-subtitle {
+  color: var(--mut);
+  margin-bottom: 28px;
+  font-size: 15px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.menu-square {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 28px 24px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.menu-square:hover {
+  transform: translateY(-4px);
+  border-color: var(--pri);
+  box-shadow: 0 12px 25px -5px rgba(13, 148, 136, 0.2);
+}
+
+.menu-square svg {
+  width: 36px;
+  height: 36px;
+  stroke: var(--pri);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.menu-square h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--tx);
+}
+
+.menu-square p {
+  margin: 0;
+  color: var(--mut);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* 3. Header Geral e Dropdown de Perfil */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--card);
+  border-bottom: 1px solid var(--bd);
+  box-shadow: var(--shadow);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--tx);
+}
+
+.brand-header svg { width: 36px; height: auto; }
+.brand-header h1 { font-size: 20px; font-weight: 800; margin: 0; }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.profile-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--pri-light);
+  border: 1px solid var(--bd);
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  transition: all 0.2s;
+}
+
+.user-profile-btn:hover { border-color: var(--pri); }
+
+.user-badge {
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--pri);
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
+  width: 220px;
+  z-index: 100;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+.dropdown-menu.show { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--bd);
+  font-size: 13px;
+  color: var(--mut);
+  background: var(--bg);
+}
+
+.dropdown-item {
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  text-align: left;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background: var(--pri-light);
+  color: var(--pri);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--bd);
+  margin: 4px 0;
+}
+
+.app-container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.wrap {
+  flex: 1;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: minmax(360px, 5fr) 7fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.col-r { position: sticky; top: 20px; }
+
+@media(max-width: 900px) {
+  .wrap { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
+  .col-r { position: static; }
+  .user-badge { display: none; }
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+.mut { color: var(--mut); font-size: 13px; }
+
+textarea, input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--tx);
+  font: inherit;
+  margin-top: 6px;
+  outline: none;
+  font-size: 15px;
+}
+
+textarea { min-height: 180px; resize: vertical; }
+
+.row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+
+.btn, .ghost {
+  border-radius: 8px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.btn { background: var(--pri); color: #ffffff; }
+.btn:hover { background: var(--pri-hover); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ghost { background: transparent; color: var(--mut); border-color: var(--bd); }
+.ghost:hover { background: var(--bg); color: var(--tx); }
+
+.info-box {
+  background: var(--pri-light);
+  border-left: 4px solid var(--pri);
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--tx);
+}
+
+.lin { display: flex; align-items: center; gap: 8px; }
+.x { border: 0; background: none; color: var(--mut); font-size: 14px; padding: 6px 10px; cursor: pointer; }
+.x:hover { color: #dc2626; }
+
+.items-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip-item {
+  background: var(--pri-light);
+  color: var(--pri);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Folha A4 */
+.folha {
+  background: var(--folha-bg);
+  color: #111827;
+  border: 1px solid var(--bd);
+  box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08);
+  border-radius: 6px;
+  padding: 28px;
+  min-height: 500px;
+  max-height: calc(100vh - 160px);
+  overflow: auto;
+}
+
+.ft { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; border-bottom: 2px solid #111827; padding-bottom: 8px; }
+.ft b { font-size: 18px; text-transform: uppercase; }
+.ft span { font-size: 12px; color: #4b5563; }
+
+.pn { font-weight: 800; font-size: 16px; border-bottom: 1.5px solid #9ca3af; padding-bottom: 4px; margin-top: 14px; }
+.g { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px 8px; margin: 10px 0 20px; font-size: 14px; }
+.g i, .same-list li i {
+  display: inline-block; width: 14px; height: 14px; border: 1.5px solid #111827; border-radius: 2px; margin-right: 6px; vertical-align: -2px;
+}
+.same-list { list-style: none; padding: 0; margin: 12px 0 0; }
+.same-list li { padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-size: 15px; display: flex; align-items: center; }
+.same-list li b { margin-right: 8px; color: #111827; font-weight: 800; }
+
+.prov-list { list-style: none; padding: 0; margin: 16px 0; }
+.prov-list li { font-size: 18px; font-weight: 800; padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #0f172a; }
+.prov-footer-stamp { margin-top: 32px; font-size: 11px; color: #64748b; text-align: right; border-top: 1px dashed #cbd5e1; padding-top: 10px; }
+
+.vazio { color: #9ca3af; text-align: center; margin-top: 120px; font-weight: 500; }
+
+footer {
+  background: var(--footer-bg);
+  border-top: 1px solid var(--bd);
+  padding: 16px 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--mut);
+}
+
+@media print {
+  body * { visibility: hidden; }
+  .folha, .folha * { visibility: visible; }
+  .folha { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Canvas de Fundo com Animação em Tons de Azul -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- 1. TELA DE LOGIN -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <svg class="logo-svg" viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 75C70 75 80 35 120 35C160 35 170 60 210 60C230 60 245 50 255 40" stroke="#0d9488" stroke-width="12" stroke-linecap="round"/>
+      <path d="M30 90C60 90 70 50 110 50C150 50 160 75 200 75C220 75 235 65 245 55" stroke="#14b8a6" stroke-width="8" stroke-linecap="round" stroke-opacity="0.8"/>
+    </svg>
+    <h2 id="login-titulo">Acessar o Fluxo</h2>
+    <p id="login-sub">Entre com o seu utilizador e senha.</p>
+
+    <form class="input-login-group" onsubmit="enviarAuth(event)">
+      <input type="text" id="username-input" placeholder="Utilizador (ex.: ruan.luz)" required maxlength="30" autocomplete="username" autocapitalize="none">
+      <input type="text" id="codigo-input" placeholder="Código de recuperação" style="display:none" autocomplete="off">
+      <input type="password" id="senha-input" placeholder="Senha (mínimo 6 caracteres)" required minlength="6" autocomplete="current-password">
+      <input type="password" id="senha2-input" placeholder="Repita a senha" minlength="6" autocomplete="new-password" style="display:none">
+      <button type="submit" class="btn-login" id="btn-auth">Entrar</button>
+      <button type="button" class="btn-login btn-adm" onclick="loginAdmin()">Entrar Rápido como ADM</button>
+      <div id="auth-msg" role="alert" style="min-height:20px;font-size:13px"></div>
+      <button type="button" class="ghost" id="btn-modo" onclick="setModo(modo === 'entrar' ? 'cadastro' : 'entrar')">Criar conta</button>
+      <button type="button" class="ghost" id="btn-esq" onclick="setModo('reset')">Esqueci a senha</button>
+    </form>
+  </div>
+</div>
+
+<!-- 2. MENU INICIAL (DASHBOARD DE CARDS) -->
+<div id="screen-menu" class="screen">
+  <header>
+    <div class="brand-header" onclick="irParaMenu()" title="Voltar ao Menu Inicial">
+      <svg viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:auto">
+        <path d="M40 75C70 75 80 35 120 35C160 35 170 60 210 60" stroke="#0d9488" stroke-width="18" stroke-linecap="round"/>
+        <path d="M30 90C60 90 70 50 110 50C150 50 160 75 200 75" stroke="#14b8a6" stroke-width="12" stroke-linecap="round"/>
+      </svg>
+      <h1>Fluxo</h1>
+    </div>
+    
+    <div class="header-actions">
+      <div class="profile-dropdown-container">
+        <button class="user-profile-btn" onclick="toggleDropdown(event)" title="Abrir menu de perfil">
+          <img id="avatar-menu" alt="Perfil" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--pri-light)">
+          <span class="user-badge" id="user-display-menu">Utilizador</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="profile-dropdown" class="dropdown-menu">
+          <div class="dropdown-header">Minha Conta</div>
+          <a href="perfil.html" class="dropdown-item">⚙️ Configurar Perfil</a>
+          <button class="dropdown-item" onclick="mostrarCodigo(true)">🔑 Código Recuperação</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="toggleTema()">🌓 <span id="theme-label-menu">Modo Escuro</span></button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="sair()" style="color:#dc2626">🚪 Sair da Conta</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="menu-container">
+    <div class="menu-title">Menu Inicial</div>
+    <div class="menu-subtitle">Selecione abaixo o módulo ou ferramenta que deseja aceder:</div>
+    
+    <div class="menu-grid">
+      <div class="menu-square" onclick="abrirFerramenta('faa')">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        <h3>FAAs (Nome e Datas)</h3>
+        <p>Organize e processe mensagens contendo pacientes e datas associadas.</p>
+      </div>
+
+      <div class="menu-square" onclick="abrirFerramenta('same')">
+        <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+        <h3>Pastas / SAME</h3>
+        <p>Gestão e conferência de registos numéricos e nomes de pastas de prontuários.</p>
+      </div>
+
+      <div class="menu-square" onclick="abrirFerramenta('prov')">
+        <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <h3>Provisória</h3>
+        <p>Controlo rápido de números de pasta para guarda provisória.</p>
+      </div>
+
+      <div class="menu-square" onclick="abrirFerramenta('rel')">
+        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2m8 0V2a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0H8m9 9l-5 5-3-3"/></svg>
+        <h3>Relatório de Atividades</h3>
+        <p>Consulte o histórico completo de registos e anotações guardadas.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.
+  </footer>
+</div>
+
+<!-- 3. TELA DE TRABALHO DA FERRAMENTA SELECIONADA -->
+<div id="screen-workspace" class="screen">
+  <header>
+    <div class="brand-header" onclick="irParaMenu()" title="Voltar ao Menu Inicial">
+      <svg viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:auto">
+        <path d="M40 75C70 75 80 35 120 35C160 35 170 60 210 60" stroke="#0d9488" stroke-width="18" stroke-linecap="round"/>
+        <path d="M30 90C60 90 70 50 110 50C150 50 160 75 200 75" stroke="#14b8a6" stroke-width="12" stroke-linecap="round"/>
+      </svg>
+      <h1>Fluxo</h1>
+    </div>
+    
+    <div class="header-actions">
+      <button class="theme-toggle-btn ghost" onclick="irParaMenu()" style="background:var(--pri-light);color:var(--pri);border-color:var(--bd);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer">← Menu Inicial</button>
+      
+      <div class="profile-dropdown-container">
+        <button class="user-profile-btn" onclick="toggleDropdown(event)" title="Abrir menu de perfil">
+          <img id="avatar" alt="Perfil" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--pri-light)">
+          <span class="user-badge" id="user-display">Utilizador</span>
+          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="profile-dropdown-2" class="dropdown-menu">
+          <div class="dropdown-header">Minha Conta</div>
+          <a href="perfil.html" class="dropdown-item">⚙️ Configurar Perfil</a>
+          <button class="dropdown-item" onclick="mostrarCodigo(true)">🔑 Código Recuperação</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="toggleTema()">🌓 <span id="theme-label">Modo Escuro</span></button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" onclick="sair()" style="color:#dc2626">🚪 Sair da Conta</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="wrap" id="wrap-main" style="width:100%">
+      <section>
+        <div class="card">
+          <h2 id="titulo-input">1. Entrada de Dados</h2>
+          <textarea id="txt" oninput="agenda()" placeholder="Cole o texto aqui..."></textarea>
+          <div class="row">
+            <button class="ghost" onclick="exemplo()">Exemplo</button>
+            <button class="ghost" onclick="zerar()">Limpar</button>
+          </div>
+          
+          <div class="info-box">
+            <b>Aviso:</b> Os dados são organizados em sequência automática.
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>2. Conferência de Dados</h2>
+          <p class="mut" style="margin:0 0 8px">Verifique ou edite os itens lidos:</p>
+          <div id="conf"></div>
+        </div>
+      </section>
+
+      <section class="col-r">
+        <div class="row" style="margin:0 0 12px; justify-content: space-between;">
+          <div style="display:flex; gap:8px;">
+            <button id="gerar" class="btn" onclick="pdf()" disabled>Baixar PDF</button>
+            <button id="imprimir" class="ghost" onclick="imprimirFolha()" disabled>Imprimir</button>
+            <button id="btn-salvar-rel" class="btn" onclick="salvarRelatorio()" disabled title="Atalho: Ctrl+S">Salvar no relatório</button>
+          </div>
+          <span id="msg" class="mut" role="status"></span>
+        </div>
+        
+        <div class="folha" id="folha"></div>
+      </section>
+    </div>
+
+    <div class="wrap" id="rel" style="display:none;grid-template-columns:1fr;width:100%">
+      <section>
+        <div class="card">
+          <h2>Relatório de atividades</h2>
+          <div class="row" id="rel-cats" style="margin-top:0">
+            <button class="btn" data-c="" onclick="setRelCat('')">Todos</button>
+            <button class="ghost" data-c="faa" onclick="setRelCat('faa')">FAAs</button>
+            <button class="ghost" data-c="same" onclick="setRelCat('same')">Pastas / SAME</button>
+            <button class="ghost" data-c="prov" onclick="setRelCat('prov')">Provisória</button>
+            <button class="ghost" data-c="nota" onclick="setRelCat('nota')">Anotações</button>
+          </div>
+          <input id="rel-busca" placeholder="Pesquisar por data (15/05/2026), responsável, nome ou texto..." oninput="filtrarRel()">
+          <div class="row">
+            <select id="rel-cat" style="padding:12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit">
+              <option value="prov">Provisória</option><option value="faa">FAAs</option><option value="same">Pastas / SAME</option><option value="nota">Anotação</option>
+            </select>
+            <input type="date" id="rel-data" style="width:auto;margin-top:0">
+            <input id="rel-resp" placeholder="Responsável" style="flex:1;min-width:140px;margin-top:0">
+          </div>
+          <div class="row">
+            <input id="rel-nota" placeholder="O que foi feito? (ex.: Responsável por guarda provisória)" style="flex:1;min-width:220px;margin-top:0" onkeydown="if(event.key==='Enter')adicionarRel()">
+            <button class="btn" onclick="adicionarRel()">Adicionar</button>
+          </div>
+          <div id="rel-lista" style="margin-top:14px"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    © 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.
+  </footer>
+</div>
+
+<div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+let currentUser = "Utilizador";
+let abaAtiva = 'faa';
+let P_FAA = [], P_SAME = [], P_PROV = [], tm;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const HEAD = /^\[?(?:\d{1,2}\/\d{1,2}\/\d{2,4},?\s+\d{1,2}:\d{2}(?::\d{2})?(?:\s?[AaPp][Mm])?|\d{1,2}:\d{2}(?::\d{2})?,?\s+\d{1,2}\/\d{1,2}\/\d{2,4})\]?\s*-?\s*/;
+const SPL_DATE = /(\d{1,2}[\/.\-]\d{1,2}[\/.\-](?:\d{4}|\d{2})(?!\d))/;
+const NOISE = /\b(faas?|pacientes?|datas?|nome|pastas?|chamado|same|prontuario|prontuário)\b/gi;
+
+const cl = s => s.replace(NOISE,' ').replace(/[^A-Za-zÀ-ÿ0-9'’\s]/g,' ').replace(/\s+/g,' ').trim();
+const key = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const tc = s => s.toLowerCase().replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase()).replace(/ (Da|De|Do|Das|Dos|E)(?= )/g,x=>x.toLowerCase());
+const fmtData = k => String(k%100).padStart(2,'0') + '/' + String(Math.floor(k/100)%100).padStart(2,'0') + '/' + Math.floor(k/10000);
+const hoje = () => new Date().toLocaleDateString('pt-BR');
+
+/* Controle do Menu Dropdown do Perfil */
+function toggleDropdown(e) {
+  e.stopPropagation();
+  document.querySelectorAll('.dropdown-menu').forEach(m => {
+    if (m !== e.currentTarget.nextElementSibling) m.classList.remove('show');
+  });
+  const menu = e.currentTarget.nextElementSibling;
+  if (menu) menu.classList.toggle('show');
+}
+
+window.addEventListener('click', () => {
+  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+});
+
+/* Navegação entre Menu e Área de Trabalho */
+function irParaMenu() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-menu').classList.add('active');
+}
+
+function abrirFerramenta(aba) {
+  if (aba === 'rel') {
+    abrirRelatorio();
+    return;
+  }
+  mudarAba(aba);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-workspace').classList.add('active');
+}
+
+/* Animação Fluida de Partículas em Tons de Azul no Canvas de Fundo */
+function initBgAnimation() {
+  const canvas = $('bg-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  let particles = [];
+
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  const numParticles = 25;
+  for (let i = 0; i < numParticles; i++) {
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 130 + 50,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      // Cores ajustadas para tons de azul suave e moderno
+      color: i % 2 === 0 ? 'rgba(37, 99, 235, 0.06)' : 'rgba(14, 165, 233, 0.05)'
+    });
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    particles.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (p.x < -p.radius) p.x = width + p.radius;
+      if (p.x > width + p.radius) p.x = -p.radius;
+      if (p.y < -p.radius) p.y = height + p.radius;
+      if (p.y > height + p.radius) p.y = -p.radius;
+
+      ctx.beginPath();
+      const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+      if (isDark) {
+        grad.addColorStop(0, 'rgba(56, 189, 248, 0.08)');
+        grad.addColorStop(1, 'transparent');
+      } else {
+        grad.addColorStop(0, 'rgba(37, 99, 235, 0.06)');
+        grad.addColorStop(1, 'transparent');
+      }
+      ctx.fillStyle = grad;
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+window.addEventListener('DOMContentLoaded', initBgAnimation);
+
+/* ===== Supabase e Lógica do App ===== */
+const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
+const DOMINIO = 'fluxo.app';
+const db = SUPABASE_URL.startsWith('http') ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let modo = 'entrar', uid = null, tSave, pronto = false;
+const T = { faa: '', same: '', prov: '' };
+
+const msgAuth = (t, ok) => { $('auth-msg').textContent = t; $('auth-msg').style.color = ok ? '#059669' : '#dc2626'; };
+
+function setModo(m) {
+  modo = m; const cad = m === 'cadastro', rst = m === 'reset';
+  $('senha2-input').style.display = cad ? '' : 'none';
+  $('codigo-input').style.display = rst ? '' : 'none';
+  $('senha-input').placeholder = rst ? 'Nova senha (mínimo 6 caracteres)' : 'Senha (mínimo 6 caracteres)';
+  $('senha-input').autocomplete = m === 'entrar' ? 'current-password' : 'new-password';
+  $('btn-auth').textContent = cad ? 'Criar conta' : rst ? 'Redefinir senha' : 'Entrar';
+  $('btn-modo').textContent = m === 'entrar' ? 'Criar conta' : 'Já tenho conta';
+  $('btn-esq').style.display = m === 'entrar' ? '' : 'none';
+  $('login-sub').textContent = cad ? 'Escolha um utilizador único e uma senha.' : rst ? 'Informe o utilizador, o código de recuperação e a nova senha.' : 'Entre com o seu utilizador e senha.';
+  msgAuth('');
+}
+
+async function enviarAuth(e) {
+  e.preventDefault();
+  if (!db) return msgAuth('Falta configurar SUPABASE_URL e SUPABASE_KEY no código.');
+  const u = key($('username-input').value.trim()), s = $('senha-input').value;
+  if (!/^[a-z0-9._-]{3,30}$/.test(u)) return msgAuth('Utilizador: 3 a 30 caracteres, só letras, números, ponto, _ ou -.');
+  if (s.length < 6) return msgAuth('A senha precisa de ter ao menos 6 caracteres.');
+  if (modo === 'cadastro' && s !== $('senha2-input').value) return msgAuth('As senhas não coincidem.');
+  $('btn-auth').disabled = true; msgAuth('A aguardar...', true);
+  const email = u + '@' + DOMINIO;
+  if (modo === 'reset') {
+    const { data: ok, error: er } = await db.rpc('redefinir_senha', { p_usuario: u, p_codigo: $('codigo-input').value, p_nova: s });
+    if (er || !ok) { $('btn-auth').disabled = false; return msgAuth('Utilizador ou código de recuperação incorreto.'); }
+  }
+  const { data, error } = modo === 'cadastro'
+    ? await db.auth.signUp({ email, password: s, options: { data: { usuario: u } } })
+    : await db.auth.signInWithPassword({ email, password: s });
+  $('btn-auth').disabled = false;
+  if (error) {
+    const m = error.message.toLowerCase();
+    return msgAuth(m.includes('already') ? 'Esse utilizador já existe. Escolha outro.' : m.includes('invalid login') ? 'Utilizador ou senha incorretos.' : 'Erro: ' + error.message);
+  }
+  if (!data.session) return msgAuth('Conta criada! Faça login.');
+  const novo = modo !== 'entrar';
+  await entrar(data.session.user);
+  if (novo) mostrarCodigo();
+}
+
+async function loginAdmin() {
+  if (!db) return msgAuth('Falta configurar o Supabase.');
+  $('username-input').value = 'adm';
+  $('senha-input').value = '123456';
+  msgAuth('A entrar como ADM...', true);
+  
+  const email = 'adm@' + DOMINIO;
+  let { data, error } = await db.auth.signInWithPassword({ email, password: '123456' });
+  
+  if (error) {
+    const { data: dataUp, error: errUp } = await db.auth.signUp({ email, password: '123456', options: { data: { usuario: 'adm' } } });
+    if (errUp) {
+      msgAuth('Erro no acesso ADM: ' + errUp.message);
+      return;
+    }
+    if (dataUp.session) {
+      entrar(dataUp.session.user);
+      return;
+    }
+    const { data: dataTry2 } = await db.auth.signInWithPassword({ email, password: '123456' });
+    if (dataTry2.session) {
+      entrar(dataTry2.session.user);
+    } else {
+      msgAuth('Conta ADM criada! Clique novamente no botão.');
+    }
+  } else if (data.session) {
+    entrar(data.session.user);
+  }
+}
+
+async function entrar(user) {
+  uid = user.id;
+  currentUser = tc(user.email.split('@')[0]);
+  $('user-display').textContent = currentUser;
+  $('user-display-menu').textContent = currentUser;
+  
+  $('screen-login').classList.remove('active');
+  $('screen-workspace').classList.remove('active');
+  $('screen-menu').classList.add('active');
+  
+  await carregarPerfil();
+  await carregar();
+}
+
+async function sair() {
+  clearTimeout(tSave);
+  if (pronto) await salvar();
+  pronto = false; await db.auth.signOut(); uid = null; PERFIL = { nome: '', foto: '' };
+  P_FAA = []; P_SAME = []; P_PROV = []; T.faa = T.same = T.prov = ''; $('txt').value = '';
+  $('senha-input').value = ''; $('senha2-input').value = ''; $('codigo-input').value = ''; setModo('entrar');
+  
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-login').classList.add('active');
+}
+
+function agendarSalvar() {
+  if (!uid || !pronto) return;
+  clearTimeout(tSave); tSave = setTimeout(salvar, 800);
+  $('msg').textContent = 'A guardar...';
+}
+
+async function salvar() {
+  T[abaAtiva] = $('txt').value;
+  const agora = new Date().toISOString();
+  const linhas = [['faa', P_FAA], ['same', P_SAME], ['prov', P_PROV]]
+    .map(([categoria, dados]) => ({ user_id: uid, categoria, texto: T[categoria], dados, atualizado_em: agora }));
+  const { error } = await db.from('listas').upsert(linhas, { onConflict: 'user_id,categoria' });
+  $('msg').textContent = error ? 'Erro ao guardar online' : 'Guardado ✓';
+}
+
+async function carregar() {
+  pronto = false; P_FAA = []; P_SAME = []; P_PROV = []; T.faa = T.same = T.prov = '';
+  const { data } = await db.from('listas').select('categoria,texto,dados');
+  (data || []).forEach(r => {
+    T[r.categoria] = r.texto || '';
+    if (r.categoria === 'faa') P_FAA = r.dados || [];
+    if (r.categoria === 'same') P_SAME = r.dados || [];
+    if (r.categoria === 'prov') P_PROV = r.dados || [];
+  });
+  abaAtiva = 'faa'; $('txt').value = T.faa;
+  pronto = true;
+}
+
+async function mostrarCodigo(confirmar) {
+  if (confirmar && !confirm('Gerar um novo código invalida o anterior. Continuar?')) return;
+  const { data, error } = await db.rpc('gerar_codigo_recuperacao');
+  if (error) return alert('Não foi possível gerar o código: ' + error.message);
+  prompt('ANOTE este código. É a única forma de redefinir a sua senha (Ctrl+C para copiar):', data);
+}
+
+/* ===== Relatório de Atividades ===== */
+let REL = [];
+const dtBR = iso => iso.split('-').reverse().join('/');
+const isoHoje = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+
+async function logar(categoria, descricao, detalhe, dataIso, resp) {
+  if (!db || !uid) return false;
+  const { error } = await db.from('relatorio').insert({ data: dataIso || isoHoje(), categoria, descricao, detalhe: detalhe || '', responsavel: resp || nomeUsuario() });
+  if (!error && $('rel').style.display !== 'none') carregarRel();
+  return !error;
+}
+
+async function carregarRel() {
+  const { data } = await db.from('relatorio').select('id,data,categoria,responsavel,descricao,detalhe').order('data', { ascending: false }).order('id', { ascending: false }).limit(500);
+  REL = data || []; filtrarRel();
+}
+
+function filtrarRel() {
+  const q = key($('rel-busca').value.trim());
+  const l = REL.filter(r => (!relCat || r.categoria === relCat) && (!q || key(dtBR(r.data) + ' ' + r.responsavel + ' ' + r.descricao + ' ' + r.detalhe).includes(q)));
+  $('rel-lista').innerHTML = l.length ? l.map(r =>
+    '<div class="lin" style="padding:10px 0;border-bottom:1px solid var(--bd);align-items:flex-start"><div style="flex:1"><b>' + dtBR(r.data) + '</b> — ' + esc(r.descricao) +
+    '<div class="mut">' + (catNome[r.categoria] || r.categoria) + ' · Responsável: ' + esc(r.responsavel || '—') + '</div>' +
+    (r.detalhe ? '<div class="mut">' + esc(r.detalhe) + '</div>' : '') + '</div><button class="x" onclick="apagarRel(' + r.id + ')">Apagar</button></div>'
+  ).join('') : '<p class="mut">Nenhum registo encontrado.</p>';
+}
+
+async function apagarRel(id) {
+  if (!confirm('Apagar este registo?')) return;
+  await db.from('relatorio').delete().eq('id', id); carregarRel();
+}
+
+function abrirRelatorio() {
+  T[abaAtiva] = $('txt').value;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-workspace').classList.add('active');
+  $('wrap-main').style.display = 'none'; $('rel').style.display = 'grid';
+  $('rel-data').value = isoHoje(); $('rel-resp').value = nomeUsuario();
+  carregarRel();
+}
+
+let PERFIL = { nome: '', foto: '' }, relCat = '', tToast;
+const catNome = { faa: 'FAAs', same: 'Pastas / SAME', prov: 'Provisória', nota: 'Anotação' };
+const nomeUsuario = () => PERFIL.nome || currentUser;
+
+function aviso(msg) {
+  const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(tToast); tToast = setTimeout(() => { t.style.display = 'none'; }, 3500);
+}
+
+/* ===== Perfil e Foto ===== */
+const avatarPadrao = n => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#0d9488"/><text x="32" y="42" font-size="30" font-family="Arial" font-weight="700" text-anchor="middle" fill="#fff">' + esc((n || '?')[0].toUpperCase()) + '</text></svg>');
+function aplicarPerfil() {
+  const nome = nomeUsuario();
+  $('user-display').textContent = nome;
+  $('user-display-menu').textContent = nome;
+  const foto = PERFIL.foto || avatarPadrao(nome);
+  $('avatar').src = foto;
+  $('avatar-menu').src = foto;
+}
+async function carregarPerfil() {
+  const { data } = await db.from('perfis').select('nome,foto').maybeSingle();
+  PERFIL = { nome: (data && data.nome) || '', foto: (data && data.foto) || '' }; aplicarPerfil();
+}
+function fecharPerfil() { $('perfil-modal').style.display = 'none'; }
+function escolherFoto(inp) {
+  const f = inp.files[0]; if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas'); c.width = c.height = 160;
+    const m = Math.min(img.width, img.height);
+    c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 160, 160);
+    PERFIL.foto = c.toDataURL('image/jpeg', 0.8); $('perfil-foto').src = PERFIL.foto;
+  };
+  img.src = URL.createObjectURL(f);
+}
+async function salvarPerfil() {
+  PERFIL.nome = $('perfil-nome').value.trim();
+  const { error } = await db.from('perfis').upsert({ user_id: uid, nome: PERFIL.nome, foto: PERFIL.foto, atualizado_em: new Date().toISOString() });
+  if (error) return aviso('Erro ao guardar o perfil');
+  aplicarPerfil(); fecharPerfil(); aviso('Perfil guardado');
+}
+
+/* ===== Ações de Relatório ===== */
+async function salvarRelatorio() {
+  if (!uid) return;
+  let desc, det;
+  if (abaAtiva === 'prov') { if (!P_PROV.length) return aviso('Nada para guardar.'); desc = 'Responsável por guarda provisória'; det = 'Pastas: ' + P_PROV.join(', '); }
+  else if (abaAtiva === 'same') { if (!P_SAME.length) return aviso('Nada para guardar.'); desc = 'Lista de Pastas / SAME (' + P_SAME.length + ')'; det = P_SAME.map(p => [p.same, p.nome].filter(Boolean).join(' ')).join('; '); }
+  else { if (!P_FAA.length) return aviso('Nada para guardar.'); desc = 'Lista de FAAs (' + P_FAA.length + ' pacientes)'; det = P_FAA.map(p => p.nome).join('; '); }
+  const ok = await logar(abaAtiva, desc, det);
+  aviso(ok ? 'Guardado no relatório por ' + nomeUsuario() + ' em ' + hoje() : 'Erro ao guardar no relatório');
+}
+async function adicionarRel() {
+  const t = $('rel-nota').value.trim(); if (!t) return aviso('Escreva o que foi feito.');
+  const resp = $('rel-resp').value.trim() || nomeUsuario();
+  const ok = await logar($('rel-cat').value, t, '', $('rel-data').value || isoHoje(), resp);
+  if (ok) { $('rel-nota').value = ''; aviso('Registado por ' + resp); } else aviso('Erro ao registar');
+}
+function setRelCat(c) {
+  relCat = c;
+  document.querySelectorAll('#rel-cats button').forEach(b => { b.className = b.dataset.c === c ? 'btn' : 'ghost'; });
+  filtrarRel();
+}
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+    e.preventDefault();
+    if (uid && $('screen-workspace').classList.contains('active') && $('wrap-main').style.display !== 'none') salvarRelatorio();
+  }
+});
+
+window.addEventListener('DOMContentLoaded', async () => {
+  if (!db) return;
+  const { data } = await db.auth.getSession();
+  if (data.session) entrar(data.session.user);
+});
+
+function toggleTema() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  const lbl = newTheme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
+  document.querySelectorAll('#theme-label, #theme-label-menu').forEach(el => el.textContent = lbl);
+}
+
+function mudarAba(aba) {
+  T[abaAtiva] = $('txt').value; abaAtiva = aba; $('txt').value = T[aba];
+  $('rel').style.display = 'none'; $('wrap-main').style.display = '';
+  
+  if(aba === 'faa') {
+    $('titulo-input').textContent = '1. Mensagens com FAAs (Nome e Datas)';
+    $('txt').placeholder = 'Cole aqui as mensagens com os nomes e as datas...';
+  } else if(aba === 'same') {
+    $('titulo-input').textContent = '1. Lista de Pastas / SAME';
+    $('txt').placeholder = 'Cole a lista (número, nome ou os dois):\n128499 Vita Cândida\n178483\nDouglas';
+  } else {
+    $('titulo-input').textContent = '1. Lista Provisória (Números de Pasta)';
+    $('txt').placeholder = 'Cole apenas os números das pastas ex:\n128499\n178483\n30025';
+  }
+  render();
+}
+
+const agenda = () => { clearTimeout(tm); tm = setTimeout(ler, 200); };
+
+function ler() {
+  if (abaAtiva === 'faa') lerFAAs();
+  else if (abaAtiva === 'same') lerSAMEs();
+  else lerProvisoria();
+}
+
+function lerFAAs() {
+  const mapa = {}; let cur = null;
+  const nome = n => { 
+    n = tc(n.replace(/[^A-Za-zÀ-ÿ'’\s]/g,' ').trim()); 
+    const k = key(n); 
+    if(!mapa[k] && n.length >= 3) mapa[k] = {nome:n, datas:[]}; 
+    cur = mapa[k]; 
+  };
+  const addData = (p, s) => {
+    const m = s.match(/(\d+)[\/.\-](\d+)[\/.\-](\d+)/); if(!m) return;
+    let d = +m[1], mo = +m[2], y = +m[3];
+    if(y < 100) y += 2000; if(d < 1 || d > 31 || mo < 1 || mo > 12) return;
+    const k = y * 10000 + mo * 100 + d;
+    if(!p.datas.includes(k)) p.datas.push(k);
+  };
+
+  $('txt').value.split(/\r?\n/).forEach(l => {
+    const h = l.match(HEAD); if(h) l = l.slice(h[0].length).replace(/^[^:]{1,40}:\s*/,'');
+    const s = l.split(SPL_DATE);
+    if(s.length < 3) { const t = cl(l); if(t) nome(t); return; }
+    const first = cl(s[0]), last = cl(s[s.length-1]);
+    if(!first && last.split(' ').length >= 2) { nome(last); for(let i=1;i<s.length;i+=2) addData(cur, s[i]); return; }
+    for(let i=0; i<s.length-1; i++) {
+      if(i%2 === 0) { const t = cl(s[i]); if(t) nome(t); }
+      else if(cur) addData(cur, s[i]);
+    }
+  });
+
+  P_FAA = Object.values(mapa).filter(p => p.datas.length).map(p => ({
+    nome: p.nome,
+    datas: p.datas.sort((a,b) => a - b)
+  }));
+  render();
+}
+
+function lerSAMEs() {
+  const lista = [];
+  $('txt').value.split(/\r?\n/).forEach(linha => {
+    let l = linha.trim();
+    if(!l) return;
+    const h = l.match(HEAD); if(h) l = l.slice(h[0].length).replace(/^[^:]{1,40}:\s*/,'');
+    l = l.trim(); if(!l) return;
+    let m;
+    if (m = l.match(/^(\d{1,8})$/)) lista.push({ same: m[1], num: +m[1], nome: '' });
+    else if (m = l.match(/^(\d{1,8})\s+(.+)$/)) lista.push({ same: m[1], num: +m[1], nome: tc(m[2].trim()) });
+    else if (m = l.match(/^(.+?)\s+(\d{1,8})$/)) lista.push({ same: m[2], num: +m[2], nome: tc(m[1].trim()) });
+    else if (/[A-Za-zÀ-ÿ]{2}/.test(l)) lista.push({ same: '', num: null, nome: tc(l) });
+  });
+  P_SAME = lista.sort((a, b) => (a.num ?? 1e12) - (b.num ?? 1e12));
+  render();
+}
+
+function lerProvisoria() {
+  const nums = [];
+  $('txt').value.split(/\r?\n/).forEach(l => {
+    const matches = l.match(/\b\d{1,8}\b/g);
+    if(matches) {
+      matches.forEach(m => {
+        const val = parseInt(m, 10);
+        if(!isNaN(val) && !nums.includes(val)) nums.push(val);
+      });
+    }
+  });
+  P_PROV = nums.sort((a, b) => a - b);
+  render();
+}
+
+function exemplo() {
+  if (abaAtiva === 'faa') {
+    $('txt').value = '[29/10/2026 08:15] Barracão: Maria da Silva 20/05/2024, 12/03/2024\n[29/10/2026 08:16] Barracão: João Pereira\n18/12/2023\n03/11/2023';
+  } else if (abaAtiva === 'same') {
+    $('txt').value = '178483 Douglas\n30025 Simone\n128499 Vita Cândida\nNeymar 133064';
+  } else {
+    $('txt').value = '148352\n148300\n149000\n147820';
+  }
+  ler();
+}
+
+function zerar() {
+  $('txt').value = '';
+  if (abaAtiva === 'faa') P_FAA = [];
+  else if (abaAtiva === 'same') P_SAME = [];
+  else P_PROV = [];
+  render();
+}
+
+function rp(i) {
+  if (abaAtiva === 'faa') P_FAA.splice(i,1);
+  else if (abaAtiva === 'same') P_SAME.splice(i,1);
+  else P_PROV.splice(i,1);
+  render();
+}
+
+function conf() {
+  if (abaAtiva === 'faa') {
+    if (!P_FAA.length) { $('conf').innerHTML = '<p class="mut">Nenhum registo lido.</p>'; return; }
+    $('conf').innerHTML = P_FAA.map((p, i) =>
+      '<div style="margin-top:10px"><div class="lin"><input value="' + esc(p.nome) + '" oninput="P_FAA[' + i + '].nome=this.value;folha()"><button class="x" onclick="rp(' + i + ')">Remover</button></div><div class="items-list">' +
+      p.datas.map(k => '<span class="chip-item">' + fmtData(k) + '</span>').join('') +
+      '</div></div>'
+    ).join('');
+  } else if (abaAtiva === 'same') {
+    if (!P_SAME.length) { $('conf').innerHTML = '<p class="mut">Nenhum registo de SAME lido.</p>'; return; }
+    $('conf').innerHTML = P_SAME.map((p, i) =>
+      '<div style="margin-top:8px" class="lin">' +
+      '<input style="width:110px;font-weight:700" value="' + esc(p.same) + '" oninput="P_SAME[' + i + '].same=this.value;folha()">' +
+      '<input value="' + esc(p.nome) + '" oninput="P_SAME[' + i + '].nome=this.value;folha()">' +
+      '<button class="x" onclick="rp(' + i + ')">Remover</button></div>'
+    ).join('');
+  } else {
+    if (!P_PROV.length) { $('conf').innerHTML = '<p class="mut">Nenhum número lido.</p>'; return; }
+    $('conf').innerHTML = '<div class="items-list">' +
+      P_PROV.map((n, i) => '<span class="chip-item" style="font-size:14px;padding:6px 10px">Pasta: ' + n + ' <button class="x" onclick="rp(' + i + ')">✕</button></span>').join('') +
+      '</div>';
+  }
+}
+function folha() {
+  agendarSalvar();
+  const agora = new Date();
+  const timeStamp = 'documento criado dia ' + hoje() + ' horário ' + agora.toLocaleTimeString('pt-BR');
+
+  if (abaAtiva === 'faa') {
+    const ps = P_FAA.filter(p => p.nome.trim());
+    if (!ps.length) { $('folha').innerHTML = '<p class="vazio">Visualização A4</p>'; return; }
+    $('folha').innerHTML = '<div class="ft"><b>Lista de FAAs</b><span>' + hoje() + '</span></div>' +
+      ps.map(p =>
+        '<div class="pn">' + esc(p.nome.trim()) + '</div><div class="g">' +
+        p.datas.map(k => '<span><i></i>' + fmtData(k) + '</span>').join('') + '</div>'
+      ).join('');
+  } else if (abaAtiva === 'same') {
+    const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim());
+    if (!ps.length) { $('folha').innerHTML = '<p class="vazio">Visualização A4</p>'; return; }
+    $('folha').innerHTML = '<div class="ft"><b>Lista de Pastas / SAME</b><span>' + hoje() + '</span></div>' +
+      '<ul class="same-list">' +
+      ps.map(p => '<li><i></i>' + [p.same ? '<b>' + esc(p.same) + '</b>' : '', esc(p.nome)].filter(Boolean).join(' - ') + '</li>').join('') +
+      '</ul>';
+  } else {
+    if (!P_PROV.length) { $('folha').innerHTML = '<p class="vazio">Visualização A4</p>'; return; }
+    $('folha').innerHTML = '<div class="ft"><b>Provisória de ' + esc(nomeUsuario()) + '</b><span>' + hoje() + '</span></div>' +
+      '<ul class="prov-list">' +
+      P_PROV.map(n => '<li>Pasta: ' + n + '</li>').join('') +
+      '</ul>' +
+      '<div class="prov-footer-stamp">' + timeStamp + '</div>';
+  }
+}
+
+function estado() {
+  const count = abaAtiva === 'faa' ? P_FAA.length : (abaAtiva === 'same' ? P_SAME.length : P_PROV.length);
+  $('gerar').disabled = !count;
+  $('imprimir').disabled = !count; $('btn-salvar-rel').disabled = !count;
+}
+
+function render() { conf(); folha(); estado(); }
+
+function imprimirFolha() { window.print(); }
+
+async function pdf() {
+  if(!window.jspdf) return;
+  const doc = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
+  const L = 15, R = 195, COL = 45, PER = 4; let y = 20;
+
+  if (abaAtiva === 'faa') {
+    const ps = P_FAA.filter(p => p.nome.trim() && p.datas.length);
+    if(!ps.length) return;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('Lista de FAAs', L, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(hoje(), R, y, {align:'right'});
+    y += 14;
+
+    ps.forEach(p => {
+      if(y > 270) { doc.addPage(); y = 20; }
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.text(p.nome.trim(), L, y);
+      doc.setDrawColor(180); doc.line(L, y+2, R, y+2); y += 10;
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(12);
+
+      p.datas.forEach((k, i) => {
+        const c = i % PER;
+        if(i > 0 && c === 0) { y += 9; if(y > 275) { doc.addPage(); y = 20; } }
+        const x = L + c * COL;
+        doc.rect(x, y-4, 4.5, 4.5);
+        doc.text(fmtData(k), x+7, y);
+      });
+      y += 14;
+    });
+  } else if (abaAtiva === 'same') {
+    const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim());
+    if(!ps.length) return;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('Lista de Pastas / SAME', L, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(hoje(), R, y, {align:'right'});
+    y += 14;
+
+    doc.setFontSize(13);
+    ps.forEach((p) => {
+      if(y > 275) { doc.addPage(); y = 20; }
+      doc.rect(L, y-4, 4.5, 4.5);
+      doc.setFont('helvetica', 'bold'); if (p.same) doc.text(String(p.same), L + 8, y);
+      doc.setFont('helvetica', 'normal'); if (p.nome) doc.text((p.same ? ' - ' : '') + p.nome, L + 8 + (p.same ? p.same.length * 3.2 + 2 : 0), y);
+      doc.line(L, y+3, R, y+3);
+      y += 10;
+    });
+  } else {
+    if(!P_PROV.length) return;
+
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('Provisória de ' + nomeUsuario(), L, y);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(hoje(), R, y, {align:'right'});
+    y += 14;
+
+    doc.setFontSize(15); doc.setFont('helvetica', 'bold');
+    P_PROV.forEach((n) => {
+      if(y > 260) { doc.addPage(); y = 20; }
+      doc.text('Pasta: ' + n, L, y);
+      doc.setDrawColor(220); doc.line(L, y+3, R, y+3);
+      y += 12;
+    });
+
+    const agora = new Date();
+    const timeStamp = 'documento criado dia ' + hoje() + ' horário ' + agora.toLocaleTimeString('pt-BR');
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(100);
+    doc.text(timeStamp, R, 285, {align:'right'});
+  }
+
+  const fileName = 'Fluxo-' + abaAtiva.toUpperCase() + '-' + hoje().replace(/\//g,'-') + '.pdf';
+  doc.save(fileName);
+}
+
+document.addEventListener('keydown', e => {
+  if((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); pdf(); }
+});
+</script>
+</body>
+</html>
