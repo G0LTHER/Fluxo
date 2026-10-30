@@ -349,7 +349,7 @@ let fotoBase64 = '';
 let currentUserId = null;
 
 function voltarIndex() {
-  window.location.href = 'indexIncial.html';
+  window.location.href = 'index.html';
 }
 
 function aviso(msg) {
@@ -457,7 +457,6 @@ async function salvarPerfil(e) {
 
 async function carregarEquipe() {
   const container = $('lista-pessoas-container');
-  // Mantém o título fixo
   container.innerHTML = '<div style="font-size: 12px; color: var(--text-mut); margin-top: 10px;">Pessoas adicionadas:</div>';
 
   const { data, error } = await db.from('equipe').select('membro_id');
@@ -470,9 +469,7 @@ async function carregarEquipe() {
     return;
   }
 
-  // Buscar os emails/nomes dos membros na tabela auth (ou perfis)
   for (let item of data) {
-    // Como a tabela auth.users é interna, podemos procurar na tabela perfis se houver, ou exibir o ID/placeholder
     const div = document.createElement('div');
     div.className = 'item-pessoa';
     div.innerHTML = `<span>Membro ID: ${item.membro_id.substring(0,8)}...</span><span style="color: var(--primary-green);">Ativo</span>`;
@@ -499,7 +496,7 @@ async function adicionarPessoa(e) {
 
 async function sairConta() {
   await db.auth.signOut();
-  window.location.href = 'indexIncial.html';
+  window.location.href = 'index.html';
 }
 </script>
 </body>
