@@ -3,9 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fluxo - Organização & Gestão de Prontuários</title>
+<title>Fluxo - Dashboard & Gestão de Prontuários</title>
 <style>
-/* Temas e Variáveis */
 :root[data-theme="light"] {
   --bg: #f8fafc;
   --card: #ffffff;
@@ -14,10 +13,10 @@
   --pri: #0d9488;
   --pri-hover: #0f766e;
   --pri-light: #f0fdf4;
-  --bd: #cbd5e1;
+  --bd: #e2e8f0;
   --shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   --folha-bg: #ffffff;
-  --footer-bg: #ffffff;
+  --sidebar-bg: #ffffff;
 }
 
 :root[data-theme="dark"] {
@@ -31,7 +30,7 @@
   --bd: #334155;
   --shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
   --folha-bg: #ffffff;
-  --footer-bg: #0f172a;
+  --sidebar-bg: #1e293b;
 }
 
 * { box-sizing: border-box; }
@@ -48,7 +47,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Canvas de Fundo Animado */
 #bg-canvas {
   position: fixed;
   top: 0;
@@ -59,13 +57,11 @@ body {
   pointer-events: none;
 }
 
-/* Garantir que o conteúdo fique acima do canvas */
-header, .menu-container, .app-container, footer, .screen {
+.app-layout, footer, .screen {
   position: relative;
   z-index: 2;
 }
 
-/* Telas do App */
 .screen { display: none; }
 .screen.active { display: flex; flex-direction: column; min-height: 100vh; }
 
@@ -82,7 +78,7 @@ header, .menu-container, .app-container, footer, .screen {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   text-align: center;
   background: var(--card);
   padding: 36px 28px;
@@ -97,321 +93,201 @@ header, .menu-container, .app-container, footer, .screen {
   100% { transform: translateY(0); opacity: 1; }
 }
 
-.logo-svg {
-  width: 180px;
-  height: auto;
-  margin-bottom: 16px;
-}
+.logo-svg { width: 180px; height: auto; margin-bottom: 16px; }
 
-.login-card h2 {
-  font-size: 24px;
-  font-weight: 800;
-  margin: 0 0 6px;
-}
+.login-card h2 { font-size: 24px; font-weight: 800; margin: 0 0 6px; }
+.login-card p { color: var(--mut); font-size: 14px; margin: 0 0 20px; }
 
-.login-card p {
-  color: var(--mut);
-  font-size: 14px;
-  margin: 0 0 24px;
-}
-
-.input-login-group {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
+.input-login-group { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.input-wrap { position: relative; width: 100%; }
 .input-login-group input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 2px solid var(--bd);
-  border-radius: 12px;
-  font-size: 16px;
-  background: var(--bg);
-  color: var(--tx);
-  outline: none;
+  width: 100%; padding: 14px 44px 14px 16px; border: 2px solid var(--bd); border-radius: 12px;
+  font-size: 15px; background: var(--bg); color: var(--tx); outline: none; margin: 0;
 }
-
 .input-login-group input:focus { border-color: var(--pri); }
 
+.toggle-password {
+  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: var(--mut); padding: 0;
+  display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;
+}
+.toggle-password svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.toggle-password:hover { color: var(--pri); }
+
 .btn-login {
-  width: 100%;
-  padding: 14px 20px;
-  border-radius: 12px;
-  border: none;
-  background: var(--pri);
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background 0.2s;
+  width: 100%; padding: 14px 20px; border-radius: 12px; border: none;
+  background: var(--pri); color: #ffffff; font-size: 16px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.2s; margin-top: 4px;
 }
 .btn-login:hover { background: var(--pri-hover); }
 
-.btn-adm {
-  background: #0d9488;
-  color: #ffffff;
-  margin-top: 4px;
-}
-.btn-adm:hover { background: #0f766e; }
-
-/* 2. Menu Inicial (Dashboard de Cards) */
-.menu-container {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 24px;
-  width: 100%;
+/* Layout Geral com Sidebar Moderna */
+.app-layout {
+  display: flex;
   flex: 1;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 
-.menu-title {
-  font-size: 26px;
-  font-weight: 800;
-  margin-bottom: 6px;
-}
-
-.menu-subtitle {
-  color: var(--mut);
-  margin-bottom: 28px;
-  font-size: 15px;
-}
-
-.menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.menu-square {
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: 16px;
-  padding: 28px 24px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: var(--shadow);
+aside {
+  width: 260px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--bd);
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
   gap: 12px;
-  text-align: left;
+  padding: 8px 12px 24px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 12px;
 }
 
-.menu-square:hover {
-  transform: translateY(-4px);
-  border-color: var(--pri);
-  box-shadow: 0 12px 25px -5px rgba(13, 148, 136, 0.2);
+.sidebar-brand-icon {
+  width: 36px; height: 36px; background: var(--pri); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 16px;
 }
 
-.menu-square svg {
-  width: 36px;
-  height: 36px;
-  stroke: var(--pri);
-  fill: none;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
+.sidebar-brand span { font-size: 20px; font-weight: 800; color: var(--tx); }
 
-.menu-square h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--tx);
-}
-
-.menu-square p {
-  margin: 0;
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
   color: var(--mut);
-  font-size: 13px;
-  line-height: 1.4;
+  font-weight: 600;
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-/* 3. Header Geral e Dropdown de Perfil */
+.nav-item svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-item:hover { background: var(--bg); color: var(--tx); }
+.nav-item.active {
+  background: var(--pri);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+}
+
+.main-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Header Superior Estilo Dashboard Ref */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 24px;
+  padding: 16px 28px;
   background: var(--card);
   border-bottom: 1px solid var(--bd);
   box-shadow: var(--shadow);
-  flex-wrap: wrap;
-  gap: 8px;
+  gap: 16px;
 }
 
-.brand-header {
+.header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  text-decoration: none;
-  color: var(--tx);
+  gap: 16px;
+  margin-left: auto;
 }
 
-.brand-header svg { width: 36px; height: auto; }
-.brand-header h1 { font-size: 20px; font-weight: 800; margin: 0; }
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.profile-dropdown-container {
-  position: relative;
-  display: inline-block;
-}
-
-.user-profile-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--pri-light);
+.theme-btn-toggle {
+  background: var(--bg);
   border: 1px solid var(--bd);
-  cursor: pointer;
-  padding: 6px 12px;
   border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--tx);
   transition: all 0.2s;
 }
+.theme-btn-toggle:hover { border-color: var(--pri); }
 
-.user-profile-btn:hover { border-color: var(--pri); }
-
-.user-badge {
-  font-weight: 700;
-  font-size: 13px;
-  color: var(--pri);
-}
-
-.dropdown-menu {
-  display: none;
-  position: absolute;
-  right: 0;
-  top: calc(100% + 8px);
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.15);
-  width: 220px;
-  z-index: 100;
-  overflow: hidden;
-  animation: fadeIn 0.2s ease;
-}
-
-.dropdown-menu.show { display: block; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dropdown-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--bd);
-  font-size: 13px;
-  color: var(--mut);
-  background: var(--bg);
-}
-
-.dropdown-item {
-  width: 100%;
-  padding: 12px 16px;
-  background: none;
-  border: none;
-  text-align: left;
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--tx);
-  cursor: pointer;
+.user-profile-area {
   display: flex;
   align-items: center;
   gap: 10px;
-  text-decoration: none;
-  transition: background 0.15s;
+  cursor: default;
 }
-
-.dropdown-item:hover {
+.user-avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
   background: var(--pri-light);
-  color: var(--pri);
+  border: 2px solid var(--pri);
 }
-
-.dropdown-divider {
-  height: 1px;
-  background: var(--bd);
-  margin: 4px 0;
-}
-
-.app-container {
+.user-info-text {
   display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+.user-info-text b { font-size: 13px; color: var(--tx); }
+.user-info-text span { font-size: 11px; color: var(--mut); }
+
+.main-content {
   flex: 1;
-  width: 100%;
-  max-width: 1440px;
-  margin: 0 auto;
+  padding: 24px;
+  overflow-y: auto;
 }
 
 .wrap {
-  flex: 1;
-  padding: 24px;
   display: grid;
-  grid-template-columns: minmax(360px, 5fr) 7fr;
+  grid-template-columns: minmax(360px, 5fr) minmax(0, 7fr);
   gap: 24px;
   align-items: start;
 }
+.col-r { position: sticky; top: 20px; min-width: 0; }
 
-.col-r { position: sticky; top: 20px; }
-
-@media(max-width: 900px) {
-  .wrap { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
+@media(max-width: 1024px) {
+  .app-layout { flex-direction: column; }
+  aside { width: 100%; flex-direction: row; overflow-x: auto; padding: 12px; gap: 4px; }
+  .sidebar-brand { display: none; }
+  .nav-item { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
+  .wrap { grid-template-columns: minmax(0, 1fr); }
   .col-r { position: static; }
-  .user-badge { display: none; }
 }
 
 .card {
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: 12px;
-  padding: 18px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow);
+  background: var(--card); border: 1px solid var(--bd); border-radius: 12px;
+  padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow);
 }
-
-.card h2 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+.card h2 { margin: 0 0 12px; font-size: 16px; font-weight: 700; }
 .mut { color: var(--mut); font-size: 13px; }
 
 textarea, input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--bd);
-  border-radius: 8px;
-  background: var(--bg);
-  color: var(--tx);
-  font: inherit;
-  margin-top: 6px;
-  outline: none;
-  font-size: 15px;
+  width: 100%; padding: 12px; border: 1px solid var(--bd); border-radius: 8px;
+  background: var(--bg); color: var(--tx); font: inherit; margin-top: 6px; outline: none; font-size: 15px;
 }
-
 textarea { min-height: 180px; resize: vertical; }
 
 .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
 
 .btn, .ghost {
-  border-radius: 8px;
-  padding: 10px 16px;
-  font: inherit;
-  font-weight: 700;
-  border: 1px solid transparent;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
+  border-radius: 8px; padding: 10px 16px; font: inherit; font-weight: 700;
+  border: 1px solid transparent; cursor: pointer; font-size: 14px; transition: background 0.2s;
 }
-
 .btn { background: var(--pri); color: #ffffff; }
 .btn:hover { background: var(--pri-hover); }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -419,13 +295,8 @@ textarea { min-height: 180px; resize: vertical; }
 .ghost:hover { background: var(--bg); color: var(--tx); }
 
 .info-box {
-  background: var(--pri-light);
-  border-left: 4px solid var(--pri);
-  padding: 10px 14px;
-  border-radius: 6px;
-  margin-top: 12px;
-  font-size: 13px;
-  color: var(--tx);
+  background: var(--pri-light); border-left: 4px solid var(--pri); padding: 10px 14px;
+  border-radius: 6px; margin-top: 12px; font-size: 13px; color: var(--tx);
 }
 
 .lin { display: flex; align-items: center; gap: 8px; }
@@ -434,71 +305,79 @@ textarea { min-height: 180px; resize: vertical; }
 
 .items-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .chip-item {
-  background: var(--pri-light);
-  color: var(--pri);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 13px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  background: var(--pri-light); color: var(--pri); border-radius: 6px;
+  padding: 4px 10px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;
 }
 
-/* Folha A4 */
+/* Métricas Dashboard */
+.dash-metrics {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;
+}
+.metric-card {
+  background: var(--bg); border: 1px solid var(--bd); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 4px;
+}
+.metric-card span { font-size: 13px; color: var(--mut); font-weight: 600; text-transform: uppercase; }
+.metric-card b { font-size: 26px; font-weight: 800; color: var(--tx); }
+
+/* Barra de formatação da folha */
+.fmt-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px;
+  background: var(--card); border: 1px solid var(--bd); border-radius: 10px;
+  padding: 8px 12px; margin: 0 0 12px; font-size: 13px; color: var(--mut); font-weight: 600;
+}
+.fmt-grp { display: flex; align-items: center; gap: 6px; }
+.fmt-bar .ghost { padding: 6px 12px; }
+.fmt-bar input[type=number] { width: 60px; margin: 0; padding: 6px 4px; text-align: center; font-size: 14px; font-weight: 700; }
+.seg { display: inline-flex; border: 1px solid var(--bd); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; background: var(--bg); color: var(--tx); padding: 6px 12px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--bd); }
+.seg button.on { background: var(--pri); color: #ffffff; }
+
+/* Folha A4: tamanho real (210mm), reduzida na tela só para caber */
+#folha-scroll { max-height: calc(100vh - 260px); min-height: 320px; overflow: auto; scrollbar-gutter: stable; }
 .folha {
-  background: var(--folha-bg);
-  color: #111827;
-  border: 1px solid var(--bd);
-  box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08);
-  border-radius: 6px;
-  padding: 28px;
-  min-height: 500px;
-  max-height: calc(100vh - 160px);
-  overflow: auto;
+  --fs: 12; --cols: 1; --per: 4;
+  width: 210mm; min-height: 297mm; margin: 0 auto; padding: 20mm 15mm;
+  background: var(--folha-bg); color: #111827; border: 1px solid var(--bd);
+  box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08); border-radius: 6px;
+  font-size: calc(var(--fs) * 1pt); line-height: 1.5;
 }
-
-.ft { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; border-bottom: 2px solid #111827; padding-bottom: 8px; }
-.ft b { font-size: 18px; text-transform: uppercase; }
-.ft span { font-size: 12px; color: #4b5563; }
-
-.pn { font-weight: 800; font-size: 16px; border-bottom: 1.5px solid #9ca3af; padding-bottom: 4px; margin-top: 14px; }
-.g { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px 8px; margin: 10px 0 20px; font-size: 14px; }
+.ft { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6mm; border-bottom: 2px solid #111827; padding-bottom: 2mm; }
+.ft b { font-size: calc(var(--fs) * 1.4pt); text-transform: uppercase; }
+.ft span { font-size: 11pt; color: #4b5563; }
+.cols { column-count: var(--cols); column-gap: 8mm; column-fill: balance; }
+.pn { font-weight: 800; font-size: calc((var(--fs) + 2) * 1pt); border-bottom: 1.5px solid #9ca3af; padding-bottom: 0.2em; margin-top: 0.9em; break-after: avoid; }
+.g { display: grid; grid-template-columns: repeat(var(--per), 1fr); gap: 0.6em 0; margin: 0.6em 0 1em; }
+.g span { white-space: nowrap; }
 .g i, .same-list li i {
-  display: inline-block; width: 14px; height: 14px; border: 1.5px solid #111827; border-radius: 2px; margin-right: 6px; vertical-align: -2px;
+  display: inline-block; flex-shrink: 0; width: 1.05em; height: 1.05em; border: 1.5px solid #111827; border-radius: 2px; margin-right: 0.45em; vertical-align: -0.15em;
 }
-.same-list { list-style: none; padding: 0; margin: 12px 0 0; }
-.same-list li { padding: 8px 0; border-bottom: 1px solid #e5e7eb; font-size: 15px; display: flex; align-items: center; }
-.same-list li b { margin-right: 8px; color: #111827; font-weight: 800; }
-
-.prov-list { list-style: none; padding: 0; margin: 16px 0; }
-.prov-list li { font-size: 18px; font-weight: 800; padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #0f172a; }
-.prov-footer-stamp { margin-top: 32px; font-size: 11px; color: #64748b; text-align: right; border-top: 1px dashed #cbd5e1; padding-top: 10px; }
-
-.vazio { color: #9ca3af; text-align: center; margin-top: 120px; font-weight: 500; }
+.same-list { list-style: none; padding: 0; margin: 0; }
+.same-list li { padding: 0.35em 0; border-bottom: 1px solid #e5e7eb; display: flex; align-items: flex-start; break-inside: avoid; }
+.same-list li b { color: #111827; font-weight: 800; }
+.prov-list { list-style: none; padding: 0; margin: 0; }
+.prov-list li { font-weight: 800; padding: 0.4em 0; border-bottom: 1px solid #e5e7eb; color: #0f172a; break-inside: avoid; }
+.prov-footer-stamp { margin-top: 32px; font-size: 10pt; font-weight: 400; color: #64748b; text-align: right; border-top: 1px dashed #cbd5e1; padding-top: 10px; }
+.vazio { color: #9ca3af; text-align: center; margin-top: 120px; font-weight: 500; font-size: 14pt; }
 
 footer {
-  background: var(--footer-bg);
-  border-top: 1px solid var(--bd);
-  padding: 16px 24px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--mut);
+  background: var(--card); border-top: 1px solid var(--bd); padding: 16px 24px; text-align: center; font-size: 13px; color: var(--mut);
 }
 
+@page { size: A4; margin: 20mm 15mm 15mm; }
 @media print {
   body * { visibility: hidden; }
-  .folha, .folha * { visibility: visible; }
-  .folha { position: absolute; left: 0; top: 0; width: 100%; border: none; box-shadow: none; padding: 0; }
+  #folha, #folha * { visibility: visible; }
+  #folha-scroll { max-height: none; overflow: visible; }
+  #folha { position: absolute; left: 0; top: 0; width: 100%; min-height: 0; padding: 0; border: none; box-shadow: none; zoom: 1 !important; }
 }
 </style>
 </head>
 <body>
 
-<!-- Canvas de Fundo com Animação em Tons de Azul -->
 <canvas id="bg-canvas"></canvas>
 
-<!-- 1. TELA DE LOGIN -->
+<!-- 1. TELA DE LOGIN / CADASTRO -->
 <div id="screen-login" class="screen active">
   <div class="login-card">
     <svg class="logo-svg" viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -509,12 +388,34 @@ footer {
     <p id="login-sub">Entre com o seu utilizador e senha.</p>
 
     <form class="input-login-group" onsubmit="enviarAuth(event)">
-      <input type="text" id="username-input" placeholder="Utilizador (ex.: ruan.luz)" required maxlength="30" autocomplete="username" autocapitalize="none">
+      <!-- Campos específicos de Cadastro -->
+      <input type="text" id="nome-input" placeholder="Nome" style="display:none" autocomplete="given-name">
+      <input type="text" id="sobrenome-input" placeholder="Sobrenome" style="display:none" autocomplete="family-name">
+      <input type="email" id="email-cad-input" placeholder="E-mail (@fluxo.com)" style="display:none" autocomplete="email">
+
+      <!-- Login / Utilizador -->
+      <input type="text" id="username-input" placeholder="Utilizador ou E-mail" required autocomplete="username" autocapitalize="none">
+      
+      <!-- Código de Recuperação -->
       <input type="text" id="codigo-input" placeholder="Código de recuperação" style="display:none" autocomplete="off">
-      <input type="password" id="senha-input" placeholder="Senha (mínimo 6 caracteres)" required minlength="6" autocomplete="current-password">
-      <input type="password" id="senha2-input" placeholder="Repita a senha" minlength="6" autocomplete="new-password" style="display:none">
+      
+      <!-- Senha 1 com ícone SVG de olho minimalista -->
+      <div class="input-wrap">
+        <input type="password" id="senha-input" placeholder="Senha (mín. 6 chars com 1 caractere especial)" required minlength="6" autocomplete="current-password">
+        <button type="button" class="toggle-password" onclick="toggleSenha('senha-input', this)" title="Mostrar/Esconder senha">
+          <svg id="icon-senha-input" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
+
+      <!-- Senha 2 (Confirmação para Cadastro / Nova Senha) -->
+      <div class="input-wrap" id="wrap-senha2" style="display:none">
+        <input type="password" id="senha2-input" placeholder="Repita a senha" minlength="6" autocomplete="new-password">
+        <button type="button" class="toggle-password" onclick="toggleSenha('senha2-input', this)" title="Mostrar/Esconder senha">
+          <svg id="icon-senha2-input" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        </button>
+      </div>
+
       <button type="submit" class="btn-login" id="btn-auth">Entrar</button>
-      <button type="button" class="btn-login btn-adm" onclick="loginAdmin()">Entrar Rápido como ADM</button>
       <div id="auth-msg" role="alert" style="min-height:20px;font-size:13px"></div>
       <button type="button" class="ghost" id="btn-modo" onclick="setModo(modo === 'entrar' ? 'cadastro' : 'entrar')">Criar conta</button>
       <button type="button" class="ghost" id="btn-esq" onclick="setModo('reset')">Esqueci a senha</button>
@@ -522,169 +423,163 @@ footer {
   </div>
 </div>
 
-<!-- 2. MENU INICIAL (DASHBOARD DE CARDS) -->
-<div id="screen-menu" class="screen">
-  <header>
-    <div class="brand-header" onclick="irParaMenu()" title="Voltar ao Menu Inicial">
-      <svg viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:auto">
-        <path d="M40 75C70 75 80 35 120 35C160 35 170 60 210 60" stroke="#0d9488" stroke-width="18" stroke-linecap="round"/>
-        <path d="M30 90C60 90 70 50 110 50C150 50 160 75 200 75" stroke="#14b8a6" stroke-width="12" stroke-linecap="round"/>
-      </svg>
-      <h1>Fluxo</h1>
-    </div>
-    
-    <div class="header-actions">
-      <div class="profile-dropdown-container">
-        <button class="user-profile-btn" onclick="toggleDropdown(event)" title="Abrir menu de perfil">
-          <img id="avatar-menu" alt="Perfil" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--pri-light)">
-          <span class="user-badge" id="user-display-menu">Utilizador</span>
-          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div id="profile-dropdown" class="dropdown-menu">
-          <div class="dropdown-header">Minha Conta</div>
-          <a href="perfil.html" class="dropdown-item">⚙️ Configurar Perfil</a>
-          <button class="dropdown-item" onclick="mostrarCodigo(true)">🔑 Código Recuperação</button>
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item" onclick="toggleTema()">🌓 <span id="theme-label-menu">Modo Escuro</span></button>
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item" onclick="sair()" style="color:#dc2626">🚪 Sair da Conta</button>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <div class="menu-container">
-    <div class="menu-title">Menu Inicial</div>
-    <div class="menu-subtitle">Selecione abaixo o módulo ou ferramenta que deseja aceder:</div>
-    
-    <div class="menu-grid">
-      <div class="menu-square" onclick="abrirFerramenta('faa')">
-        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-        <h3>FAAs (Nome e Datas)</h3>
-        <p>Organize e processe mensagens contendo pacientes e datas associadas.</p>
-      </div>
-
-      <div class="menu-square" onclick="abrirFerramenta('same')">
-        <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-        <h3>Pastas / SAME</h3>
-        <p>Gestão e conferência de registos numéricos e nomes de pastas de prontuários.</p>
-      </div>
-
-      <div class="menu-square" onclick="abrirFerramenta('prov')">
-        <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-        <h3>Provisória</h3>
-        <p>Controlo rápido de números de pasta para guarda provisória.</p>
-      </div>
-
-      <div class="menu-square" onclick="abrirFerramenta('rel')">
-        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2m8 0V2a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0H8m9 9l-5 5-3-3"/></svg>
-        <h3>Relatório de Atividades</h3>
-        <p>Consulte o histórico completo de registos e anotações guardadas.</p>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    © 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.
-  </footer>
-</div>
-
-<!-- 3. TELA DE TRABALHO DA FERRAMENTA SELECIONADA -->
+<!-- 2. TELA DE TRABALHO COM SIDEBAR MODERNA -->
 <div id="screen-workspace" class="screen">
-  <header>
-    <div class="brand-header" onclick="irParaMenu()" title="Voltar ao Menu Inicial">
-      <svg viewBox="0 0 300 120" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:32px;height:auto">
-        <path d="M40 75C70 75 80 35 120 35C160 35 170 60 210 60" stroke="#0d9488" stroke-width="18" stroke-linecap="round"/>
-        <path d="M30 90C60 90 70 50 110 50C150 50 160 75 200 75" stroke="#14b8a6" stroke-width="12" stroke-linecap="round"/>
-      </svg>
-      <h1>Fluxo</h1>
-    </div>
-    
-    <div class="header-actions">
-      <button class="theme-toggle-btn ghost" onclick="irParaMenu()" style="background:var(--pri-light);color:var(--pri);border-color:var(--bd);padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer">← Menu Inicial</button>
-      
-      <div class="profile-dropdown-container">
-        <button class="user-profile-btn" onclick="toggleDropdown(event)" title="Abrir menu de perfil">
-          <img id="avatar" alt="Perfil" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:var(--pri-light)">
-          <span class="user-badge" id="user-display">Utilizador</span>
-          <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div id="profile-dropdown-2" class="dropdown-menu">
-          <div class="dropdown-header">Minha Conta</div>
-          <a href="perfil.html" class="dropdown-item">⚙️ Configurar Perfil</a>
-          <button class="dropdown-item" onclick="mostrarCodigo(true)">🔑 Código Recuperação</button>
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item" onclick="toggleTema()">🌓 <span id="theme-label">Modo Escuro</span></button>
-          <div class="dropdown-divider"></div>
-          <button class="dropdown-item" onclick="sair()" style="color:#dc2626">🚪 Sair da Conta</button>
-        </div>
+  <div class="app-layout">
+    <!-- Barra Lateral (Sidebar) estilo Referência -->
+    <aside>
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-icon">F</div>
+        <span>Fluxo</span>
       </div>
-    </div>
-  </header>
 
-  <div class="app-container">
-    <div class="wrap" id="wrap-main" style="width:100%">
-      <section>
-        <div class="card">
-          <h2 id="titulo-input">1. Entrada de Dados</h2>
-          <textarea id="txt" oninput="agenda()" placeholder="Cole o texto aqui..."></textarea>
-          <div class="row">
-            <button class="ghost" onclick="exemplo()">Exemplo</button>
-            <button class="ghost" onclick="zerar()">Limpar</button>
-          </div>
+      <button class="nav-item active" id="nav-dash" onclick="mudarAbaMenu('dash')">
+        <svg viewBox="0 0 24 24"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2m8 0V2a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m8 0H8m9 9l-5 5-3-3"/></svg>
+        Dashboard
+      </button>
+
+      <button class="nav-item" id="nav-faa" onclick="mudarAbaMenu('faa')">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        FAAs (Datas)
+      </button>
+
+      <button class="nav-item" id="nav-same" onclick="mudarAbaMenu('same')">
+        <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+        Pastas / SAME
+      </button>
+
+      <button class="nav-item" id="nav-prov" onclick="mudarAbaMenu('prov')">
+        <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        Provisória
+      </button>
+
+      <div style="flex:1"></div>
+
+      <a href="perfil.html" class="nav-item" style="color: #2563eb;">
+        <svg viewBox="0 0 24 24" style="stroke: #2563eb;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Configurações
+      </a>
+
+      <button class="nav-item" onclick="sair()" style="color: #dc2626;">
+        <svg viewBox="0 0 24 24" style="stroke: #dc2626;"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sign Out
+      </button>
+    </aside>
+
+    <div class="main-content-wrapper">
+      <header>
+        <div style="font-size: 20px; font-weight: 800;" id="page-header-title">Dashboard</div>
+
+        <div class="header-right">
+          <button class="theme-btn-toggle" onclick="toggleTema()" id="theme-btn-label">☀️ Tema</button>
           
-          <div class="info-box">
-            <b>Aviso:</b> Os dados são organizados em sequência automática.
+          <div class="user-profile-area">
+            <img id="avatar" class="user-avatar-circle" alt="Perfil">
+            <div class="user-info-text">
+              <b id="user-display">Utilizador</b>
+              <span id="user-role-badge">Admin</span>
+            </div>
           </div>
+        </div>
+      </header>
+
+      <main class="main-content">
+        <div class="wrap" id="wrap-main">
+          <section>
+            <div class="card">
+              <h2 id="titulo-input">1. Entrada de Dados</h2>
+              <textarea id="txt" oninput="agenda()" placeholder="Cole o texto aqui..."></textarea>
+              <div class="row">
+                <button class="ghost" onclick="exemplo()">Exemplo</button>
+                <button class="ghost" onclick="zerar()">Limpar</button>
+              </div>
+              
+              <div class="info-box">
+                <b>Aviso:</b> Os dados são organizados em sequência automática.
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>2. Conferência de Dados</h2>
+              <p class="mut" style="margin:0 0 8px">Verifique ou edite os itens lidos:</p>
+              <div id="conf"></div>
+            </div>
+          </section>
+
+          <section class="col-r">
+            <div class="row" style="margin:0 0 12px; justify-content: space-between;">
+              <div style="display:flex; gap:8px;">
+                <button id="gerar" class="btn" onclick="pdf()" disabled>Baixar PDF</button>
+                <button id="imprimir" class="ghost" onclick="imprimirFolha()" disabled>Imprimir</button>
+                <button id="btn-salvar-rel" class="btn" onclick="salvarRelatorio()" disabled title="Atalho: Ctrl+S">Salvar no dashboard</button>
+              </div>
+              <span id="msg" class="mut" role="status"></span>
+            </div>
+            
+            <div class="fmt-bar" id="fmt-bar">
+              <div class="fmt-grp">
+                <span>Fonte</span>
+                <button class="ghost" type="button" onclick="mudarFonte(-1)" title="Diminuir a fonte">−</button>
+                <input type="number" id="fmt-fs" min="8" max="28" step="1" onchange="setFonte(this.value)" title="Tamanho da fonte (pt)">
+                <span>pt</span>
+                <button class="ghost" type="button" onclick="mudarFonte(1)" title="Aumentar a fonte">+</button>
+              </div>
+              <div class="fmt-grp">
+                <span>Colunas</span>
+                <div class="seg" id="fmt-cols">
+                  <button type="button" data-c="1" onclick="setColunas(1)">Sem colunas</button>
+                  <button type="button" data-c="2" onclick="setColunas(2)">2 colunas</button>
+                  <button type="button" data-c="3" onclick="setColunas(3)">3 colunas</button>
+                </div>
+              </div>
+              <button class="ghost" type="button" onclick="fmtPadrao()" title="Voltar ao tamanho e colunas originais desta aba">Padrão</button>
+            </div>
+
+            <div id="folha-scroll"><div class="folha" id="folha"></div></div>
+          </section>
         </div>
 
-        <div class="card">
-          <h2>2. Conferência de Dados</h2>
-          <p class="mut" style="margin:0 0 8px">Verifique ou edite os itens lidos:</p>
-          <div id="conf"></div>
-        </div>
-      </section>
+        <div id="rel" style="display:none; width:100%">
+          <div class="dash-metrics">
+            <div class="metric-card">
+              <span>Total Registos</span>
+              <b id="stat-total">0</b>
+            </div>
+            <div class="metric-card">
+              <span>FAAs Registadas</span>
+              <b id="stat-faa">0</b>
+            </div>
+            <div class="metric-card">
+              <span>Pastas / SAME</span>
+              <b id="stat-same">0</b>
+            </div>
+            <div class="metric-card">
+              <span>Provisórias</span>
+              <b id="stat-prov">0</b>
+            </div>
+          </div>
 
-      <section class="col-r">
-        <div class="row" style="margin:0 0 12px; justify-content: space-between;">
-          <div style="display:flex; gap:8px;">
-            <button id="gerar" class="btn" onclick="pdf()" disabled>Baixar PDF</button>
-            <button id="imprimir" class="ghost" onclick="imprimirFolha()" disabled>Imprimir</button>
-            <button id="btn-salvar-rel" class="btn" onclick="salvarRelatorio()" disabled title="Atalho: Ctrl+S">Salvar no relatório</button>
-          </div>
-          <span id="msg" class="mut" role="status"></span>
-        </div>
-        
-        <div class="folha" id="folha"></div>
-      </section>
-    </div>
+          <div class="card">
+            <h2>Painel de Atividades e Histórico</h2>
+            
+            <input id="rel-busca" placeholder="Pesquisar histórico por data, responsável ou texto..." oninput="filtrarRel()" style="margin-bottom: 12px;">
 
-    <div class="wrap" id="rel" style="display:none;grid-template-columns:1fr;width:100%">
-      <section>
-        <div class="card">
-          <h2>Relatório de atividades</h2>
-          <div class="row" id="rel-cats" style="margin-top:0">
-            <button class="btn" data-c="" onclick="setRelCat('')">Todos</button>
-            <button class="ghost" data-c="faa" onclick="setRelCat('faa')">FAAs</button>
-            <button class="ghost" data-c="same" onclick="setRelCat('same')">Pastas / SAME</button>
-            <button class="ghost" data-c="prov" onclick="setRelCat('prov')">Provisória</button>
-            <button class="ghost" data-c="nota" onclick="setRelCat('nota')">Anotações</button>
+            <div class="row">
+              <select id="rel-cat" style="padding:12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit">
+                <option value="prov">Provisória</option><option value="faa">FAAs</option><option value="same">Pastas / SAME</option><option value="nota">Anotação</option>
+              </select>
+              <input type="date" id="rel-data" style="width:auto;margin-top:0">
+              <input id="rel-resp" placeholder="Responsável" style="flex:1;min-width:140px;margin-top:0">
+            </div>
+            <div class="row">
+              <input id="rel-nota" placeholder="O que foi feito? (ex.: Responsável por guarda provisória)" style="flex:1;min-width:220px;margin-top:0" onkeydown="if(event.key==='Enter')adicionarRel()">
+              <button class="btn" onclick="adicionarRel()">Adicionar Atividade</button>
+            </div>
+            
+            <div id="rel-lista" style="margin-top:16px"></div>
           </div>
-          <input id="rel-busca" placeholder="Pesquisar por data (15/05/2026), responsável, nome ou texto..." oninput="filtrarRel()">
-          <div class="row">
-            <select id="rel-cat" style="padding:12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit">
-              <option value="prov">Provisória</option><option value="faa">FAAs</option><option value="same">Pastas / SAME</option><option value="nota">Anotação</option>
-            </select>
-            <input type="date" id="rel-data" style="width:auto;margin-top:0">
-            <input id="rel-resp" placeholder="Responsável" style="flex:1;min-width:140px;margin-top:0">
-          </div>
-          <div class="row">
-            <input id="rel-nota" placeholder="O que foi feito? (ex.: Responsável por guarda provisória)" style="flex:1;min-width:220px;margin-top:0" onkeydown="if(event.key==='Enter')adicionarRel()">
-            <button class="btn" onclick="adicionarRel()">Adicionar</button>
-          </div>
-          <div id="rel-lista" style="margin-top:14px"></div>
         </div>
-      </section>
+      </main>
     </div>
   </div>
 
@@ -699,7 +594,7 @@ footer {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 let currentUser = "Utilizador";
-let abaAtiva = 'faa';
+let abaAtiva = 'dash';
 let P_FAA = [], P_SAME = [], P_PROV = [], tm;
 
 const $ = id => document.getElementById(id);
@@ -714,37 +609,34 @@ const tc = s => s.toLowerCase().replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase()
 const fmtData = k => String(k%100).padStart(2,'0') + '/' + String(Math.floor(k/100)%100).padStart(2,'0') + '/' + Math.floor(k/10000);
 const hoje = () => new Date().toLocaleDateString('pt-BR');
 
-/* Controle do Menu Dropdown do Perfil */
-function toggleDropdown(e) {
-  e.stopPropagation();
-  document.querySelectorAll('.dropdown-menu').forEach(m => {
-    if (m !== e.currentTarget.nextElementSibling) m.classList.remove('show');
-  });
-  const menu = e.currentTarget.nextElementSibling;
-  if (menu) menu.classList.toggle('show');
-}
-
-window.addEventListener('click', () => {
-  document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
-});
-
-/* Navegação entre Menu e Área de Trabalho */
-function irParaMenu() {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $('screen-menu').classList.add('active');
-}
-
-function abrirFerramenta(aba) {
-  if (aba === 'rel') {
-    abrirRelatorio();
-    return;
+function toggleSenha(idInput, btn) {
+  const input = $(idInput);
+  const svg = $('icon-' + idInput);
+  if (input.type === 'password') {
+    input.type = 'text';
+    svg.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+  } else {
+    input.type = 'password';
+    svg.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
   }
-  mudarAba(aba);
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $('screen-workspace').classList.add('active');
 }
 
-/* Animação Fluida de Partículas em Tons de Azul no Canvas de Fundo */
+function mudarAbaMenu(aba) {
+  document.querySelectorAll('.nav-item').forEach(el => {
+    if(!el.getAttribute('href') && el.getAttribute('onclick')?.includes('mudarAbaMenu')) el.classList.remove('active');
+  });
+  
+  if (aba === 'dash') {
+    $('nav-dash').classList.add('active');
+    $('page-header-title').textContent = 'Dashboard';
+    abrirRelatorio();
+  } else {
+    $('nav-' + aba).classList.add('active');
+    $('page-header-title').textContent = aba === 'faa' ? 'FAAs (Datas)' : (aba === 'same' ? 'Pastas / SAME' : 'Provisória');
+    mudarAba(aba);
+  }
+}
+
 function initBgAnimation() {
   const canvas = $('bg-canvas');
   if (!canvas) return;
@@ -768,7 +660,6 @@ function initBgAnimation() {
       radius: Math.random() * 130 + 50,
       vx: (Math.random() - 0.5) * 0.4,
       vy: (Math.random() - 0.5) * 0.4,
-      // Cores ajustadas para tons de azul suave e moderno
       color: i % 2 === 0 ? 'rgba(37, 99, 235, 0.06)' : 'rgba(14, 165, 233, 0.05)'
     });
   }
@@ -810,7 +701,7 @@ window.addEventListener('DOMContentLoaded', initBgAnimation);
 /* ===== Supabase e Lógica do App ===== */
 const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
-const DOMINIO = 'fluxo.app';
+const DOMINIO = 'fluxo.com';
 const db = SUPABASE_URL.startsWith('http') ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 let modo = 'entrar', uid = null, tSave, pronto = false;
 const T = { faa: '', same: '', prov: '' };
@@ -818,93 +709,119 @@ const T = { faa: '', same: '', prov: '' };
 const msgAuth = (t, ok) => { $('auth-msg').textContent = t; $('auth-msg').style.color = ok ? '#059669' : '#dc2626'; };
 
 function setModo(m) {
-  modo = m; const cad = m === 'cadastro', rst = m === 'reset';
-  $('senha2-input').style.display = cad ? '' : 'none';
+  modo = m; 
+  const cad = m === 'cadastro', rst = m === 'reset';
+  
+  $('nome-input').style.display = cad ? '' : 'none';
+  $('sobrenome-input').style.display = cad ? '' : 'none';
+  $('email-cad-input').style.display = cad ? '' : 'none';
+  $('wrap-senha2').style.display = cad ? '' : (rst ? '' : 'none');
   $('codigo-input').style.display = rst ? '' : 'none';
-  $('senha-input').placeholder = rst ? 'Nova senha (mínimo 6 caracteres)' : 'Senha (mínimo 6 caracteres)';
-  $('senha-input').autocomplete = m === 'entrar' ? 'current-password' : 'new-password';
+
+  if (cad) {
+    $('nome-input').required = true;
+    $('sobrenome-input').required = true;
+    $('email-cad-input').required = true;
+    $('senha2-input').required = true;
+  } else {
+    $('nome-input').required = false;
+    $('sobrenome-input').required = false;
+    $('email-cad-input').required = false;
+    $('senha2-input').required = false;
+  }
+
+  $('senha-input').placeholder = rst ? 'Nova senha (mín. 6 chars com 1 caractere especial)' : 'Senha (mínimo 6 caracteres)';
   $('btn-auth').textContent = cad ? 'Criar conta' : rst ? 'Redefinir senha' : 'Entrar';
   $('btn-modo').textContent = m === 'entrar' ? 'Criar conta' : 'Já tenho conta';
   $('btn-esq').style.display = m === 'entrar' ? '' : 'none';
-  $('login-sub').textContent = cad ? 'Escolha um utilizador único e uma senha.' : rst ? 'Informe o utilizador, o código de recuperação e a nova senha.' : 'Entre com o seu utilizador e senha.';
+  $('login-sub').textContent = cad ? 'Preencha os dados de cadastro.' : rst ? 'Informe o utilizador, o código e a nova senha.' : 'Entre com o seu utilizador e senha.';
   msgAuth('');
 }
 
 async function enviarAuth(e) {
   e.preventDefault();
   if (!db) return msgAuth('Falta configurar SUPABASE_URL e SUPABASE_KEY no código.');
-  const u = key($('username-input').value.trim()), s = $('senha-input').value;
-  if (!/^[a-z0-9._-]{3,30}$/.test(u)) return msgAuth('Utilizador: 3 a 30 caracteres, só letras, números, ponto, _ ou -.');
+  
+  const inputVal = $('username-input').value.trim();
+  const email = inputVal.includes('@') ? inputVal : (key(inputVal) + '@' + DOMINIO);
+  const u = key(inputVal.split('@')[0]);
+  const s = $('senha-input').value;
+  
+  if (!/^[a-z0-9._-]{3,30}$/.test(u)) return msgAuth('Utilizador: 3 a 30 caracteres válidos.');
   if (s.length < 6) return msgAuth('A senha precisa de ter ao menos 6 caracteres.');
-  if (modo === 'cadastro' && s !== $('senha2-input').value) return msgAuth('As senhas não coincidem.');
+  
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>\-_+=~`[\]\\/|;']/.test(s);
+  if (!hasSpecialChar) return msgAuth('A senha deve conter pelo menos um caractere especial (ex: !, @, #, $, etc.).');
+
+  if (modo === 'cadastro') {
+    if (s !== $('senha2-input').value) return msgAuth('As senhas não coincidem.');
+  }
+
   $('btn-auth').disabled = true; msgAuth('A aguardar...', true);
-  const email = u + '@' + DOMINIO;
+
   if (modo === 'reset') {
     const { data: ok, error: er } = await db.rpc('redefinir_senha', { p_usuario: u, p_codigo: $('codigo-input').value, p_nova: s });
     if (er || !ok) { $('btn-auth').disabled = false; return msgAuth('Utilizador ou código de recuperação incorreto.'); }
   }
-  const { data, error } = modo === 'cadastro'
-    ? await db.auth.signUp({ email, password: s, options: { data: { usuario: u } } })
+
+  const metadata = modo === 'cadastro' ? { 
+    usuario: u, 
+    nome: $('nome-input').value.trim(), 
+    sobrenome: $('sobrenome-input').value.trim() 
+  } : { usuario: u };
+
+  const isCadastro = (modo === 'cadastro'), isReset = (modo === 'reset');
+  const { data, error } = isCadastro
+    ? await db.auth.signUp({ email, password: s, options: { data: metadata } })
     : await db.auth.signInWithPassword({ email, password: s });
+    
   $('btn-auth').disabled = false;
   if (error) {
     const m = error.message.toLowerCase();
-    return msgAuth(m.includes('already') ? 'Esse utilizador já existe. Escolha outro.' : m.includes('invalid login') ? 'Utilizador ou senha incorretos.' : 'Erro: ' + error.message);
+    return msgAuth(m.includes('already') ? 'Esse e-mail ou utilizador já existe.' : m.includes('invalid login') ? 'Utilizador ou senha incorretos.' : 'Erro: ' + error.message);
   }
   if (!data.session) return msgAuth('Conta criada! Faça login.');
-  const novo = modo !== 'entrar';
+  
+  // Se for cadastro, redireciona diretamente para perfil.html
+  if (isCadastro) {
+    window.location.href = 'perfil.html';
+    return;
+  }
+
+  // código de recuperação é de uso único: leva para o perfil gerar outro
+  if (isReset) {
+    window.location.href = 'perfil.html#recuperacao';
+    return;
+  }
+
   await entrar(data.session.user);
-  if (novo) mostrarCodigo();
 }
 
-async function loginAdmin() {
-  if (!db) return msgAuth('Falta configurar o Supabase.');
-  $('username-input').value = 'adm';
-  $('senha-input').value = '123456';
-  msgAuth('A entrar como ADM...', true);
-  
-  const email = 'adm@' + DOMINIO;
-  let { data, error } = await db.auth.signInWithPassword({ email, password: '123456' });
-  
-  if (error) {
-    const { data: dataUp, error: errUp } = await db.auth.signUp({ email, password: '123456', options: { data: { usuario: 'adm' } } });
-    if (errUp) {
-      msgAuth('Erro no acesso ADM: ' + errUp.message);
-      return;
-    }
-    if (dataUp.session) {
-      entrar(dataUp.session.user);
-      return;
-    }
-    const { data: dataTry2 } = await db.auth.signInWithPassword({ email, password: '123456' });
-    if (dataTry2.session) {
-      entrar(dataTry2.session.user);
-    } else {
-      msgAuth('Conta ADM criada! Clique novamente no botão.');
-    }
-  } else if (data.session) {
-    entrar(data.session.user);
-  }
+let tPresenca;
+function iniciarPresenca() {
+  clearInterval(tPresenca);
+  const ping = () => db.rpc('marcar_presenca').then(() => {}, () => {});
+  ping(); tPresenca = setInterval(ping, 60000);
 }
 
 async function entrar(user) {
   uid = user.id;
   currentUser = tc(user.email.split('@')[0]);
   $('user-display').textContent = currentUser;
-  $('user-display-menu').textContent = currentUser;
   
   $('screen-login').classList.remove('active');
-  $('screen-workspace').classList.remove('active');
-  $('screen-menu').classList.add('active');
+  $('screen-workspace').classList.add('active');
   
+  iniciarPresenca();
   await carregarPerfil();
   await carregar();
+  abrirRelatorio();
 }
 
 async function sair() {
-  clearTimeout(tSave);
+  clearTimeout(tSave); clearInterval(tPresenca);
   if (pronto) await salvar();
-  pronto = false; await db.auth.signOut(); uid = null; PERFIL = { nome: '', foto: '' };
+  pronto = false; await db.auth.signOut(); uid = null;
   P_FAA = []; P_SAME = []; P_PROV = []; T.faa = T.same = T.prov = ''; $('txt').value = '';
   $('senha-input').value = ''; $('senha2-input').value = ''; $('codigo-input').value = ''; setModo('entrar');
   
@@ -947,48 +864,124 @@ async function mostrarCodigo(confirmar) {
   prompt('ANOTE este código. É a única forma de redefinir a sua senha (Ctrl+C para copiar):', data);
 }
 
-/* ===== Relatório de Atividades ===== */
+/* ===== Relatório & Dashboard ===== */
 let REL = [];
 const dtBR = iso => iso.split('-').reverse().join('/');
 const isoHoje = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
 async function logar(categoria, descricao, detalhe, dataIso, resp) {
   if (!db || !uid) return false;
-  const { error } = await db.from('relatorio').insert({ data: dataIso || isoHoje(), categoria, descricao, detalhe: detalhe || '', responsavel: resp || nomeUsuario() });
+  const { error } = await db.from('relatorio').insert({
+    data: dataIso || isoHoje(),
+    categoria,
+    descricao,
+    detalhe: detalhe || '',
+    responsavel: resp || nomeUsuario()
+  });
   if (!error && $('rel').style.display !== 'none') carregarRel();
   return !error;
 }
 
 async function carregarRel() {
-  const { data } = await db.from('relatorio').select('id,data,categoria,responsavel,descricao,detalhe').order('data', { ascending: false }).order('id', { ascending: false }).limit(500);
-  REL = data || []; filtrarRel();
+  const { data } = await db.from('relatorio')
+    .select('id, user_id, data, categoria, responsavel, descricao, detalhe')
+    .order('data', { ascending: false })
+    .order('id', { ascending: false })
+    .limit(500);
+  REL = data || [];
+  atualizarMetricasDashboard();
+  filtrarRel();
+}
+
+function atualizarMetricasDashboard() {
+  const total = REL.length;
+  const faa = REL.filter(r => r.categoria === 'faa').length;
+  const same = REL.filter(r => r.categoria === 'same').length;
+  const prov = REL.filter(r => r.categoria === 'prov').length;
+
+  $('stat-total').textContent = total;
+  $('stat-faa').textContent = faa;
+  $('stat-same').textContent = same;
+  $('stat-prov').textContent = prov;
 }
 
 function filtrarRel() {
   const q = key($('rel-busca').value.trim());
-  const l = REL.filter(r => (!relCat || r.categoria === relCat) && (!q || key(dtBR(r.data) + ' ' + r.responsavel + ' ' + r.descricao + ' ' + r.detalhe).includes(q)));
-  $('rel-lista').innerHTML = l.length ? l.map(r =>
-    '<div class="lin" style="padding:10px 0;border-bottom:1px solid var(--bd);align-items:flex-start"><div style="flex:1"><b>' + dtBR(r.data) + '</b> — ' + esc(r.descricao) +
-    '<div class="mut">' + (catNome[r.categoria] || r.categoria) + ' · Responsável: ' + esc(r.responsavel || '—') + '</div>' +
-    (r.detalhe ? '<div class="mut">' + esc(r.detalhe) + '</div>' : '') + '</div><button class="x" onclick="apagarRel(' + r.id + ')">Apagar</button></div>'
-  ).join('') : '<p class="mut">Nenhum registo encontrado.</p>';
+  const filtrados = REL.filter(r => 
+    (!q || key(dtBR(r.data) + ' ' + r.responsavel + ' ' + r.descricao + ' ' + r.detalhe).includes(q))
+  );
+
+  $('rel-lista').innerHTML = filtrados.length ? filtrados.map(r => `
+    <div class="lin" style="padding: 12px 0; border-bottom: 1px solid var(--bd); align-items: flex-start;">
+      <div style="flex: 1;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <b style="font-size: 14px; color: var(--tx);">${dtBR(r.data)} — ${esc(r.descricao)}</b>
+        </div>
+        <div class="mut" style="font-size: 13px; margin-bottom: 2px;">
+          <span style="font-weight: 600; color: var(--pri);">${catNome[r.categoria] || r.categoria}</span> · Responsável: <b style="color: var(--tx);">${esc(r.responsavel || '—')}</b>
+        </div>
+        ${r.detalhe ? `<div style="font-size: 13px; color: var(--mut); background: var(--bg); padding: 8px 12px; border-radius: 6px; margin-top: 6px; border: 1px solid var(--bd); line-height: 1.5;">${esc(r.detalhe)}</div>` : ''}
+      </div>
+      ${r.user_id === uid ? `<button class="x" onclick="apagarRel(${r.id})" title="Apagar registo" style="padding: 4px 8px;">✕</button>` : ''}
+    </div>
+  `).join('') : '<p class="mut" style="text-align:center; padding: 20px;">Nenhum registo encontrado.</p>';
 }
 
 async function apagarRel(id) {
-  if (!confirm('Apagar este registo?')) return;
-  await db.from('relatorio').delete().eq('id', id); carregarRel();
+  if (!confirm('Deseja realmente apagar este registo do relatório?')) return;
+  const { error } = await db.from('relatorio').delete().eq('id', id);
+  if (error) {
+    aviso('Erro ao apagar registo.');
+  } else {
+    aviso('Registo apagado com sucesso.');
+    carregarRel();
+  }
+}
+
+async function salvarRelatorio() {
+  if (!uid) return;
+  let desc, det;
+  
+  if (abaAtiva === 'prov') {
+    if (!P_PROV.length) return aviso('Nada para guardar.');
+    desc = `Guarda Provisória (${P_PROV.length} pastas)`;
+    det = 'Pastas registadas: ' + P_PROV.join(', ');
+  } else if (abaAtiva === 'same') {
+    if (!P_SAME.length) return aviso('Nada para guardar.');
+    desc = `Lista de Pastas / SAME (${P_SAME.length} itens)`;
+    det = P_SAME.map(p => [p.same ? `[${p.same}]` : '', p.nome].filter(Boolean).join(' ')).join('; ');
+  } else {
+    if (!P_FAA.length) return aviso('Nada para guardar.');
+    desc = `Lista de FAAs (${P_FAA.length} pacientes)`;
+    det = P_FAA.map(p => `${p.nome} (${p.datas.length} datas)`).join('; ');
+  }
+
+  const ok = await logar(abaAtiva, desc, det);
+  aviso(ok ? `Guardado no dashboard por ${nomeUsuario()}!` : 'Erro ao guardar no relatório.');
+}
+
+async function adicionarRel() {
+  const t = $('rel-nota').value.trim();
+  if (!t) return aviso('Escreva o que foi feito.');
+  const resp = $('rel-resp').value.trim() || nomeUsuario();
+  const ok = await logar($('rel-cat').value, t, '', $('rel-data').value || isoHoje(), resp);
+  if (ok) {
+    $('rel-nota').value = '';
+    aviso(`Atividade registada por ${resp}!`);
+  } else {
+    aviso('Erro ao registar atividade.');
+  }
 }
 
 function abrirRelatorio() {
   T[abaAtiva] = $('txt').value;
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $('screen-workspace').classList.add('active');
-  $('wrap-main').style.display = 'none'; $('rel').style.display = 'grid';
+  $('wrap-main').style.display = 'none';
+  $('rel').style.display = 'block';
   $('rel-data').value = isoHoje(); $('rel-resp').value = nomeUsuario();
   carregarRel();
 }
 
-let PERFIL = { nome: '', foto: '' }, relCat = '', tToast;
+let PERFIL = { nome: '', foto: '' }, tToast;
 const catNome = { faa: 'FAAs', same: 'Pastas / SAME', prov: 'Provisória', nota: 'Anotação' };
 const nomeUsuario = () => PERFIL.nome || currentUser;
 
@@ -997,60 +990,19 @@ function aviso(msg) {
   clearTimeout(tToast); tToast = setTimeout(() => { t.style.display = 'none'; }, 3500);
 }
 
-/* ===== Perfil e Foto ===== */
+/* ===== Perfil ===== */
 const avatarPadrao = n => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#0d9488"/><text x="32" y="42" font-size="30" font-family="Arial" font-weight="700" text-anchor="middle" fill="#fff">' + esc((n || '?')[0].toUpperCase()) + '</text></svg>');
 function aplicarPerfil() {
   const nome = nomeUsuario();
   $('user-display').textContent = nome;
-  $('user-display-menu').textContent = nome;
   const foto = PERFIL.foto || avatarPadrao(nome);
   $('avatar').src = foto;
-  $('avatar-menu').src = foto;
 }
 async function carregarPerfil() {
-  const { data } = await db.from('perfis').select('nome,foto').maybeSingle();
+  const { data } = await db.from('perfis').select('nome,foto').eq('user_id', uid).maybeSingle();
   PERFIL = { nome: (data && data.nome) || '', foto: (data && data.foto) || '' }; aplicarPerfil();
 }
-function fecharPerfil() { $('perfil-modal').style.display = 'none'; }
-function escolherFoto(inp) {
-  const f = inp.files[0]; if (!f) return;
-  const img = new Image();
-  img.onload = () => {
-    const c = document.createElement('canvas'); c.width = c.height = 160;
-    const m = Math.min(img.width, img.height);
-    c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 160, 160);
-    PERFIL.foto = c.toDataURL('image/jpeg', 0.8); $('perfil-foto').src = PERFIL.foto;
-  };
-  img.src = URL.createObjectURL(f);
-}
-async function salvarPerfil() {
-  PERFIL.nome = $('perfil-nome').value.trim();
-  const { error } = await db.from('perfis').upsert({ user_id: uid, nome: PERFIL.nome, foto: PERFIL.foto, atualizado_em: new Date().toISOString() });
-  if (error) return aviso('Erro ao guardar o perfil');
-  aplicarPerfil(); fecharPerfil(); aviso('Perfil guardado');
-}
 
-/* ===== Ações de Relatório ===== */
-async function salvarRelatorio() {
-  if (!uid) return;
-  let desc, det;
-  if (abaAtiva === 'prov') { if (!P_PROV.length) return aviso('Nada para guardar.'); desc = 'Responsável por guarda provisória'; det = 'Pastas: ' + P_PROV.join(', '); }
-  else if (abaAtiva === 'same') { if (!P_SAME.length) return aviso('Nada para guardar.'); desc = 'Lista de Pastas / SAME (' + P_SAME.length + ')'; det = P_SAME.map(p => [p.same, p.nome].filter(Boolean).join(' ')).join('; '); }
-  else { if (!P_FAA.length) return aviso('Nada para guardar.'); desc = 'Lista de FAAs (' + P_FAA.length + ' pacientes)'; det = P_FAA.map(p => p.nome).join('; '); }
-  const ok = await logar(abaAtiva, desc, det);
-  aviso(ok ? 'Guardado no relatório por ' + nomeUsuario() + ' em ' + hoje() : 'Erro ao guardar no relatório');
-}
-async function adicionarRel() {
-  const t = $('rel-nota').value.trim(); if (!t) return aviso('Escreva o que foi feito.');
-  const resp = $('rel-resp').value.trim() || nomeUsuario();
-  const ok = await logar($('rel-cat').value, t, '', $('rel-data').value || isoHoje(), resp);
-  if (ok) { $('rel-nota').value = ''; aviso('Registado por ' + resp); } else aviso('Erro ao registar');
-}
-function setRelCat(c) {
-  relCat = c;
-  document.querySelectorAll('#rel-cats button').forEach(b => { b.className = b.dataset.c === c ? 'btn' : 'ghost'; });
-  filtrarRel();
-}
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
     e.preventDefault();
@@ -1068,13 +1020,12 @@ function toggleTema() {
   const currentTheme = document.documentElement.getAttribute('data-theme');
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', newTheme);
-  const lbl = newTheme === 'dark' ? 'Modo Claro' : 'Modo Escuro';
-  document.querySelectorAll('#theme-label, #theme-label-menu').forEach(el => el.textContent = lbl);
+  $('theme-btn-label').textContent = newTheme === 'dark' ? '🌙 Escuro' : '☀️ Claro';
 }
 
 function mudarAba(aba) {
   T[abaAtiva] = $('txt').value; abaAtiva = aba; $('txt').value = T[aba];
-  $('rel').style.display = 'none'; $('wrap-main').style.display = '';
+  $('rel').style.display = 'none'; $('wrap-main').style.display = 'grid';
   
   if(aba === 'faa') {
     $('titulo-input').textContent = '1. Mensagens com FAAs (Nome e Datas)';
@@ -1213,34 +1164,84 @@ function conf() {
       '</div>';
   }
 }
-function folha() {
-  agendarSalvar();
-  const agora = new Date();
-  const timeStamp = 'documento criado dia ' + hoje() + ' horário ' + agora.toLocaleTimeString('pt-BR');
+
+/* ===== Formatação da folha A4 (fonte e colunas) ===== */
+const FS_MIN = 8, FS_MAX = 28, MM = 0.3528;                 // MM = 1pt em milímetros
+const PG = { L: 15, R: 195, TOP: 20, BOT: 280, GAP: 8 };    // margens da página A4 (mm)
+const FMT_PADRAO = { faa: { fs: 12, cols: 1 }, same: { fs: 13, cols: 1 }, prov: { fs: 15, cols: 1 } };
+const FMT = JSON.parse(JSON.stringify(FMT_PADRAO));
+(function carregarFmt() {
+  try {
+    const s = JSON.parse(localStorage.getItem('fluxo_fmt') || '{}');
+    Object.keys(FMT).forEach(k => {
+      if (!s[k]) return;
+      const fs = Math.round(+s[k].fs), cols = +s[k].cols;
+      if (fs >= FS_MIN && fs <= FS_MAX) FMT[k].fs = fs;
+      if (cols >= 1 && cols <= 3) FMT[k].cols = cols;
+    });
+  } catch (e) {}
+})();
+
+const fmtAtual = () => FMT[abaAtiva] || FMT.faa;
+const largCol = n => (PG.R - PG.L - PG.GAP * (n - 1)) / n;                       // largura de cada coluna (mm)
+const porLinha = f => Math.min(4, Math.max(1, Math.floor(largCol(f.cols) / (7.6 * f.fs * MM))));  // datas por linha (FAAs)
+
+function salvarFmt() { try { localStorage.setItem('fluxo_fmt', JSON.stringify(FMT)); } catch (e) {} }
+function fmtUI() {
+  const f = fmtAtual();
+  $('fmt-fs').value = f.fs;
+  document.querySelectorAll('#fmt-cols button').forEach(b => b.classList.toggle('on', +b.dataset.c === f.cols));
+}
+function setFonte(v) {
+  v = Math.round(+v); if (!isFinite(v)) return fmtUI();
+  fmtAtual().fs = Math.min(FS_MAX, Math.max(FS_MIN, v));
+  salvarFmt(); fmtUI(); desenharFolha();
+}
+function mudarFonte(d) { setFonte(fmtAtual().fs + d); }
+function setColunas(n) { fmtAtual().cols = n; salvarFmt(); fmtUI(); desenharFolha(); }
+function fmtPadrao() {
+  if (!FMT_PADRAO[abaAtiva]) return;
+  FMT[abaAtiva] = Object.assign({}, FMT_PADRAO[abaAtiva]);
+  salvarFmt(); fmtUI(); desenharFolha();
+}
+
+function ajustarZoom() {
+  const w = $('folha-scroll').clientWidth;
+  if (w) $('folha').style.zoom = Math.min(1, Math.max(0.3, (w - 2) / 793.7));   // 210mm = 793,7px
+}
+window.addEventListener('resize', ajustarZoom);
+
+function folha() { agendarSalvar(); desenharFolha(); }
+
+function desenharFolha() {
+  const f = fmtAtual(), el = $('folha');
+  el.style.setProperty('--fs', f.fs);
+  el.style.setProperty('--cols', f.cols);
+  el.style.setProperty('--per', porLinha(f));
+  const timeStamp = 'documento criado dia ' + hoje() + ' horário ' + new Date().toLocaleTimeString('pt-BR');
+  let h = '';
 
   if (abaAtiva === 'faa') {
     const ps = P_FAA.filter(p => p.nome.trim());
-    if (!ps.length) { $('folha').innerHTML = '<p class="vazio">Visualização A4</p>'; return; }
-    $('folha').innerHTML = '<div class="ft"><b>Lista de FAAs</b><span>' + hoje() + '</span></div>' +
+    if (ps.length) h = '<div class="ft"><b>Lista de FAAs</b><span>' + hoje() + '</span></div><div class="cols">' +
       ps.map(p =>
-        '<div class="pn">' + esc(p.nome.trim()) + '</div><div class="g">' +
-        p.datas.map(k => '<span><i></i>' + fmtData(k) + '</span>').join('') + '</div>'
-      ).join('');
+        '<div class="blk"><div class="pn">' + esc(p.nome.trim()) + '</div><div class="g">' +
+        p.datas.map(k => '<span><i></i>' + fmtData(k) + '</span>').join('') + '</div></div>'
+      ).join('') + '</div>';
   } else if (abaAtiva === 'same') {
     const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim());
-    if (!ps.length) { $('folha').innerHTML = '<p class="vazio">Visualização A4</p>'; return; }
-    $('folha').innerHTML = '<div class="ft"><b>Lista de Pastas / SAME</b><span>' + hoje() + '</span></div>' +
+    if (ps.length) h = '<div class="ft"><b>Lista de Pastas / SAME</b><span>' + hoje() + '</span></div><div class="cols">' +
       '<ul class="same-list">' +
-      ps.map(p => '<li><i></i>' + [p.same ? '<b>' + esc(p.same) + '</b>' : '', esc(p.nome)].filter(Boolean).join(' - ') + '</li>').join('') +
-      '</ul>';
-  } else {
-    if (!P_PROV.length) { $('folha').innerHTML = '<p class="vazio">Visualização A4</p>'; return; }
-    $('folha').innerHTML = '<div class="ft"><b>Provisória de ' + esc(nomeUsuario()) + '</b><span>' + hoje() + '</span></div>' +
-      '<ul class="prov-list">' +
-      P_PROV.map(n => '<li>Pasta: ' + n + '</li>').join('') +
-      '</ul>' +
+      ps.map(p => '<li><i></i><span>' + [p.same ? '<b>' + esc(p.same) + '</b>' : '', esc(p.nome)].filter(Boolean).join(' - ') + '</span></li>').join('') +
+      '</ul></div>';
+  } else if (P_PROV.length) {
+    h = '<div class="ft"><b>Provisória de ' + esc(nomeUsuario()) + '</b><span>' + hoje() + '</span></div><div class="cols">' +
+      '<ul class="prov-list">' + P_PROV.map(n => '<li>Pasta: ' + n + '</li>').join('') + '</ul></div>' +
       '<div class="prov-footer-stamp">' + timeStamp + '</div>';
   }
+
+  el.innerHTML = h || '<p class="vazio">Visualização A4</p>';
+  ajustarZoom();
 }
 
 function estado() {
@@ -1249,78 +1250,169 @@ function estado() {
   $('imprimir').disabled = !count; $('btn-salvar-rel').disabled = !count;
 }
 
-function render() { conf(); folha(); estado(); }
+function render() { conf(); folha(); estado(); fmtUI(); }
 
-function imprimirFolha() { window.print(); }
+function imprimirFolha() {
+  // imprime numa janela escondida: só a folha, em A4, sem sobrar página em branco
+  const fr = document.createElement('iframe');
+  fr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(fr);
+  const d = fr.contentWindow.document;
+  d.open();
+  d.write('<!DOCTYPE html><html lang="pt-BR" data-theme="light"><head><meta charset="utf-8"><title>Fluxo</title><style>' +
+    document.querySelector('style').textContent +
+    'html,body{background:#fff!important;display:block;min-height:0;overflow:visible}' +
+    '#folha{position:static!important;width:auto!important;zoom:1!important}' +
+    '</style></head><body>' + $('folha').outerHTML + '</body></html>');
+  d.close();
+  setTimeout(() => {
+    fr.contentWindow.focus(); fr.contentWindow.print();
+    setTimeout(() => fr.remove(), 2000);
+  }, 300);
+}
+
+/* Distribui blocos (que não se partem) em colunas/páginas. lim1 = altura útil da 1ª página; limN = das demais. */
+function colocar(un, n, lim1, limN) {
+  const pos = []; let pg = 0, col = 0, y = 0;
+  un.forEach(u => {
+    const lim = pg === 0 ? lim1 : limN;
+    if (y > 0 && y + u.h > lim + 0.01) {
+      if (col < n - 1) col++; else { pg++; col = 0; }
+      y = 0;
+    }
+    pos.push({ pg, col, y }); y += u.h;
+  });
+  return pos;
+}
 
 async function pdf() {
-  if(!window.jspdf) return;
-  const doc = new window.jspdf.jsPDF({unit:'mm', format:'a4'});
-  const L = 15, R = 195, COL = 45, PER = 4; let y = 20;
+  if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
+  const f = fmtAtual(), n = f.cols, pt = f.fs;
+  const { L, R, TOP, BOT, GAP } = PG;
+  const colW = largCol(n), per = porLinha(f), step = colW / per;
+  const lh = pt * MM * 1.7;                    // altura de uma linha de texto (mm)
+  const bx = Math.max(3, pt * MM * 1.05);      // tamanho da caixinha ☐
+  const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+  const fonte = (estilo, tam) => { doc.setFont('helvetica', estilo); doc.setFontSize(tam); };
+  const un = [];                               // blocos: { h: altura, draw(x, y) }
+  let titulo, rodape = '';
 
   if (abaAtiva === 'faa') {
     const ps = P_FAA.filter(p => p.nome.trim() && p.datas.length);
-    if(!ps.length) return;
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('Lista de FAAs', L, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(hoje(), R, y, {align:'right'});
-    y += 14;
-
+    if (!ps.length) return;
+    titulo = 'Lista de FAAs';
+    const rowH = lh + 1.2, nlh = (pt + 2) * MM * 1.35;
     ps.forEach(p => {
-      if(y > 270) { doc.addPage(); y = 20; }
-      doc.setFont('helvetica', 'bold'); doc.setFontSize(14); doc.text(p.nome.trim(), L, y);
-      doc.setDrawColor(180); doc.line(L, y+2, R, y+2); y += 10;
-      doc.setFont('helvetica', 'normal'); doc.setFontSize(12);
-
-      p.datas.forEach((k, i) => {
-        const c = i % PER;
-        if(i > 0 && c === 0) { y += 9; if(y > 275) { doc.addPage(); y = 20; } }
-        const x = L + c * COL;
-        doc.rect(x, y-4, 4.5, 4.5);
-        doc.text(fmtData(k), x+7, y);
+      fonte('bold', pt + 2);
+      const nl = doc.splitTextToSize(p.nome.trim(), colW);
+      const headH = nl.length * nlh + 3.5;
+      const linhas = [];
+      for (let i = 0; i < p.datas.length; i += per) linhas.push(p.datas.slice(i, i + per));
+      linhas.forEach((ln, idx) => {
+        const primeira = idx === 0;
+        un.push({
+          h: (primeira ? headH : 0) + rowH + (idx === linhas.length - 1 ? 5 : 0),
+          draw: (x, y) => {
+            let yy = y;
+            doc.setTextColor(0); doc.setLineWidth(0.2);
+            if (primeira) {                    // nome + traço (sempre junto da 1ª linha de datas)
+              fonte('bold', pt + 2);
+              nl.forEach((t, i) => doc.text(t, x, y + (pt + 2) * MM * 0.95 + i * nlh));
+              const yl = y + nl.length * nlh + 0.8;
+              doc.setDrawColor(180); doc.line(x, yl, x + colW, yl);
+              yy = y + headH;
+            }
+            fonte('normal', pt); doc.setDrawColor(0);
+            const yb = yy + lh * 0.75;
+            ln.forEach((k, c) => {
+              const xx = x + c * step;
+              doc.rect(xx, yb - bx * 0.85, bx, bx);
+              doc.text(fmtData(k), xx + bx + 2.5, yb);
+            });
+          }
+        });
       });
-      y += 14;
     });
   } else if (abaAtiva === 'same') {
     const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim());
-    if(!ps.length) return;
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('Lista de Pastas / SAME', L, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(hoje(), R, y, {align:'right'});
-    y += 14;
-
-    doc.setFontSize(13);
-    ps.forEach((p) => {
-      if(y > 275) { doc.addPage(); y = 20; }
-      doc.rect(L, y-4, 4.5, 4.5);
-      doc.setFont('helvetica', 'bold'); if (p.same) doc.text(String(p.same), L + 8, y);
-      doc.setFont('helvetica', 'normal'); if (p.nome) doc.text((p.same ? ' - ' : '') + p.nome, L + 8 + (p.same ? p.same.length * 3.2 + 2 : 0), y);
-      doc.line(L, y+3, R, y+3);
-      y += 10;
+    if (!ps.length) return;
+    titulo = 'Lista de Pastas / SAME';
+    const x0 = bx + 2.5;
+    ps.forEach(p => {
+      const num = String(p.same || '').trim(), nome = (p.nome || '').trim();
+      fonte('bold', pt);   const numW = num ? doc.getTextWidth(num) : 0;
+      fonte('normal', pt); const sepW = num && nome ? doc.getTextWidth(' - ') : 0;
+      const livre = colW - x0 - numW - sepW;
+      const inline = livre >= 25;              // coluna estreita: nome vai para a linha de baixo
+      const nl = nome ? doc.splitTextToSize(nome, inline ? livre : colW - x0) : [];
+      const nLin = inline ? Math.max(1, nl.length) : (num ? 1 : 0) + nl.length;
+      un.push({
+        h: nLin * lh + 2.5,
+        draw: (x, y) => {
+          doc.setTextColor(0); doc.setDrawColor(0); doc.setLineWidth(0.2);
+          const yb = y + lh * 0.75;
+          doc.rect(x, yb - bx * 0.85, bx, bx);
+          if (num) { fonte('bold', pt); doc.text(num, x + x0, yb); }
+          fonte('normal', pt);
+          if (inline) {
+            nl.forEach((t, i) => doc.text((i === 0 && num ? ' - ' : '') + t, x + x0 + numW + (i === 0 ? 0 : sepW), yb + i * lh));
+          } else {
+            nl.forEach((t, i) => doc.text(t, x + x0, yb + ((num ? 1 : 0) + i) * lh));
+          }
+          doc.setDrawColor(200);
+          doc.line(x, y + nLin * lh + 0.8, x + colW, y + nLin * lh + 0.8);
+        }
+      });
     });
   } else {
-    if(!P_PROV.length) return;
-
-    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.text('Provisória de ' + nomeUsuario(), L, y);
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.text(hoje(), R, y, {align:'right'});
-    y += 14;
-
-    doc.setFontSize(15); doc.setFont('helvetica', 'bold');
-    P_PROV.forEach((n) => {
-      if(y > 260) { doc.addPage(); y = 20; }
-      doc.text('Pasta: ' + n, L, y);
-      doc.setDrawColor(220); doc.line(L, y+3, R, y+3);
-      y += 12;
-    });
-
-    const agora = new Date();
-    const timeStamp = 'documento criado dia ' + hoje() + ' horário ' + agora.toLocaleTimeString('pt-BR');
-    doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(100);
-    doc.text(timeStamp, R, 285, {align:'right'});
+    if (!P_PROV.length) return;
+    titulo = 'Provisória de ' + nomeUsuario();
+    rodape = 'documento criado dia ' + hoje() + ' horário ' + new Date().toLocaleTimeString('pt-BR');
+    P_PROV.forEach(num => un.push({
+      h: lh + 3,
+      draw: (x, y) => {
+        const yb = y + lh * 0.75;
+        fonte('bold', pt); doc.setTextColor(0);
+        doc.text('Pasta: ' + num, x, yb);
+        doc.setDrawColor(220); doc.setLineWidth(0.2); doc.line(x, yb + 3, x + colW, yb + 3);
+      }
+    }));
   }
 
-  const fileName = 'Fluxo-' + abaAtiva.toUpperCase() + '-' + hoje().replace(/\//g,'-') + '.pdf';
-  doc.save(fileName);
+  // cabeçalho (só na 1ª página, ocupa a largura toda)
+  const ft = Math.round(pt * 1.4);
+  fonte('bold', ft); doc.setTextColor(0);
+  const tl = doc.splitTextToSize(titulo, R - L - 28);
+  doc.text(tl, L, TOP);
+  fonte('normal', 11); doc.text(hoje(), R, TOP, { align: 'right' });
+  const top1 = TOP + (tl.length - 1) * ft * MM * 1.2 + ft * MM + 7.6;
+
+  // altura útil por coluna; com várias colunas e pouco conteúdo, equilibra para não ficar tudo na 1ª
+  const cap1 = BOT - top1, capN = BOT - TOP;
+  let lim1 = cap1;
+  if (n > 1) {
+    const total = un.reduce((s, u) => s + u.h, 0), maior = Math.max(...un.map(u => u.h));
+    if (total <= cap1 * n) {
+      for (let t = Math.max(maior, total / n); t <= cap1; t += 0.5) {
+        if (colocar(un, n, t, capN).every(p => p.pg === 0)) { lim1 = t; break; }
+      }
+    }
+  }
+  const pos = colocar(un, n, lim1, capN);
+  un.forEach((u, i) => {
+    const p = pos[i];
+    while (doc.getNumberOfPages() <= p.pg) doc.addPage();
+    doc.setPage(p.pg + 1);
+    u.draw(L + p.col * (colW + GAP), (p.pg === 0 ? top1 : TOP) + p.y);
+  });
+
+  if (rodape) {
+    doc.setPage(doc.getNumberOfPages());
+    fonte('normal', 10); doc.setTextColor(100);
+    doc.text(rodape, R, 288, { align: 'right' });
+  }
+
+  doc.save('Fluxo-' + abaAtiva.toUpperCase() + '-' + hoje().replace(/\//g, '-') + '.pdf');
 }
 
 document.addEventListener('keydown', e => {

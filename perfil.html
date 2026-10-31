@@ -3,525 +3,672 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Fluxo - Perfil & Pessoas</title>
+<title>Configuração do Fluxo - Perfil & Gestão</title>
 <style>
-:root {
-  --bg-main: #007782;
-  --card-bg: #ffffff;
-  --text-main: #0f172a;
-  --text-mut: #64748b;
-  --border-color: #e2e8f0;
-  --primary-green: #0d9488;
-  --primary-green-hover: #0f766e;
+:root[data-theme="light"] {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --tx: #0f172a;
+  --mut: #64748b;
+  --pri: #0d9488;
+  --pri-hover: #0f766e;
+  --pri-light: #f0fdf4;
+  --bd: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+  --sidebar-bg: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --tx: #f8fafc;
+  --mut: #9ca3af;
+  --pri: #14b8a6;
+  --pri-hover: #0d9488;
+  --pri-light: #042f2e;
+  --bd: #334155;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
+  --sidebar-bg: #1e293b;
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   margin: 0;
-  background-color: var(--bg-main);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  color: var(--text-main);
-  padding: 30px;
-  min-height: 100vh;
+  background: var(--bg);
+  color: var(--tx);
+  font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  transition: background 0.3s, color 0.3s;
   display: flex;
-  flex-wrap: wrap;
-  gap: 24px;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.box-menu, .box-edit {
-  background: var(--card-bg);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
-  width: 100%;
-  max-width: 380px;
-}
-
-.box-edit {
-  max-width: 560px;
+  flex-direction: column;
+  min-height: 100vh;
   position: relative;
+  overflow-x: hidden;
 }
 
-.profile-header {
+#bg-canvas {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none;
+}
+
+.app-layout, footer {
+  position: relative;
+  z-index: 2;
+}
+
+.app-layout {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+aside {
+  width: 260px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--bd);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  box-shadow: var(--shadow);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px 24px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 12px;
+}
+
+.sidebar-brand-icon {
+  width: 36px; height: 36px; background: var(--pri); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 16px;
+}
+
+.sidebar-brand span { font-size: 18px; font-weight: 800; color: var(--tx); }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: var(--mut);
+  font-weight: 600;
+  font-size: 14px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.nav-item svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.nav-item:hover { background: var(--bg); color: var(--tx); }
+.nav-item.active {
+  background: var(--pri);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+}
+
+.main-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 28px;
+  background: var(--card);
+  border-bottom: 1px solid var(--bd);
+  box-shadow: var(--shadow);
+  gap: 16px;
+}
+
+.header-right {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-bottom: 20px;
-  position: relative;
+  margin-left: auto;
 }
 
-.avatar {
-  width: 56px;
-  height: 56px;
-  background: var(--primary-green);
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 700;
-  position: relative;
-  overflow: hidden;
-}
-
-.avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatar-edit {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  background: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 50%;
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.user-meta h4 { margin: 0 0 2px; font-size: 16px; font-weight: 700; }
-.user-meta p { margin: 0; color: var(--text-mut); font-size: 13px; }
-
-.close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--text-mut);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 50%;
-  transition: all 0.2s;
-  z-index: 10;
-}
-.close-btn:hover { color: #dc2626; background: #fee2e2; }
-
-.menu-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  border-top: 1px solid var(--border-color);
-  padding-top: 12px;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-main);
-  background: transparent;
-  border: none;
-  width: 100%;
-  text-align: left;
-  transition: background 0.15s;
-}
-
-.menu-item:hover { background: #f1f5f9; }
-.menu-item.active { background: #f8fafc; font-weight: 600; border-left: 3px solid var(--primary-green); }
-.menu-item svg { width: 18px; height: 18px; stroke: var(--text-main); fill: none; stroke-width: 2; margin-right: 10px; }
-.menu-item-left { display: flex; align-items: center; }
-
-.form-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 14px;
-}
-
-.form-row:last-of-type { border-bottom: none; margin-bottom: 16px; }
-
-.form-label { color: var(--text-main); font-weight: 500; }
-.form-value { color: var(--text-mut); background: none; border: none; text-align: right; font: inherit; outline: none; width: 60%; }
-.form-value:focus { color: var(--text-main); }
-
-.btn-action {
-  background: var(--primary-green);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 12px 20px;
+.theme-btn-toggle {
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 600;
-  font-size: 14px;
   cursor: pointer;
-  width: 100%;
+  color: var(--tx);
+  transition: all 0.2s;
+}
+.theme-btn-toggle:hover { border-color: var(--pri); }
+
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.section-panel { display: none; }
+.section-panel.active { display: block; }
+
+.card {
+  background: var(--card); border: 1px solid var(--bd); border-radius: 12px;
+  padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow);
+}
+.card h2 { margin: 0 0 16px; font-size: 18px; font-weight: 700; }
+.mut { color: var(--mut); font-size: 13px; }
+
+input, textarea {
+  width: 100%; padding: 12px; border: 1px solid var(--bd); border-radius: 8px;
+  background: var(--bg); color: var(--tx); font: inherit; margin-top: 6px; outline: none; font-size: 15px;
+}
+
+.row { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+
+.btn {
+  border-radius: 8px; padding: 10px 18px; font: inherit; font-weight: 700;
+  border: 1px solid transparent; cursor: pointer; font-size: 14px; background: var(--pri); color: #ffffff;
   transition: background 0.2s;
 }
-.btn-action:hover { background: var(--primary-green-hover); }
+.btn:hover { background: var(--pri-hover); }
 
-.input-add-group {
-  display: flex;
-  gap: 8px;
-  margin-top: 16px;
-  margin-bottom: 12px;
-}
-.input-add-group input {
-  flex: 1;
-  padding: 10px 14px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-}
-.input-add-group input:focus { border-color: var(--primary-green); }
-
-.lista-pessoas {
-  margin-top: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.item-pessoa {
+/* Cartão de Perfil */
+.profile-preview-box {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  background: #f8fafc;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
+  gap: 20px;
+  background: var(--bg);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--bd);
+  margin-bottom: 20px;
 }
-
-.msg-vazio {
-  color: var(--text-mut);
-  font-size: 13px;
-  font-style: italic;
-  margin-top: 8px;
-}
-
-#toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #0f172a;
+.profile-letter-avatar {
+  width: 72px;
+  height: 72px;
+  background: var(--pri);
   color: #fff;
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 13px;
-  display: none;
-  z-index: 99;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  font-weight: 800;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.profile-letter-avatar img, .mini-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mini-avatar {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--pri); color: #fff;
+  display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
+  overflow: hidden; flex-shrink: 0; position: relative;
+}
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #94a3b8; display: inline-block; margin-right: 6px; }
+.dot.on { background: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.2); }
+.ghost {
+  border-radius: 8px; padding: 10px 16px; font: inherit; font-weight: 700; font-size: 14px;
+  background: transparent; color: var(--mut); border: 1px solid var(--bd); cursor: pointer;
+}
+.ghost:hover { background: var(--bg); color: var(--tx); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+input[readonly] { opacity: 0.7; cursor: not-allowed; }
+
+.warn-box {
+  background: #fffbeb; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b; color: #78350f;
+  padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-top: 14px;
+}
+:root[data-theme="dark"] .warn-box { background: #422006; border-color: #92400e; color: #fde68a; }
+.ok-box {
+  background: var(--pri-light); border: 1px solid var(--pri); border-left: 4px solid var(--pri);
+  padding: 12px 14px; border-radius: 8px; font-size: 14px; margin-top: 14px;
+}
+.code-box {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 30px; font-weight: 800; letter-spacing: 3px; text-align: center; color: var(--tx);
+  background: var(--bg); border: 2px dashed var(--pri); border-radius: 12px; padding: 22px 12px; margin-top: 14px;
+  user-select: all; word-break: break-all;
+}
+.dot-alert { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; margin-left: auto; }
+ol.passos { margin: 10px 0 0; padding-left: 20px; font-size: 14px; color: var(--mut); }
+ol.passos li { margin-bottom: 4px; }
+
+.person-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1px solid var(--bd);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+footer {
+  background: var(--card); border-top: 1px solid var(--bd); padding: 16px 24px; text-align: center; font-size: 13px; color: var(--mut);
+}
+
+@media(max-width: 768px) {
+  .app-layout { flex-direction: column; }
+  aside { width: 100%; flex-direction: row; overflow-x: auto; padding: 12px; gap: 4px; }
+  .sidebar-brand { display: none; }
+  .nav-item { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
 }
 </style>
 </head>
 <body>
 
-  <div class="box-menu">
-    <div class="profile-header" style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color);">
-      <div class="avatar" id="avatar-mini">A</div>
-      <div class="user-meta">
-        <h4 id="mini-nome">adm</h4>
-        <p id="mini-user">@adm</p>
-      </div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="app-layout">
+  <!-- Barra Lateral de Configuração -->
+  <aside>
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-icon">⚙️</div>
+      <span>Configuração do Fluxo</span>
     </div>
 
-    <div class="menu-list">
-      <button type="button" class="menu-item active" id="btn-tab-perfil" onclick="mudarAbaPainel('perfil')">
-        <span class="menu-item-left">
-          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Meu perfil
-        </span>
-        <span>›</span>
-      </button>
+    <button class="nav-item active" id="tab-btn-perfil" onclick="mudarSecao('perfil')">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Meu Perfil
+    </button>
 
-      <button type="button" class="menu-item" id="btn-tab-pessoas" onclick="mudarAbaPainel('pessoas')">
-        <span class="menu-item-left">
-          <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
-          Adicionar pessoa
-        </span>
-        <span>›</span>
-      </button>
+    <button class="nav-item" id="tab-btn-pessoas" onclick="mudarSecao('pessoas')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      Pessoas Add
+    </button>
 
-      <div class="menu-item">
-        <span class="menu-item-left">
-          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
-          Notificação
-        </span>
-        <span style="color:var(--text-mut); font-size:13px;">Permitir ▾</span>
+    <button class="nav-item" id="tab-btn-recuperacao" onclick="mudarSecao('recuperacao')">
+      <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+      Recuperação
+      <span class="dot-alert" id="alerta-recuperacao" style="display:none" title="Você ainda não gerou o código"></span>
+    </button>
+
+    <div style="flex:1"></div>
+
+    <a href="index.html" class="nav-item" style="color: #2563eb;">
+      <svg viewBox="0 0 24 24" style="stroke: #2563eb;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Menu Inicial
+    </a>
+
+    <button class="nav-item" onclick="sairApp()" style="color: #dc2626;">
+      <svg viewBox="0 0 24 24" style="stroke: #dc2626;"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      Sign Out
+    </button>
+  </aside>
+
+  <div class="main-content-wrapper">
+    <header>
+      <div style="font-size: 20px; font-weight: 800;" id="config-header-title">Configuração do Fluxo - Meu Perfil</div>
+      <div class="header-right">
+        <button class="theme-btn-toggle" onclick="toggleTema()" id="theme-btn-label">☀️ Tema</button>
       </div>
+    </header>
 
-      <button type="button" class="menu-item" onclick="sairConta()" style="color: #dc2626; margin-top: 6px;">
-        <span class="menu-item-left">
-          <svg viewBox="0 0 24 24" style="stroke: #dc2626;"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-          Sair
-        </span>
-      </button>
-    </div>
-  </div>
+    <main class="main-content">
+      
+      <!-- SECÃO 1: MEU PERFIL -->
+      <div id="sec-perfil" class="section-panel active">
+        <div class="card">
+          <h2>Editar Perfil e Dados Pessoais</h2>
+          <p class="mut">Altere aqui a sua foto, informações, e-mail e ano de nascimento:</p>
 
-  <div class="box-edit" id="painel-perfil">
-    <button type="button" class="close-btn" onclick="voltarIndex()" title="Voltar ao Menu Inicial">✕</button>
+          <div class="profile-preview-box" style="margin-top: 16px;">
+            <div class="profile-letter-avatar" id="avatar-box"><span id="user-avatar-letter">?</span><img id="avatar-img" alt="Foto de perfil" hidden></div>
+            <div style="flex:1; min-width:0;">
+              <h3 id="preview-name" style="margin:0 0 2px; font-size: 18px;">Carregando...</h3>
+              <span class="mut" id="preview-user">@</span>
+              <div class="row" style="margin-top: 10px;">
+                <button class="ghost" type="button" onclick="$('input-foto').click()">Trocar foto</button>
+                <button class="ghost" type="button" id="btn-rm-foto" onclick="removerFoto()" style="display:none">Remover foto</button>
+                <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="escolherFoto(this)">
+              </div>
+            </div>
+          </div>
 
-    <div class="profile-header">
-      <div class="avatar" id="avatar-container">
-        <span id="avatar-text">A</span>
-        <img id="avatar-img" style="display:none;" alt="">
-      </div>
-      <label class="avatar-edit" title="Alterar foto">
-        ✏️
-        <input type="file" id="file-foto" accept="image/*" style="display:none" onchange="trocarFoto(this)">
-      </label>
-      <div class="user-meta">
-        <h4 id="big-nome">adm</h4>
-        <p id="big-user">@adm</p>
-      </div>
-    </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+            <div>
+              <label style="font-size: 13px; font-weight: 600;">Nome Completo:</label>
+              <input type="text" id="input-nome" oninput="atualizarPreview()" maxlength="80">
+            </div>
+            <div>
+              <label style="font-size: 13px; font-weight: 600;">Nome de Utilizador:</label>
+              <input type="text" id="input-usuario" readonly title="É o seu login, não pode ser alterado">
+            </div>
+            <div>
+              <label style="font-size: 13px; font-weight: 600;">E-mail:</label>
+              <input type="email" id="input-email" maxlength="120" placeholder="seu@email.com">
+            </div>
+            <div>
+              <label style="font-size: 13px; font-weight: 600;">Ano de Nascimento e Idade: <span id="idade-txt" class="mut"></span></label>
+              <input type="number" id="input-ano" min="1900" max="2100" placeholder="Ex.: 2003" oninput="atualizarIdade()">
+            </div>
+          </div>
 
-    <form onsubmit="salvarPerfil(event)">
-      <div class="form-row">
-        <span class="form-label">Nome</span>
-        <input type="text" id="inp-nome" class="form-value" placeholder="seu nome" required>
-      </div>
-
-      <div class="form-row">
-        <span class="form-label">Usuário</span>
-        <input type="text" id="inp-user" class="form-value" disabled style="opacity: 0.6;">
-      </div>
-
-      <div class="form-row" style="flex-direction: column; align-items: stretch; gap: 8px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span class="form-label">Código de recuperação</span>
-          <button type="button" class="btn-action" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="gerarCodigo()">Gerar Novo</button>
+          <div class="row" style="margin-top: 20px;">
+            <button class="btn" id="btn-salvar-perfil" onclick="salvarPerfil()">Guardar Alterações</button>
+          </div>
         </div>
-        <input type="text" id="inp-codigo" class="form-value" readonly style="width: 100%; background: #f1f5f9; padding: 10px; border-radius: 8px; text-align: left;" placeholder="Nenhum código gerado">
       </div>
 
-      <div class="form-row">
-        <span class="form-label">Localização</span>
-        <input type="text" id="inp-local" class="form-value" placeholder="Adicionar local">
+      <!-- SECÃO 2: PESSOAS ADD -->
+      <div id="sec-pessoas" class="section-panel">
+        <div class="card">
+          <h2>Gerir Pessoas Adicionadas</h2>
+          <p class="mut">Adicione pelo nome de utilizador. Você só vê o que fizeram (no Dashboard) e se estão online quem estiver nesta lista.</p>
+
+          <div class="row" style="margin-top: 16px;">
+            <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 220px; margin-top: 0;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
+            <button class="btn" id="btn-add-pessoa" onclick="adicionarPessoa()">Adicionar</button>
+          </div>
+
+          <div id="pessoas-list" style="margin-top: 20px;"></div>
+        </div>
       </div>
 
-      <button type="submit" class="btn-action" id="btn-salvar" style="margin-top: 10px;">Salvar alterações</button>
-    </form>
+      <!-- SECÃO 3: RECUPERAÇÃO -->
+      <div id="sec-recuperacao" class="section-panel">
+        <div class="card">
+          <h2>Código de Recuperação de Senha</h2>
+          <p class="mut">Se esquecer a senha, este código é a única forma de entrar de novo. Guarde-o num lugar seguro (papel, gestor de senhas ou notas do telemóvel).</p>
+
+          <div id="rec-status"></div>
+
+          <div class="row" style="margin-top: 16px;">
+            <button class="btn" id="btn-gerar-codigo" onclick="gerarCodigo()">Gerar código</button>
+          </div>
+
+          <div id="rec-resultado" style="display:none">
+            <div class="code-box" id="rec-codigo"></div>
+            <div class="row" style="justify-content:center;">
+              <button class="ghost" type="button" onclick="copiarCodigo()">Copiar</button>
+              <button class="ghost" type="button" onclick="baixarCodigo()">Baixar .txt</button>
+            </div>
+            <div class="warn-box"><b>Anote agora.</b> Por segurança o código fica guardado criptografado e só aparece desta vez. Se perder, gere outro (o anterior deixa de valer).</div>
+          </div>
+
+          <h2 style="margin-top: 28px; font-size: 15px;">Como usar</h2>
+          <ol class="passos">
+            <li>Na tela de login, clique em <b>Esqueci a senha</b>.</li>
+            <li>Informe o seu utilizador, o código e a nova senha.</li>
+            <li>Cada código vale <b>uma vez</b>: depois de usar, volte aqui e gere outro.</li>
+            <li>Errou o código 5 vezes? A recuperação trava por 15 minutos.</li>
+          </ol>
+        </div>
+      </div>
+
+    </main>
   </div>
+</div>
 
-  <div class="box-edit" id="painel-pessoas" style="display: none;">
-    <button type="button" class="close-btn" onclick="voltarIndex()" title="Voltar ao Menu Inicial">✕</button>
+<footer>
+  © 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.
+</footer>
 
-    <h3 style="margin: 0 0 6px;">Adicionar Pessoa</h3>
-    <p style="color: var(--text-mut); font-size: 13px; margin: 0 0 16px;">
-      Informe o <b>nome de usuário</b> da pessoa que deseja adicionar.
-    </p>
-
-    <form onsubmit="adicionarPessoa(event)">
-      <div class="input-add-group">
-        <input type="text" id="inp-add-user" placeholder="Usuário (ex.: ruan.luz)" required>
-        <button type="submit" class="btn-action" style="width: auto;">Adicionar</button>
-      </div>
-    </form>
-
-    <div class="lista-pessoas" id="lista-pessoas-container">
-      <div style="font-size: 12px; color: var(--text-mut); margin-top: 10px;">Pessoas adicionadas:</div>
-      <div class="msg-vazio" id="msg-sem-pessoas">Não tem pessoas adicionadas ainda.</div>
-    </div>
-  </div>
-
-  <div id="toast"></div>
+<div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fotoOk = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
+
 const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-const $ = id => document.getElementById(id);
-let fotoBase64 = '';
-let currentUserId = null;
-
-function voltarIndex() {
-  window.location.href = 'index.html';
-}
+const db = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+let uid = null, USUARIO = '', fotoAtual = '', codigoGerado = '', tToast, tPessoas, tPresenca;
 
 function aviso(msg) {
-  const t = $('toast');
-  t.textContent = msg;
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3500);
+  const t = $('toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(tToast); tToast = setTimeout(() => { t.style.display = 'none'; }, 3500);
 }
 
-function mudarAbaPainel(aba) {
-  if (aba === 'perfil') {
-    $('painel-perfil').style.display = 'block';
-    $('painel-pessoas').style.display = 'none';
-    $('btn-tab-perfil').classList.add('active');
-    $('btn-tab-pessoas').classList.remove('active');
-  } else {
-    $('painel-perfil').style.display = 'none';
-    $('painel-pessoas').style.display = 'block';
-    $('btn-tab-perfil').classList.remove('active');
-    $('btn-tab-pessoas').classList.add('active');
-    carregarEquipe();
-  }
+const TITULOS = { perfil: 'Meu Perfil', pessoas: 'Pessoas Add', recuperacao: 'Recuperação' };
+
+function mudarSecao(sec) {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('aside .nav-item').forEach(el => {
+    if (!el.getAttribute('href') && el.getAttribute('onclick')?.includes('mudarSecao')) el.classList.remove('active');
+  });
+  $('sec-' + sec).classList.add('active');
+  $('tab-btn-' + sec).classList.add('active');
+  $('config-header-title').textContent = 'Configuração do Fluxo - ' + TITULOS[sec];
+
+  clearInterval(tPessoas);
+  if (sec === 'pessoas') { carregarPessoas(); tPessoas = setInterval(carregarPessoas, 30000); }
+  if (sec === 'recuperacao') statusRecuperacao();
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
-  const { data: { session } } = await db.auth.getSession();
-  if (!session) {
-    voltarIndex();
+/* ===== Perfil ===== */
+function pintarAvatar(box, img, letra, foto) {
+  const f = fotoOk(foto);
+  img.hidden = !f; if (f) img.src = f;
+  letra.hidden = !!f;
+}
+
+function atualizarPreview() {
+  const nome = $('input-nome').value.trim();
+  $('preview-name').textContent = nome || USUARIO || 'Utilizador';
+  $('preview-user').textContent = '@' + USUARIO;
+  $('user-avatar-letter').textContent = ((nome || USUARIO || '?')[0] || '?').toUpperCase();
+  pintarAvatar($('avatar-box'), $('avatar-img'), $('user-avatar-letter'), fotoAtual);
+  $('btn-rm-foto').style.display = fotoOk(fotoAtual) ? '' : 'none';
+}
+
+function atualizarIdade() {
+  const a = parseInt($('input-ano').value, 10), ano = new Date().getFullYear();
+  $('idade-txt').textContent = (a >= 1900 && a <= ano) ? '(' + (ano - a) + ' anos)' : '';
+}
+
+async function carregarPerfil() {
+  const { data, error } = await db.from('perfis')
+    .select('usuario,nome,foto,email_contato,ano_nascimento').eq('user_id', uid).maybeSingle();
+  if (error) aviso('Não foi possível carregar o perfil. O banco já foi configurado?');
+  USUARIO = (data && data.usuario) || '';
+  fotoAtual = (data && data.foto) || '';
+  $('input-nome').value = (data && data.nome) || '';
+  $('input-usuario').value = USUARIO;
+  $('input-email').value = (data && data.email_contato) || '';
+  $('input-ano').value = (data && data.ano_nascimento) || '';
+  atualizarIdade(); atualizarPreview();
+}
+
+async function salvarPerfil() {
+  const ano = parseInt($('input-ano').value, 10);
+  if ($('input-ano').value && !(ano >= 1900 && ano <= new Date().getFullYear())) return aviso('Ano de nascimento inválido.');
+  const email = $('input-email').value.trim();
+  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return aviso('E-mail inválido.');
+
+  $('btn-salvar-perfil').disabled = true;
+  const { error } = await db.from('perfis').update({
+    nome: $('input-nome').value.trim(),
+    foto: fotoAtual,
+    email_contato: email,
+    ano_nascimento: $('input-ano').value ? ano : null
+  }).eq('user_id', uid);
+  $('btn-salvar-perfil').disabled = false;
+  aviso(error ? 'Erro ao guardar: ' + error.message : 'Perfil atualizado com sucesso!');
+}
+
+/* ===== Foto (reduzida para 256x256 antes de guardar) ===== */
+function escolherFoto(inp) {
+  const file = inp.files && inp.files[0]; inp.value = '';
+  if (!file) return;
+  if (!file.type.startsWith('image/')) return aviso('Escolha um arquivo de imagem.');
+  if (file.size > 15 * 1024 * 1024) return aviso('Imagem muito grande (máx. 15 MB).');
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => {
+    const S = 256, c = document.createElement('canvas'); c.width = c.height = S;
+    const m = Math.min(img.width, img.height);
+    c.getContext('2d').drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, S, S);
+    URL.revokeObjectURL(url);
+    fotoAtual = c.toDataURL('image/jpeg', 0.85);
+    atualizarPreview();
+    aviso('Foto escolhida. Clique em Guardar Alterações.');
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); aviso('Não foi possível ler essa imagem.'); };
+  img.src = url;
+}
+function removerFoto() { fotoAtual = ''; atualizarPreview(); aviso('Foto removida. Clique em Guardar Alterações.'); }
+
+/* ===== Pessoas Add ===== */
+let PESSOAS = [];
+
+function visto(p) {
+  if (p.online) return 'Online agora';
+  if (!p.ultimo_acesso) return 'Ainda não entrou';
+  const min = Math.max(1, Math.round((Date.now() - new Date(p.ultimo_acesso).getTime()) / 60000));
+  if (min < 60) return 'Visto há ' + min + ' min';
+  if (min < 1440) return 'Visto há ' + Math.round(min / 60) + ' h';
+  return 'Visto em ' + new Date(p.ultimo_acesso).toLocaleDateString('pt-BR');
+}
+
+function renderPessoas() {
+  const box = $('pessoas-list');
+  if (!PESSOAS.length) {
+    box.innerHTML = '<p class="mut" style="text-align: center; padding: 20px;">Nenhuma pessoa adicionada ainda.</p>';
     return;
   }
+  box.innerHTML = PESSOAS.map(p => {
+    const f = fotoOk(p.foto), nome = p.nome || p.usuario;
+    return `
+    <div class="person-item">
+      <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+        <div class="mini-avatar">${f ? `<img src="${esc(f)}" alt="">` : esc((nome[0] || '?').toUpperCase())}</div>
+        <div style="min-width:0;">
+          <b style="font-size: 15px; color: var(--tx);">${esc(nome)}</b>
+          <div class="mut">@${esc(p.usuario)} · <span class="dot ${p.online ? 'on' : ''}"></span>${esc(visto(p))}</div>
+        </div>
+      </div>
+      <button data-rm="${esc(p.usuario)}" style="background:none; border:none; color:#dc2626; font-weight:700; cursor:pointer;">Remover</button>
+    </div>`;
+  }).join('');
+}
 
-  currentUserId = session.user.id;
-  const email = session.user.email;
-  const username = email.split('@')[0];
-  
-  $('big-user').textContent = '@' + username;
-  $('mini-user').textContent = '@' + username;
-  $('inp-user').value = '@' + username;
-  $('avatar-text').textContent = username[0].toUpperCase();
-  $('avatar-mini').textContent = username[0].toUpperCase();
+async function carregarPessoas() {
+  const { data, error } = await db.rpc('listar_contatos');
+  if (error) { $('pessoas-list').innerHTML = '<p class="mut" style="text-align:center;padding:20px;">Não foi possível carregar a lista.</p>'; return; }
+  PESSOAS = data || [];
+  renderPessoas();
+}
 
-  const { data } = await db.from('perfis').select('nome, foto, localizacao').eq('user_id', currentUserId).maybeSingle();
-  if (data) {
-    $('big-nome').textContent = data.nome || username;
-    $('mini-nome').textContent = data.nome || username;
-    $('inp-nome').value = data.nome || username;
-    if (data.localizacao) $('inp-local').value = data.localizacao;
-    if (data.foto) {
-      fotoBase64 = data.foto;
-      $('avatar-img').src = fotoBase64;
-      $('avatar-img').style.display = 'block';
-      $('avatar-text').style.display = 'none';
-    }
-  } else {
-    $('big-nome').textContent = username;
-    $('mini-nome').textContent = username;
-    $('inp-nome').value = username;
-  }
+async function adicionarPessoa() {
+  const u = $('new-person-user').value.trim().replace(/^@/, '').toLowerCase();
+  if (!u) return aviso('Preencha o utilizador.');
+  $('btn-add-pessoa').disabled = true;
+  const { data, error } = await db.rpc('adicionar_contato', { p_usuario: u });
+  $('btn-add-pessoa').disabled = false;
+  if (error) return aviso('Erro: ' + error.message);
+  const msg = {
+    ok: '@' + u + ' adicionado!',
+    nao_encontrado: 'Não existe ninguém com o utilizador @' + u + '.',
+    voce_mesmo: 'Você não precisa se adicionar.',
+    ja_adicionado: '@' + u + ' já está na lista.'
+  }[data] || 'Não foi possível adicionar.';
+  aviso(msg);
+  if (data === 'ok') { $('new-person-user').value = ''; carregarPessoas(); }
+}
+
+async function removerPessoa(u) {
+  if (!confirm('Remover @' + u + ' da lista? Você deixa de ver as atividades dessa pessoa.')) return;
+  const { error } = await db.rpc('remover_contato', { p_usuario: u });
+  if (error) return aviso('Erro ao remover.');
+  carregarPessoas();
+}
+$('pessoas-list').addEventListener('click', e => {
+  const b = e.target.closest('button[data-rm]');
+  if (b) removerPessoa(b.dataset.rm);
 });
 
-// Redimensiona e comprime a foto escolhida antes de enviar para o banco
-function trocarFoto(inp) {
-  const f = inp.files[0];
-  if (!f) return;
-
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const size = 150; // 150x150 px mantém excelente qualidade e peso ultra leve
-      canvas.width = size;
-      canvas.height = size;
-
-      const ctx = canvas.getContext('2d');
-      const minDimension = Math.min(img.width, img.height);
-      const sx = (img.width - minDimension) / 2;
-      const sy = (img.height - minDimension) / 2;
-
-      ctx.drawImage(img, sx, sy, minDimension, minDimension, 0, 0, size, size);
-      fotoBase64 = canvas.toDataURL('image/jpeg', 0.8);
-
-      $('avatar-img').src = fotoBase64;
-      $('avatar-img').style.display = 'block';
-      $('avatar-text').style.display = 'none';
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(f);
+/* ===== Recuperação ===== */
+async function statusRecuperacao() {
+  const { data, error } = await db.rpc('status_recuperacao');
+  if (error) {
+    $('rec-status').innerHTML = '<div class="warn-box">Não foi possível verificar o código. O banco já foi configurado?</div>';
+    return;
+  }
+  const tem = !!data;
+  $('alerta-recuperacao').style.display = tem ? 'none' : '';
+  $('btn-gerar-codigo').textContent = tem ? 'Gerar novo código' : 'Gerar código';
+  $('rec-status').innerHTML = tem
+    ? '<div class="ok-box">✔ Você tem um código ativo, gerado em <b>' + esc(new Date(data).toLocaleString('pt-BR')) + '</b>. Por segurança ele não pode ser mostrado de novo; para ver um código, gere um novo.</div>'
+    : '<div class="warn-box"><b>Você ainda não tem um código de recuperação.</b> Sem ele não dá para recuperar a senha. Clique em Gerar código e anote.</div>';
 }
 
 async function gerarCodigo() {
+  const tem = $('btn-gerar-codigo').textContent.includes('novo');
+  if (tem && !confirm('Gerar um novo código invalida o anterior. Continuar?')) return;
+  $('btn-gerar-codigo').disabled = true;
   const { data, error } = await db.rpc('gerar_codigo_recuperacao');
-  if (error) {
-    aviso('Erro ao gerar código.');
-    return;
-  }
-  $('inp-codigo').value = data;
-  aviso('Novo código gerado com sucesso!');
+  $('btn-gerar-codigo').disabled = false;
+  if (error || !data) return aviso('Não foi possível gerar o código: ' + (error ? error.message : 'tente de novo'));
+  codigoGerado = data;
+  $('rec-codigo').textContent = data;
+  $('rec-resultado').style.display = 'block';
+  statusRecuperacao();
 }
 
-async function salvarPerfil(e) {
-  e.preventDefault();
-  const nome = $('inp-nome').value.trim();
-  const localizacao = $('inp-local').value.trim();
-  
-  $('btn-salvar').disabled = true;
-  $('btn-salvar').textContent = 'Salvando...';
-
-  const { error } = await db.from('perfis').upsert({
-    user_id: currentUserId,
-    nome: nome,
-    localizacao: localizacao,
-    foto: fotoBase64,
-    atualizado_em: new Date().toISOString()
-  });
-
-  $('btn-salvar').disabled = false;
-  $('btn-salvar').textContent = 'Salvar alterações';
-
-  if (error) {
-    aviso('Erro ao salvar perfil: ' + error.message);
-  } else {
-    $('big-nome').textContent = nome;
-    $('mini-nome').textContent = nome;
-    aviso('Perfil e foto salvos com sucesso!');
+async function copiarCodigo() {
+  try { await navigator.clipboard.writeText(codigoGerado); aviso('Código copiado!'); }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents($('rec-codigo'));
+    const s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    aviso('Selecionado: use Ctrl+C para copiar.');
   }
 }
 
-async function carregarEquipe() {
-  const container = $('lista-pessoas-container');
-  container.innerHTML = '<div style="font-size: 12px; color: var(--text-mut); margin-top: 10px;">Pessoas adicionadas:</div>';
-
-  const { data, error } = await db.from('equipe').select('membro_id');
-  if (error || !data || data.length === 0) {
-    const divVazio = document.createElement('div');
-    divVazio.className = 'msg-vazio';
-    divVazio.id = 'msg-sem-pessoas';
-    divVazio.textContent = 'Não tem pessoas adicionadas ainda.';
-    container.appendChild(divVazio);
-    return;
-  }
-
-  for (let item of data) {
-    const div = document.createElement('div');
-    div.className = 'item-pessoa';
-    div.innerHTML = `<span>Membro ID: ${item.membro_id.substring(0,8)}...</span><span style="color: var(--primary-green);">Ativo</span>`;
-    container.appendChild(div);
-  }
+function baixarCodigo() {
+  const txt = 'Fluxo - código de recuperação de senha\r\nUtilizador: ' + USUARIO + '\r\nCódigo: ' + codigoGerado +
+    '\r\nGerado em: ' + new Date().toLocaleString('pt-BR') + '\r\n\r\nGuarde em local seguro. Vale uma vez só.\r\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([txt], { type: 'text/plain;charset=utf-8' }));
+  a.download = 'codigo-recuperacao-' + USUARIO + '.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
-async function adicionarPessoa(e) {
-  e.preventDefault();
-  const usuarioInput = $('inp-add-user').value.trim();
-  if (!usuarioInput) return;
-
-  const { data, error } = await db.rpc('adicionar_membro_por_usuario', { p_usuario: usuarioInput });
-
-  if (error || !data) {
-    aviso('Utilizador não encontrado ou inválido.');
-    return;
-  }
-
-  aviso(`Utilizador @${usuarioInput.replace('@','')} adicionado com sucesso!`);
-  $('inp-add-user').value = '';
-  carregarEquipe();
-}
-
-async function sairConta() {
+/* ===== Sessão ===== */
+async function sairApp() {
+  if (!confirm('Deseja sair da sessão?')) return;
+  clearInterval(tPresenca);
   await db.auth.signOut();
   window.location.href = 'index.html';
 }
+
+function toggleTema() {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', newTheme);
+  $('theme-btn-label').textContent = newTheme === 'dark' ? '🌙 Escuro' : '☀️ Claro';
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  if (!db) { aviso('Não foi possível carregar o Supabase. Verifique a internet.'); return; }
+  const { data } = await db.auth.getSession();
+  if (!data.session) { window.location.href = 'index.html'; return; }
+  uid = data.session.user.id;
+
+  const ping = () => db.rpc('marcar_presenca').then(() => {}, () => {});
+  ping(); tPresenca = setInterval(ping, 60000);
+
+  await carregarPerfil();
+  statusRecuperacao();
+  if (location.hash === '#recuperacao') mudarSecao('recuperacao');
+});
 </script>
 </body>
 </html>
