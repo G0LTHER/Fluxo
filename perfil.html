@@ -360,7 +360,7 @@ footer {
           </div>
 
           <div class="row" style="margin-top: 20px;">
-            <button class="btn" id="btn-salvar-perfil" onclick="salvarPerfil()">Guardar Alterações</button>
+            <button class="btn" id="btn-salvar-perfil" onclick="salvarPerfil(false)">Guardar Alterações</button>
           </div>
         </div>
       </div>
@@ -474,34 +474,64 @@ function atualizarIdade() {
   $('idade-txt').textContent = (a >= 1900 && a <= ano) ? '(' + (ano - a) + ' anos)' : '';
 }
 
+let sessaoUser = null, perfilExiste = false;
+
 async function carregarPerfil() {
   const { data, error } = await db.from('perfis')
     .select('usuario,nome,foto,email_contato,ano_nascimento').eq('user_id', uid).maybeSingle();
-  if (error) aviso('Não foi possível carregar o perfil. O banco já foi configurado?');
-  USUARIO = (data && data.usuario) || '';
+  if (error) aviso('Não foi possível carregar o perfil: ' + error.message);
+  perfilExiste = !!data;
+
+  // Dados que vieram do cadastro (guardados na conta de login)
+  const meta = (sessaoUser && sessaoUser.user_metadata) || {};
+  const usuarioLogin = meta.usuario || ((sessaoUser && sessaoUser.email) || '').split('@')[0] || '';
+  const nomeMeta = [meta.nome, meta.sobrenome].filter(Boolean).join(' ').trim();
+
+  USUARIO = (data && data.usuario) || usuarioLogin;
   fotoAtual = (data && data.foto) || '';
-  $('input-nome').value = (data && data.nome) || '';
+  const nome = (data && data.nome) || nomeMeta;
+  const email = (data && data.email_contato) || meta.email_contato || '';
+
+  $('input-nome').value = nome;
   $('input-usuario').value = USUARIO;
-  $('input-email').value = (data && data.email_contato) || '';
+  $('input-email').value = email;
   $('input-ano').value = (data && data.ano_nascimento) || '';
   atualizarIdade(); atualizarPreview();
+
+  // Perfil não existe ou está sem nome/e-mail: grava agora o que veio do cadastro
+  const faltava = !perfilExiste || (!(data && data.nome) && nome) || (!(data && data.email_contato) && email);
+  if (faltava) await salvarPerfil(true);
 }
 
-async function salvarPerfil() {
+async function salvarPerfil(silencioso) {
   const ano = parseInt($('input-ano').value, 10);
   if ($('input-ano').value && !(ano >= 1900 && ano <= new Date().getFullYear())) return aviso('Ano de nascimento inválido.');
   const email = $('input-email').value.trim();
   if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return aviso('E-mail inválido.');
 
-  $('btn-salvar-perfil').disabled = true;
-  const { error } = await db.from('perfis').update({
+  const campos = {
     nome: $('input-nome').value.trim(),
     foto: fotoAtual,
     email_contato: email,
     ano_nascimento: $('input-ano').value ? ano : null
-  }).eq('user_id', uid);
+  };
+
+  $('btn-salvar-perfil').disabled = true;
+  let error = null;
+  if (perfilExiste) {
+    // .select() devolve as linhas alteradas; se vier vazio, o perfil não existia
+    const r = await db.from('perfis').update(campos).eq('user_id', uid).select('user_id');
+    error = r.error;
+    if (!error && (!r.data || !r.data.length)) perfilExiste = false;
+  }
+  if (!perfilExiste && !error) {
+    const r = await db.from('perfis').insert({ user_id: uid, usuario: USUARIO, ...campos });
+    error = r.error;
+    if (!error) perfilExiste = true;
+  }
   $('btn-salvar-perfil').disabled = false;
-  aviso(error ? 'Erro ao guardar: ' + error.message : 'Perfil atualizado com sucesso!');
+  if (error) return aviso('Erro ao guardar: ' + error.message);
+  if (silencioso !== true) aviso('Perfil atualizado com sucesso!');
 }
 
 /* ===== Foto (reduzida para 256x256 antes de guardar) ===== */
@@ -567,7 +597,7 @@ async function carregarPessoas() {
 }
 
 async function adicionarPessoa() {
-  const u = $('new-person-user').value.trim().replace(/^@/, '').toLowerCase();
+  const u = $('new-person-user').value.trim().replace(/^@/, '').split('@')[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   if (!u) return aviso('Preencha o utilizador.');
   $('btn-add-pessoa').disabled = true;
   const { data, error } = await db.rpc('adicionar_contato', { p_usuario: u });
@@ -578,7 +608,7 @@ async function adicionarPessoa() {
     nao_encontrado: 'Não existe ninguém com o utilizador @' + u + '.',
     voce_mesmo: 'Você não precisa se adicionar.',
     ja_adicionado: '@' + u + ' já está na lista.'
-  }[data] || 'Não foi possível adicionar.';
+  }[data] || ('Não foi possível adicionar' + (data ? ' (' + data + ')' : '') + '.');
   aviso(msg);
   if (data === 'ok') { $('new-person-user').value = ''; carregarPessoas(); }
 }
@@ -660,7 +690,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (!db) { aviso('Não foi possível carregar o Supabase. Verifique a internet.'); return; }
   const { data } = await db.auth.getSession();
   if (!data.session) { window.location.href = 'index.html'; return; }
-  uid = data.session.user.id;
+  uid = data.session.user.id; sessaoUser = data.session.user;
 
   const ping = () => db.rpc('marcar_presenca').then(() => {}, () => {});
   ping(); tPresenca = setInterval(ping, 60000);

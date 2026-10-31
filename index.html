@@ -767,7 +767,8 @@ async function enviarAuth(e) {
   const metadata = modo === 'cadastro' ? { 
     usuario: u, 
     nome: $('nome-input').value.trim(), 
-    sobrenome: $('sobrenome-input').value.trim() 
+    sobrenome: $('sobrenome-input').value.trim(),
+    email_contato: $('email-cad-input').value.trim()
   } : { usuario: u };
 
   const isCadastro = (modo === 'cadastro'), isReset = (modo === 'reset');
