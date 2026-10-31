@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
-<script>
-/* Tema: Auto (segue o dispositivo) / Claro / Escuro. A escolha fica salva e vale para index.html e perfil.html */
-(function () {
-  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-  function modo() {
-    var m = 'auto';
-    try { m = localStorage.getItem('fluxo_tema') || 'auto'; } catch (e) {}
-    return (m === 'light' || m === 'dark') ? m : 'auto';
-  }
-  function aplicar() {
-    var m = modo();
-    var t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
-    document.documentElement.setAttribute('data-theme', t);
-    var txt = m === 'auto' ? '🖥️ Auto' : (m === 'dark' ? '🌙 Escuro' : '☀️ Claro');
-    document.querySelectorAll('.js-tema-label').forEach(function (b) { b.textContent = txt; });
-  }
-  window.aplicarTema = aplicar;
-  window.ciclarTema = function () {
-    var prox = { auto: 'light', light: 'dark', dark: 'auto' }[modo()];
-    try { localStorage.setItem('fluxo_tema', prox); } catch (e) {}
-    aplicar();
-  };
-  aplicar();
-  document.addEventListener('DOMContentLoaded', aplicar);
-  if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
-})();
-</script>
+  <!-- Aviso e Bloqueio para Navegador Mobile com Opção de Download no Perfil -->
+  <div id="aviso-app-obrigatorio" style="display:none; position:fixed; inset:0; z-index:99999; background:var(--bg); color:var(--tx); padding:24px; text-align:center; flex-direction:column; justify-content:center; align-items:center; font-family:inherit;">
+    <div style="max-width:360px; background:var(--card); border:1px solid var(--bd); padding:32px 24px; border-radius:20px; box-shadow:var(--shadow);">
+      <div style="font-size:48px; margin-bottom:16px;">📱</div>
+      <h2 style="font-size:20px; font-weight:800; margin:0 0 10px;">Aplicação Exclusiva</h2>
+      <p class="mut" style="font-size:14px; line-height:1.5; margin:0 0 24px;">
+        O <b>Fluxo</b> no telemóvel foi feito para ser utilizado através do aplicativo dedicado. Instale o nosso app oficial para continuar.
+      </p>
+      
+      <a href="./app-debug.apk" download="Fluxo.apk" class="btn" style="display:block; width:100%; box-sizing:border-box; padding:12px; margin-bottom:12px; border-radius:10px; background:#0d9488; color:#fff; text-decoration:none; font-weight:700; text-align:center; cursor:pointer;">
+        Baixar Aplicativo (APK)
+      </a>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+      return;
+    }
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isMobile && !isStandalone) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const aviso = document.getElementById('aviso-app-obrigatorio');
+        if (aviso) aviso.style.display = 'flex';
+      });
+    }
+  })();
+  </script>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d9488">
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Configuração do Fluxo - Perfil & Gestão</title>
+<title>My Profile - Fluxo</title>
 <style>
 :root[data-theme="light"] {
   --bg: #f8fafc;
@@ -185,6 +191,17 @@ header {
 }
 .theme-btn-toggle:hover { border-color: var(--pri); }
 
+/* ===== Seletor de tema (Claro / Auto / Escuro) ===== */
+.tema-seg { position: relative; display: inline-flex; padding: 3px; background: var(--bg); border: 1px solid var(--bd); border-radius: 999px; flex-shrink: 0; }
+.tema-seg button { position: relative; z-index: 1; width: 34px; height: 30px; min-height: 0; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; box-shadow: none; color: var(--mut); border-radius: 999px; cursor: pointer; transition: color .25s; }
+.tema-seg button:hover { color: var(--tx); }
+.tema-seg button[aria-pressed="true"] { color: #fff; }
+.tema-seg button svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.tema-thumb { position: absolute; top: 3px; left: 3px; width: 34px; height: 30px; border-radius: 999px; background: var(--pri); box-shadow: 0 2px 8px rgba(13, 148, 136, .45); transition: transform .28s cubic-bezier(.4, 0, .2, 1); }
+.tema-seg[data-modo="auto"] .tema-thumb { transform: translateX(34px); }
+.tema-seg[data-modo="dark"] .tema-thumb { transform: translateX(68px); }
+
+
 .main-content {
   flex: 1;
   padding: 24px;
@@ -296,18 +313,77 @@ footer {
   .sidebar-brand { display: none; }
   .nav-item { padding: 8px 12px; font-size: 13px; white-space: nowrap; }
 }
+
+/* ===== Menu do usuário: foto em círculo + My Profile / Sign Out ===== */
+.user-menu { position: relative; flex-shrink: 0; }
+.user-info-text { display: flex; flex-direction: column; text-align: left; line-height: 1.3; }
+.user-info-text b { font-size: 13px; color: var(--tx); }
+.user-info-text span { font-size: 11px; color: var(--mut); }
+.user-profile-area {
+  display: flex; align-items: center; gap: 10px; margin: 0; padding: 4px 10px 4px 4px;
+  background: none; border: 1px solid transparent; border-radius: 999px; color: inherit; font: inherit;
+  cursor: pointer; min-height: 0; box-shadow: none; transition: background .2s, border-color .2s;
+}
+.user-profile-area:hover, .user-menu.open .user-profile-area { background: var(--bg); border-color: var(--bd); }
+.user-profile-area:focus-visible { outline: 2px solid var(--pri); outline-offset: 2px; }
+.user-avatar-circle {
+  display: block; flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; object-fit: cover;
+  background: var(--pri-light); border: 2px solid var(--pri); box-shadow: 0 0 0 3px var(--pri-light);
+}
+.user-caret { width: 16px; height: 16px; stroke: var(--mut); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; flex-shrink: 0; }
+.user-menu.open .user-caret { transform: rotate(180deg); }
+.user-dropdown {
+  display: none; position: absolute; top: calc(100% + 10px); right: 0; z-index: 80; min-width: 230px;
+  background: var(--card); border: 1px solid var(--bd); border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,.22); padding: 6px;
+}
+.user-menu.open .user-dropdown { display: block; }
+.ud-id { display: none; align-items: center; gap: 12px; padding: 10px 10px 12px; margin-bottom: 4px; border-bottom: 1px solid var(--bd); }
+.ud-id .user-avatar-circle { width: 46px; height: 46px; }
+.ud-id .user-info-text { min-width: 0; }
+.ud-id .user-info-text b { font-size: 14px; word-break: break-word; }
+.ud-id .user-info-text span { font-size: 12px; word-break: break-all; }
+.ud-item {
+  display: flex; align-items: center; gap: 12px; width: 100%; margin: 0; padding: 10px 12px; border: 0; background: none;
+  border-radius: 10px; font: inherit; font-size: 14px; font-weight: 600; color: var(--tx); text-align: left;
+  text-decoration: none; cursor: pointer; min-height: 0; box-shadow: none;
+}
+.ud-item:hover { background: var(--bg); }
+.ud-item svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.ud-item.perigo { color: #dc2626; }
+header .ud-id .user-info-text { display: flex; }
+/* celular: no cabeçalho só aparece a foto; ao tocar abre o menu com @ e nome */
+@media (max-width: 560px) {
+  .user-profile-area { padding: 2px; }
+  .user-profile-area > .user-info-text, .user-caret { display: none; }
+  .ud-id { display: flex; }
+  .user-dropdown { min-width: 240px; max-width: calc(100vw - 28px); }
+}
+
+#config-header-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 560px) {
+  header { padding: 12px 14px; gap: 10px; }
+  .header-right { gap: 10px; }
+  #config-header-title { font-size: 16px !important; }
+}
+
+.sidebar-brand { cursor: pointer; user-select: none; }
+.sidebar-brand:focus-visible { outline: 2px solid var(--pri); outline-offset: -2px; border-radius: 10px; }
+/* barra lateral fixa na tela (não sobe junto com a rolagem) */
+@media (min-width: 769px) {
+  aside { position: sticky; top: 0; height: 100vh; align-self: flex-start; overflow-y: auto; }
+}
+.copyright { margin: 0; padding: 8px 24px 20px; text-align: center; font-size: 12px; color: var(--mut); position: relative; z-index: 2; }
 </style>
 </head>
 <body>
-
 <canvas id="bg-canvas"></canvas>
 
 <div class="app-layout">
   <!-- Barra Lateral de Configuração -->
   <aside>
-    <div class="sidebar-brand">
-      <div class="sidebar-brand-icon">⚙️</div>
-      <span>Configuração do Fluxo</span>
+    <div class="sidebar-brand" id="brand-topo" role="button" tabindex="0" title="Voltar ao topo" onclick="if (!event.target.closest('.nav-close')) voltarTopo()" onkeydown="if ((event.key === 'Enter' || event.key === ' ') && event.target === this) { event.preventDefault(); voltarTopo(); }">
+      <div class="sidebar-brand-icon">👤</div>
+      <span>My Profile</span>
     </div>
 
     <button class="nav-item active" id="tab-btn-perfil" onclick="mudarSecao('perfil')">
@@ -327,23 +403,49 @@ footer {
     </button>
 
     <div style="flex:1"></div>
-
-    <a href="index.html" class="nav-item" style="color: #2563eb;">
-      <svg viewBox="0 0 24 24" style="stroke: #2563eb;"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      Menu Inicial
-    </a>
-
-    <button class="nav-item" onclick="sairApp()" style="color: #dc2626;">
-      <svg viewBox="0 0 24 24" style="stroke: #dc2626;"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-      Sign Out
-    </button>
   </aside>
 
   <div class="main-content-wrapper">
     <header>
-      <div style="font-size: 20px; font-weight: 800;" id="config-header-title">Configuração do Fluxo - Meu Perfil</div>
+      <div style="font-size: 20px; font-weight: 800;" id="config-header-title">My Profile</div>
       <div class="header-right">
-        <button class="theme-btn-toggle js-tema-label" onclick="toggleTema()" id="theme-btn-label" title="Alternar: Auto (dispositivo) / Claro / Escuro">🖥️ Auto</button>
+        <div class="tema-seg" role="group" aria-label="Tema do site" data-modo="auto">
+<i class="tema-thumb"></i>
+<button type="button" data-tema="light" aria-pressed="false" title="Claro" aria-label="Tema claro"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
+<button type="button" data-tema="auto" aria-pressed="true" title="Automático (segue o dispositivo)" aria-label="Tema automático"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+<button type="button" data-tema="dark" aria-pressed="false" title="Escuro" aria-label="Tema escuro"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
+</div>
+        <div class="user-menu" id="user-menu">
+            <button type="button" class="user-profile-area" id="user-btn" onclick="menuUsuario()" aria-haspopup="menu" aria-expanded="false" aria-controls="user-dropdown" title="Perfil" aria-label="Abrir menu do perfil">
+              <img id="avatar" class="user-avatar-circle" alt="Foto de perfil">
+              <div class="user-info-text">
+                <b id="user-display">Utilizador</b>
+                <span id="user-role-badge">@</span>
+              </div>
+              <svg class="user-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="user-dropdown" id="user-dropdown" role="menu">
+              <div class="ud-id">
+                <img id="ud-avatar" class="user-avatar-circle" alt="">
+                <div class="user-info-text">
+                  <b id="ud-nome">Utilizador</b>
+                  <span id="ud-user">@</span>
+                </div>
+              </div>
+              <a href="index.html" class="ud-item" role="menuitem">
+                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Menu Inicial
+              </a>
+              <button type="button" class="ud-item" role="menuitem" onclick="menuUsuario(false); irPessoas()">
+                <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+                Pessoas Add
+              </button>
+              <button type="button" class="ud-item perigo" role="menuitem" onclick="menuUsuario(false); sairApp()">
+                <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Sign Out
+              </button>
+            </div>
+          </div>
       </div>
     </header>
 
@@ -397,7 +499,7 @@ footer {
       <div id="sec-pessoas" class="section-panel">
         <div class="card">
           <h2>Gerir Pessoas Adicionadas</h2>
-          <p class="mut">Adicione pelo nome de utilizador. Você só vê o que fizeram (no Dashboard) e se estão online quem estiver nesta lista.</p>
+          <p class="mut">Adicione pelo nome de utilizador (ex.: fred.felipe). A partilha é para os dois lados: vocês dois passam a ver as atividades um do outro e quem está online. A outra pessoa precisa já ter criado conta.</p>
 
           <div class="row" style="margin-top: 16px;">
             <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 220px; margin-top: 0;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
@@ -440,12 +542,10 @@ footer {
       </div>
 
     </main>
+
+    <p class="copyright">© 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.</p>
   </div>
 </div>
-
-<footer>
-  © 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.
-</footer>
 
 <div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
 
@@ -474,7 +574,7 @@ function mudarSecao(sec) {
   });
   $('sec-' + sec).classList.add('active');
   $('tab-btn-' + sec).classList.add('active');
-  $('config-header-title').textContent = 'Configuração do Fluxo - ' + TITULOS[sec];
+  $('config-header-title').textContent = sec === 'perfil' ? 'My Profile' : 'My Profile - ' + TITULOS[sec];
 
   clearInterval(tPessoas);
   if (sec === 'pessoas') { carregarPessoas(); tPessoas = setInterval(carregarPessoas, 30000); }
@@ -488,6 +588,41 @@ function pintarAvatar(box, img, letra, foto) {
   letra.hidden = !!f;
 }
 
+/* ===== Menu do usuário ===== */
+function menuUsuario(abrir) {
+  const m = $('user-menu'); if (!m) return;
+  const on = typeof abrir === 'boolean' ? abrir : !m.classList.contains('open');
+  m.classList.toggle('open', on);
+  $('user-btn').setAttribute('aria-expanded', on ? 'true' : 'false');
+}
+document.addEventListener('click', e => {
+  const m = $('user-menu');
+  if (m && m.classList.contains('open') && !m.contains(e.target)) menuUsuario(false);
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') menuUsuario(false); });
+
+const avatarPadrao = n => 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" fill="#0d9488"/><text x="32" y="42" font-size="30" font-family="Arial" font-weight="700" text-anchor="middle" fill="#fff">' + esc((n || '?')[0].toUpperCase()) + '</text></svg>');
+function atualizarMenuUsuario() {
+  const nome = $('input-nome').value.trim() || USUARIO || 'Utilizador';
+  const foto = fotoOk(fotoAtual) || avatarPadrao(nome);
+  const u = USUARIO ? '@' + USUARIO : '@';
+  $('avatar').src = foto; $('ud-avatar').src = foto;
+  $('user-display').textContent = nome; $('ud-nome').textContent = nome;
+  $('user-role-badge').textContent = u; $('ud-user').textContent = u;
+}
+
+/* ===== Barra lateral fixa: clicar na marca volta tudo para o topo ===== */
+function voltarTopo() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelectorAll('.main-content, #folha-scroll').forEach(el => el.scrollTo({ top: 0, behavior: 'smooth' }));
+  if (typeof fecharMenu === 'function') fecharMenu();
+}
+
+function irPessoas() {
+  mudarSecao('pessoas');
+  setTimeout(() => { const i = $('new-person-user'); if (i) i.focus(); }, 60);
+}
+
 function atualizarPreview() {
   const nome = $('input-nome').value.trim();
   $('preview-name').textContent = nome || USUARIO || 'Utilizador';
@@ -495,6 +630,7 @@ function atualizarPreview() {
   $('user-avatar-letter').textContent = ((nome || USUARIO || '?')[0] || '?').toUpperCase();
   pintarAvatar($('avatar-box'), $('avatar-img'), $('user-avatar-letter'), fotoAtual);
   $('btn-rm-foto').style.display = fotoOk(fotoAtual) ? '' : 'none';
+  atualizarMenuUsuario();
 }
 
 function atualizarIdade() {
@@ -632,7 +768,7 @@ async function adicionarPessoa() {
   $('btn-add-pessoa').disabled = false;
   if (error) return aviso('Erro: ' + error.message);
   const msg = {
-    ok: '@' + u + ' adicionado!',
+    ok: '@' + u + ' adicionado! Agora vocês dois veem um ao outro.',
     nao_encontrado: 'Não existe ninguém com o utilizador @' + u + '.',
     voce_mesmo: 'Você não precisa se adicionar.',
     ja_adicionado: '@' + u + ' já está na lista.'
@@ -642,7 +778,7 @@ async function adicionarPessoa() {
 }
 
 async function removerPessoa(u) {
-  if (!confirm('Remover @' + u + ' da lista? Você deixa de ver as atividades dessa pessoa.')) return;
+  if (!confirm('Remover @' + u + ' da lista? Vocês dois deixam de ver as atividades um do outro.')) return;
   const { error } = await db.rpc('remover_contato', { p_usuario: u });
   if (error) return aviso('Erro ao remover.');
   carregarPessoas();
@@ -721,6 +857,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await carregarPerfil();
   statusRecuperacao();
   if (location.hash === '#recuperacao') mudarSecao('recuperacao');
+  if (location.hash === '#pessoas') irPessoas();
 });
 </script>
 </body>
