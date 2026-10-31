@@ -1,6 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="light">
 <head>
+<script>
+/* Tema: Auto (segue o dispositivo) / Claro / Escuro. A escolha fica salva e vale para index.html e perfil.html */
+(function () {
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function modo() {
+    var m = 'auto';
+    try { m = localStorage.getItem('fluxo_tema') || 'auto'; } catch (e) {}
+    return (m === 'light' || m === 'dark') ? m : 'auto';
+  }
+  function aplicar() {
+    var m = modo();
+    var t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
+    document.documentElement.setAttribute('data-theme', t);
+    var txt = m === 'auto' ? '🖥️ Auto' : (m === 'dark' ? '🌙 Escuro' : '☀️ Claro');
+    document.querySelectorAll('.js-tema-label').forEach(function (b) { b.textContent = txt; });
+  }
+  window.aplicarTema = aplicar;
+  window.ciclarTema = function () {
+    var prox = { auto: 'light', light: 'dark', dark: 'auto' }[modo()];
+    try { localStorage.setItem('fluxo_tema', prox); } catch (e) {}
+    aplicar();
+  };
+  aplicar();
+  document.addEventListener('DOMContentLoaded', aplicar);
+  if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Configuração do Fluxo - Perfil & Gestão</title>
@@ -315,7 +343,7 @@ footer {
     <header>
       <div style="font-size: 20px; font-weight: 800;" id="config-header-title">Configuração do Fluxo - Meu Perfil</div>
       <div class="header-right">
-        <button class="theme-btn-toggle" onclick="toggleTema()" id="theme-btn-label">☀️ Tema</button>
+        <button class="theme-btn-toggle js-tema-label" onclick="toggleTema()" id="theme-btn-label" title="Alternar: Auto (dispositivo) / Claro / Escuro">🖥️ Auto</button>
       </div>
     </header>
 
@@ -679,12 +707,7 @@ async function sairApp() {
   window.location.href = 'index.html';
 }
 
-function toggleTema() {
-  const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', newTheme);
-  $('theme-btn-label').textContent = newTheme === 'dark' ? '🌙 Escuro' : '☀️ Claro';
-}
+function toggleTema() { window.ciclarTema(); }
 
 window.addEventListener('DOMContentLoaded', async () => {
   if (!db) { aviso('Não foi possível carregar o Supabase. Verifique a internet.'); return; }
