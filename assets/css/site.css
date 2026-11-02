@@ -1,0 +1,42 @@
+/* =====================================================================
+   FLUXO (site) · site.css — adaptações do visual do site (fluxo-web)
+   ===================================================================== */
+
+/* abas internas do menu */
+.tab-panel{ display:none; }
+.tab-panel.active{ display:block; }
+
+/* pequenos ajustes de componentes para o layout do site */
+.dot{ margin-right:0 !important; }
+.main-content .sec-head{ margin-top:16px; }
+.header-right .ib{ margin-left:2px; }
+.bell-badge{ border-color:var(--card); }
+
+/* layout em duas colunas das telas de entrada (reusa o .wrap antigo) */
+.wrap .card{ margin-bottom:16px; }
+.wrap textarea{ min-height:190px; }
+
+/* painel do chat antigo continua o mesmo; o sino fica ao lado do tema */
+@media (max-width:560px){
+  .header-right .tema-seg{ display:none; }
+}
+
+/* fichas em telas largas ganham respiro */
+@media (min-width:1200px){
+  .ficha{ padding:15px 16px 14px; }
+  .ficha-name{ font-size:15.5px; }
+}
+
+/* folhas e modais no desktop */
+.sheet{ max-width:640px; }
+.sheet-layer{ justify-content:center; }
+
+/* prévia ao vivo ocupa bem a coluna direita */
+.prev-paper{ min-height:280px; }
+
+/* painel de pessoas no perfil */
+@media (max-width:768px){
+  .people-scroll{ max-width:100%; }
+  .blocks{ max-width:100%; }
+  .profile-hero{ max-width:100%; }
+}
