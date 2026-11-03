@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="light" data-accent="teal">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0d9488">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Script Inline de Tema (Executado imediatamente para evitar tela branca no tema escuro) -->
+  <!-- Script Inline de Tema e Cores -->
   <script>
   (function () {
     var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
@@ -16,15 +16,26 @@
       try { m = localStorage.getItem('fluxo_tema') || 'auto'; } catch (e) {}
       return (m === 'light' || m === 'dark') ? m : 'auto';
     }
+    function accent() {
+      var a = 'teal';
+      try { a = localStorage.getItem('fluxo_accent') || 'teal'; } catch (e) {}
+      return a;
+    }
     function aplicar() {
       var m = modo();
       var t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
       document.documentElement.setAttribute('data-theme', t);
+      document.documentElement.setAttribute('data-accent', accent());
+
       document.querySelectorAll('.tema-seg').forEach(function (g) {
         g.setAttribute('data-modo', m);
         g.querySelectorAll('[data-tema]').forEach(function (b) {
           b.setAttribute('aria-pressed', b.getAttribute('data-tema') === m ? 'true' : 'false');
         });
+      });
+
+      document.querySelectorAll('.color-dot').forEach(function (d) {
+        d.classList.toggle('active', d.getAttribute('data-accent') === accent());
       });
     }
     window.aplicarTema = aplicar;
@@ -32,9 +43,15 @@
       try { localStorage.setItem('fluxo_tema', m); } catch (e) {}
       aplicar();
     };
+    window.definirAccent = function (acc) {
+      try { localStorage.setItem('fluxo_accent', acc); } catch (e) {}
+      aplicar();
+    };
     document.addEventListener('click', function (e) {
       var b = e.target.closest ? e.target.closest('.tema-seg [data-tema]') : null;
       if (b) window.definirTema(b.getAttribute('data-tema'));
+      var dot = e.target.closest ? e.target.closest('.color-dot') : null;
+      if (dot) window.definirAccent(dot.getAttribute('data-accent'));
     });
     aplicar();
     document.addEventListener('DOMContentLoaded', aplicar);
@@ -42,43 +59,36 @@
   })();
   </script>
 
-  <!-- Bloqueio Mobile (Download APK) -->
-  <div id="aviso-app-obrigatorio" style="display:none; position:fixed; inset:0; z-index:99999; background:var(--bg); color:var(--tx); padding:24px; text-align:center; flex-direction:column; justify-content:center; align-items:center; font-family:inherit;">
-    <div style="max-width:360px; background:var(--card); border:1px solid var(--bd); padding:32px 24px; border-radius:20px; box-shadow:var(--shadow);">
-      <div style="font-size:48px; margin-bottom:16px;">📱</div>
-      <h2 style="font-size:20px; font-weight:800; margin:0 0 10px;">Aplicação Exclusiva</h2>
-      <p class="mut" style="font-size:14px; line-height:1.5; margin:0 0 24px;">
-        O <b>Fluxo</b> no telemóvel foi feito para ser utilizado através do aplicativo dedicado. Instale o nosso app oficial para continuar.
-      </p>
-      <a href="./app-debug.apk" download="Fluxo.apk" class="btn" style="display:block; width:100%; box-sizing:border-box; padding:12px; margin-bottom:12px; border-radius:10px; background:#0d9488; color:#fff; text-decoration:none; font-weight:700; text-align:center; cursor:pointer;">
-        Baixar Aplicativo (APK)
-      </a>
-    </div>
-  </div>
-
-  <script>
-  (function() {
-    if (window.Capacitor && window.Capacitor.isNativePlatform()) return;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-    if (isMobile && !isStandalone) {
-      document.addEventListener('DOMContentLoaded', () => {
-        const aviso = document.getElementById('aviso-app-obrigatorio');
-        if (aviso) aviso.style.display = 'flex';
-      });
-    }
-  })();
-  </script>
-
   <style>
+  /* Variáveis de Cores Primárias (Paleta de Cores Customizáveis) */
+  :root {
+    --pri: #0d9488;
+    --pri-hover: #0f766e;
+    --pri-light: #f0fdf4;
+    --shadow-pri: rgba(13, 148, 136, 0.3);
+  }
+
+  [data-accent="teal"] {
+    --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --shadow-pri: rgba(13, 148, 136, 0.3);
+  }
+  [data-accent="blue"] {
+    --pri: #2563eb; --pri-hover: #1d4ed8; --pri-light: #eff6ff; --shadow-pri: rgba(37, 99, 235, 0.3);
+  }
+  [data-accent="purple"] {
+    --pri: #7c3aed; --pri-hover: #6d28d9; --pri-light: #f5f3ff; --shadow-pri: rgba(124, 58, 237, 0.3);
+  }
+  [data-accent="orange"] {
+    --pri: #ea580c; --pri-hover: #c2410c; --pri-light: #fff7ed; --shadow-pri: rgba(234, 88, 12, 0.3);
+  }
+  [data-accent="pink"] {
+    --pri: #db2777; --pri-hover: #be185d; --pri-light: #fdf2f8; --shadow-pri: rgba(219, 39, 119, 0.3);
+  }
+
   :root[data-theme="light"] {
     --bg: #f8fafc;
     --card: #ffffff;
     --tx: #0f172a;
     --mut: #64748b;
-    --pri: #0d9488;
-    --pri-hover: #0f766e;
-    --pri-light: #f0fdf4;
     --bd: #e2e8f0;
     --shadow: 0 4px 12px -2px rgba(0,0,0,0.06);
   }
@@ -88,9 +98,6 @@
     --card: #1e293b;
     --tx: #f8fafc;
     --mut: #9ca3af;
-    --pri: #14b8a6;
-    --pri-hover: #0d9488;
-    --pri-light: #042f2e;
     --bd: #334155;
     --shadow: 0 4px 12px -2px rgba(0,0,0,0.4);
   }
@@ -115,29 +122,30 @@
     z-index: 0; pointer-events: none;
   }
 
-  /* Layout PC Sem Barra Lateral */
   .app-container {
     position: relative;
     z-index: 2;
     width: 100%;
     max-width: 1000px;
     margin: 0 auto;
-    padding: 24px 20px 40px;
+    padding: 24px 16px 40px;
     display: flex;
     flex-direction: column;
     gap: 20px;
   }
 
-  /* Cabeçalho Superior PC */
+  /* Cabeçalho Superior */
   header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     background: var(--card);
     border: 1px solid var(--bd);
-    padding: 16px 28px;
+    padding: 14px 20px;
     border-radius: 16px;
     box-shadow: var(--shadow);
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
   .header-brand {
@@ -146,42 +154,61 @@
     gap: 12px;
     text-decoration: none;
     color: var(--tx);
+    cursor: pointer;
   }
 
   .header-brand-icon {
     width: 38px; height: 38px; background: var(--pri); border-radius: 10px;
     display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px;
+    transition: transform 0.2s;
   }
+  .header-brand:hover .header-brand-icon { transform: scale(1.05); }
 
   .header-nav {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
-  /* Botão de Navegação / Menu */
   .btn-nav-back {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 6px;
+    padding: 8px 14px;
     border-radius: 10px;
     border: 1px solid var(--bd);
     background: var(--bg);
     color: var(--tx);
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
     text-decoration: none;
     transition: 0.2s;
   }
   .btn-nav-back:hover { background: var(--card); border-color: var(--pri); }
 
-  /* Card Principal do Perfil */
+  /* Bolinhas de Cores para escolha rápida no topo */
+  .color-picker-header {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    background: var(--bg);
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--bd);
+  }
+  .color-dot {
+    width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s;
+  }
+  .color-dot:hover { transform: scale(1.15); }
+  .color-dot.active { border-color: var(--tx); transform: scale(1.1); }
+
+  /* Cartão de Destaque do Perfil */
   .profile-hero-card {
     background: var(--card);
     border: 1px solid var(--bd);
     border-radius: 20px;
-    padding: 32px 24px;
+    padding: 28px 20px;
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
@@ -191,37 +218,37 @@
   }
 
   .profile-avatar-large {
-    width: 90px;
-    height: 90px;
+    width: 84px;
+    height: 84px;
     border-radius: 50%;
     background: var(--pri);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 38px;
+    font-size: 34px;
     font-weight: 800;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     overflow: hidden;
     border: 4px solid var(--bg);
-    box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+    box-shadow: 0 4px 14px var(--shadow-pri);
   }
   .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
 
-  .profile-name { font-size: 24px; font-weight: 800; margin: 0 0 4px; color: var(--tx); }
-  .profile-handle { font-size: 15px; color: var(--mut); margin: 0 0 8px; font-weight: 600; }
-  .profile-bio { font-size: 14px; color: var(--mut); margin: 0 0 24px; }
+  .profile-name { font-size: 22px; font-weight: 800; margin: 0 0 4px; color: var(--tx); word-break: break-word; }
+  .profile-handle { font-size: 14px; color: var(--mut); margin: 0 0 6px; font-weight: 600; }
+  .profile-bio { font-size: 13px; color: var(--mut); margin: 0 0 20px; }
 
-  /* Estatísticas (ABERTAS | CONCLUÍDAS | PESSOAS) */
+  /* Estatísticas */
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     width: 100%;
-    max-width: 650px;
+    max-width: 600px;
     background: var(--bg);
     border: 1px solid var(--bd);
-    border-radius: 16px;
-    padding: 16px 8px;
+    border-radius: 14px;
+    padding: 14px 6px;
   }
 
   .stat-item {
@@ -240,15 +267,15 @@
     width: 1px;
     background: var(--bd);
   }
-  .stat-val { font-size: 22px; font-weight: 800; color: var(--tx); }
-  .stat-lbl { font-size: 12px; font-weight: 700; color: var(--mut); text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px; }
+  .stat-val { font-size: 20px; font-weight: 800; color: var(--tx); }
+  .stat-lbl { font-size: 11px; font-weight: 700; color: var(--mut); text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px; }
 
   /* Seção de Pessoas Adicionadas */
   .section-card {
     background: var(--card);
     border: 1px solid var(--bd);
     border-radius: 20px;
-    padding: 24px;
+    padding: 20px;
     box-shadow: var(--shadow);
   }
 
@@ -256,56 +283,59 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
-  .section-title-row h3 { font-size: 18px; font-weight: 800; margin: 0; color: var(--tx); }
-  .link-action { color: var(--pri); font-weight: 700; text-decoration: none; font-size: 14px; cursor: pointer; }
+  .section-title-row h3 { font-size: 17px; font-weight: 800; margin: 0; color: var(--tx); }
+  .link-action { color: var(--pri); font-weight: 700; text-decoration: none; font-size: 13px; cursor: pointer; }
   .link-action:hover { text-decoration: underline; }
 
   .pessoas-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
   }
 
   .pessoa-card {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     background: var(--bg);
     border: 1px solid var(--bd);
-    padding: 12px 14px;
-    border-radius: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
   }
   .pessoa-avatar {
-    width: 44px; height: 44px; border-radius: 50%; background: var(--pri); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;
+    width: 40px; height: 40px; border-radius: 50%; background: var(--pri); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
     overflow: hidden; flex-shrink: 0;
   }
   .pessoa-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .pessoa-info { min-width: 0; flex: 1; }
-  .pessoa-info b { display: block; font-size: 14px; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pessoa-info span { display: block; font-size: 12px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pessoa-info b { display: block; font-size: 13px; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pessoa-info span { display: block; font-size: 11px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-  /* Navegação em Abas no PC */
+  /* Navegação em Abas */
   .tabs-bar {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     border-bottom: 1px solid var(--bd);
-    padding-bottom: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .tabs-bar::-webkit-scrollbar { display: none; }
 
   .tab-btn {
-    padding: 10px 20px;
-    border-radius: 12px;
+    padding: 8px 14px;
+    border-radius: 10px;
     border: 1px solid transparent;
     background: transparent;
     color: var(--mut);
     font-weight: 700;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
+    white-space: nowrap;
     transition: all 0.2s;
   }
   .tab-btn:hover { background: var(--bg); color: var(--tx); }
@@ -313,67 +343,82 @@
 
   /* Formulários e Inputs */
   input, select {
-    width: 100%; padding: 12px 14px; border: 1px solid var(--bd); border-radius: 10px;
-    background: var(--bg); color: var(--tx); font: inherit; outline: none; font-size: 15px;
+    width: 100%; padding: 10px 12px; border: 1px solid var(--bd); border-radius: 10px;
+    background: var(--bg); color: var(--tx); font: inherit; outline: none; font-size: 14px;
     margin-top: 6px;
   }
   input:focus { border-color: var(--pri); }
   input[readonly] { opacity: 0.7; cursor: not-allowed; }
 
-  .row-gap { display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap; align-items: center; }
+  .row-gap { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
 
   .btn {
-    border-radius: 10px; padding: 12px 22px; font: inherit; font-weight: 700;
-    border: none; cursor: pointer; font-size: 15px; background: var(--pri); color: #ffffff;
-    transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    border-radius: 10px; padding: 10px 18px; font: inherit; font-weight: 700;
+    border: none; cursor: pointer; font-size: 14px; background: var(--pri); color: #ffffff;
+    transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   }
   .btn:hover { background: var(--pri-hover); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .ghost {
-    border-radius: 10px; padding: 10px 18px; font: inherit; font-weight: 700; font-size: 14px;
+    border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 700; font-size: 13px;
     background: transparent; color: var(--mut); border: 1px solid var(--bd); cursor: pointer;
   }
   .ghost:hover { background: var(--bg); color: var(--tx); }
 
   .btn-danger {
-    background: #ef4444; color: #fff; border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700; cursor: pointer; transition: 0.2s;
+    background: #ef4444; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s;
   }
   .btn-danger:hover { background: #dc2626; }
 
   /* Seletor de Tema Segmentado */
   .tema-seg { position: relative; display: inline-flex; padding: 3px; background: var(--bg); border: 1px solid var(--bd); border-radius: 999px; flex-shrink: 0; }
-  .tema-seg button { position: relative; z-index: 1; width: 34px; height: 30px; min-height: 0; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; box-shadow: none; color: var(--mut); border-radius: 999px; cursor: pointer; transition: color .25s; }
+  .tema-seg button { position: relative; z-index: 1; width: 32px; height: 28px; min-height: 0; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; box-shadow: none; color: var(--mut); border-radius: 999px; cursor: pointer; transition: color .25s; }
   .tema-seg button:hover { color: var(--tx); }
   .tema-seg button[aria-pressed="true"] { color: #fff; }
-  .tema-seg button svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .tema-thumb { position: absolute; top: 3px; left: 3px; width: 34px; height: 30px; border-radius: 999px; background: var(--pri); box-shadow: 0 2px 8px rgba(13, 148, 136, .45); transition: transform .28s cubic-bezier(.4, 0, .2, 1); }
-  .tema-seg[data-modo="auto"] .tema-thumb { transform: translateX(34px); }
-  .tema-seg[data-modo="dark"] .tema-thumb { transform: translateX(68px); }
+  .tema-seg button svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .tema-thumb { position: absolute; top: 3px; left: 3px; width: 32px; height: 28px; border-radius: 999px; background: var(--pri); box-shadow: 0 2px 8px var(--shadow-pri); transition: transform .28s cubic-bezier(.4, 0, .2, 1); }
+  .tema-seg[data-modo="auto"] .tema-thumb { transform: translateX(32px); }
+  .tema-seg[data-modo="dark"] .tema-thumb { transform: translateX(64px); }
 
-  /* Caixas de Aviso */
-  .warn-box { background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; color: var(--tx); padding: 14px; border-radius: 10px; font-size: 14px; margin-top: 14px; }
-  .ok-box { background: var(--pri-light); border: 1px solid var(--pri); color: var(--tx); padding: 14px; border-radius: 10px; font-size: 14px; margin-top: 14px; }
-  .code-box { font-family: monospace; font-size: 28px; font-weight: 800; letter-spacing: 4px; text-align: center; color: var(--tx); background: var(--bg); border: 2px dashed var(--pri); border-radius: 12px; padding: 20px; margin-top: 14px; }
+  .warn-box { background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; color: var(--tx); padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 12px; }
+  .ok-box { background: var(--pri-light); border: 1px solid var(--pri); color: var(--tx); padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 12px; }
+  .code-box { font-family: monospace; font-size: 24px; font-weight: 800; letter-spacing: 3px; text-align: center; color: var(--tx); background: var(--bg); border: 2px dashed var(--pri); border-radius: 12px; padding: 16px; margin-top: 12px; }
 
-  .copyright { text-align: center; font-size: 13px; color: var(--mut); margin-top: 20px; }
+  .copyright { text-align: center; font-size: 12px; color: var(--mut); margin-top: 16px; }
+
+  /* Ajustes Mobile específicos */
+  @media(max-width: 600px) {
+    .app-container { padding: 12px 10px 30px; }
+    .profile-hero-card { padding: 20px 14px; }
+    header { padding: 10px 14px; }
+  }
   </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
 
 <div class="app-container">
-  <!-- Cabeçalho de Navegação Superior (PC) -->
+  <!-- Cabeçalho Superior com Logótipo clicável para o Dashboard -->
   <header>
-    <a href="menu.html" class="header-brand">
+    <a href="menu.html" class="header-brand" title="Voltar ao início">
       <div class="header-brand-icon">F</div>
       <div style="display:flex; flex-direction:column;">
-        <span style="font-size:18px; font-weight:800;">Meu Perfil</span>
-        <span style="font-size:12px; color:var(--mut);">Sua conta</span>
+        <span style="font-size:16px; font-weight:800;">Meu Perfil</span>
+        <span style="font-size:11px; color:var(--mut);">Fluxo</span>
       </div>
     </a>
 
     <div class="header-nav">
+      <!-- Seletor Rápido de Cores (Bolinhas) -->
+      <div class="color-picker-header" title="Escolha a cor do app">
+        <div class="color-dot" data-accent="teal" style="background:#0d9488;" title="Teal Padrão"></div>
+        <div class="color-dot" data-accent="blue" style="background:#2563eb;" title="Azul"></div>
+        <div class="color-dot" data-accent="purple" style="background:#7c3aed;" title="Roxo"></div>
+        <div class="color-dot" data-accent="orange" style="background:#ea580c;" title="Laranja"></div>
+        <div class="color-dot" data-accent="pink" style="background:#db2777;" title="Rosa"></div>
+      </div>
+
       <!-- Seletor de Tema -->
       <div class="tema-seg" role="group" aria-label="Tema do site" data-modo="auto">
         <i class="tema-thumb"></i>
@@ -383,7 +428,7 @@
       </div>
 
       <a href="menu.html" class="btn-nav-back">
-        ← Voltar ao Dashboard
+        ← Início
       </a>
     </div>
   </header>
@@ -398,7 +443,7 @@
     <div class="profile-handle" id="hero-handle">@demo</div>
     <div class="profile-bio">Fichas, pastas e provisórias em um só lugar.</div>
 
-    <!-- Barra de Estatísticas da Imagem -->
+    <!-- Barra de Estatísticas -->
     <div class="stats-grid">
       <div class="stat-item">
         <div class="stat-val" id="stat-abertas">0</div>
@@ -415,7 +460,7 @@
     </div>
   </div>
 
-  <!-- Seção de Pessoas Adicionadas (Grade Estilo Imagem) -->
+  <!-- Seção de Pessoas Adicionadas -->
   <div class="section-card">
     <div class="section-title-row">
       <h3>Pessoas</h3>
@@ -429,41 +474,41 @@
 
   <!-- Painel Principal de Configurações da Conta -->
   <div class="section-card">
-    <div style="margin-bottom: 20px;">
-      <h3 style="font-size:20px; font-weight:800; margin:0 0 4px;">Conta</h3>
-      <span class="mut">Gerencie suas configurações, segurança e preferências do aplicativo.</span>
+    <div style="margin-bottom: 16px;">
+      <h3 style="font-size:18px; font-weight:800; margin:0 0 2px;">Conta</h3>
+      <span class="mut" style="font-size:13px;">Gerencie suas configurações, segurança e preferências visuais.</span>
     </div>
 
-    <!-- Navegação em Abas no PC -->
+    <!-- Navegação em Abas -->
     <div class="tabs-bar">
       <button class="tab-btn active" id="tab-btn-perfil" onclick="mudarAba('perfil')">Configurações</button>
       <button class="tab-btn" id="tab-btn-pessoas" onclick="mudarAba('pessoas')">Pessoas Add</button>
-      <button class="tab-btn" id="tab-btn-recuperacao" onclick="mudarAba('recuperacao')">Recuperação de Senha</button>
-      <button class="tab-btn" id="tab-btn-aparencia" onclick="mudarAba('aparencia')">Aparência</button>
+      <button class="tab-btn" id="tab-btn-recuperacao" onclick="mudarAba('recuperacao')">Recuperação</button>
+      <button class="tab-btn" id="tab-btn-aparencia" onclick="mudarAba('aparencia')">Aparência & Cores</button>
     </div>
 
     <!-- ABA 1: CONFIGURAÇÕES DO PERFIL -->
     <div id="sec-perfil" class="tab-panel">
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
         <div>
-          <label style="font-size: 13px; font-weight: 700;">Nome Completo</label>
+          <label style="font-size: 12px; font-weight: 700;">Nome Completo</label>
           <input type="text" id="input-nome" oninput="atualizarPreview()" maxlength="80">
         </div>
         <div>
-          <label style="font-size: 13px; font-weight: 700;">Nome de Utilizador (@)</label>
+          <label style="font-size: 12px; font-weight: 700;">Nome de Utilizador (@)</label>
           <input type="text" id="input-usuario" readonly title="Login de acesso">
         </div>
         <div>
-          <label style="font-size: 13px; font-weight: 700;">E-mail de Contato</label>
+          <label style="font-size: 12px; font-weight: 700;">E-mail de Contato</label>
           <input type="email" id="input-email" maxlength="120" placeholder="seu@email.com">
         </div>
         <div>
-          <label style="font-size: 13px; font-weight: 700;">Ano de Nascimento <span id="idade-txt" class="mut"></span></label>
+          <label style="font-size: 12px; font-weight: 700;">Ano de Nascimento <span id="idade-txt" class="mut"></span></label>
           <input type="number" id="input-ano" min="1900" max="2100" placeholder="Ex.: 2003" oninput="atualizarIdade()">
         </div>
       </div>
 
-      <div class="row-gap" style="margin-top: 20px;">
+      <div class="row-gap" style="margin-top: 16px;">
         <button class="btn" id="btn-salvar-perfil" onclick="salvarPerfil(false)">Salvar Alterações</button>
         <button class="ghost" type="button" onclick="$('input-foto').click()">Trocar Foto</button>
         <button class="ghost" type="button" id="btn-rm-foto" onclick="removerFoto()" style="display:none">Remover Foto</button>
@@ -473,23 +518,23 @@
 
     <!-- ABA 2: PESSOAS ADD -->
     <div id="sec-pessoas" class="tab-panel" style="display:none;">
-      <p class="mut" style="margin-top:0;">Adicione pessoas pelo nome de utilizador (ex.: maria.silva). Vocês passarão a compartilhar atualizações de atividades e presença.</p>
+      <p class="mut" style="margin-top:0; font-size:13px;">Adicione pessoas pelo nome de utilizador (ex.: maria.silva). Vocês passarão a partilhar atualizações de atividades e presença.</p>
 
       <div class="row-gap">
-        <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 240px; margin-top: 0;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
-        <button class="btn" id="btn-add-pessoa" onclick="adicionarPessoa()">Adicionar Pessoa</button>
+        <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 220px; margin-top: 0;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
+        <button class="btn" id="btn-add-pessoa" onclick="adicionarPessoa()">Adicionar</button>
       </div>
 
-      <div id="pessoas-list" style="margin-top: 20px;"></div>
+      <div id="pessoas-list" style="margin-top: 16px;"></div>
     </div>
 
     <!-- ABA 3: RECUPERAÇÃO DE SENHA -->
     <div id="sec-recuperacao" class="tab-panel" style="display:none;">
-      <p class="mut" style="margin-top:0;">Gere um código de segurança único para redefinir sua senha caso perca o acesso.</p>
+      <p class="mut" style="margin-top:0; font-size:13px;">Gere um código de segurança único para redefinir sua senha caso perca o acesso.</p>
       
       <div id="rec-status"></div>
 
-      <div class="row-gap" style="margin-top: 16px;">
+      <div class="row-gap" style="margin-top: 14px;">
         <button class="btn" id="btn-gerar-codigo" onclick="gerarCodigo()">Gerar código de recuperação</button>
       </div>
 
@@ -502,14 +547,29 @@
       </div>
     </div>
 
-    <!-- ABA 4: APARÊNCIA -->
+    <!-- ABA 4: APARÊNCIA & CORES -->
     <div id="sec-aparencia" class="tab-panel" style="display:none;">
-      <p class="mut" style="margin-top:0;">Escolha a aparência visual do aplicativo Fluxo no seu computador.</p>
+      <p class="mut" style="margin-top:0; font-size:13px;">Personalize o aspeto visual e as cores principais da aplicação.</p>
       
-      <div style="background:var(--bg); border:1px solid var(--bd); padding:20px; border-radius:14px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+      <div style="background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:12px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <div>
-          <b style="display:block; font-size:16px;">Tema do Aplicativo</b>
-          <span class="mut">Selecione entre Claro, Automático (sistema) ou Escuro.</span>
+          <b style="display:block; font-size:15px;">Cor de Destaque</b>
+          <span class="mut" style="font-size:13px;">Clique numa bolinha para mudar o tema de cor instantaneamente.</span>
+        </div>
+
+        <div style="display:flex; gap:8px; align-items:center;">
+          <div class="color-dot" data-accent="teal" style="background:#0d9488; width:28px; height:28px;" title="Teal Padrão"></div>
+          <div class="color-dot" data-accent="blue" style="background:#2563eb; width:28px; height:28px;" title="Azul"></div>
+          <div class="color-dot" data-accent="purple" style="background:#7c3aed; width:28px; height:28px;" title="Roxo"></div>
+          <div class="color-dot" data-accent="orange" style="background:#ea580c; width:28px; height:28px;" title="Laranja"></div>
+          <div class="color-dot" data-accent="pink" style="background:#db2777; width:28px; height:28px;" title="Rosa"></div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div>
+          <b style="display:block; font-size:15px;">Modo de Tema</b>
+          <span class="mut" style="font-size:13px;">Selecione entre Claro, Automático ou Escuro.</span>
         </div>
 
         <div class="tema-seg" role="group" aria-label="Tema do aplicativo" data-modo="auto">
@@ -522,10 +582,10 @@
     </div>
 
     <!-- ENCERRAMENTO DA SESSÃO -->
-    <div style="margin-top: 32px; border-top: 1px solid var(--bd); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+    <div style="margin-top: 24px; border-top: 1px solid var(--bd); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
       <div>
-        <b style="color:#ef4444; font-size:16px; display:block;">Sair da conta</b>
-        <span class="mut">Encerrar a sessão ativa neste computador.</span>
+        <b style="color:#ef4444; font-size:15px; display:block;">Sair da conta</b>
+        <span class="mut" style="font-size:13px;">Encerrar a sessão ativa neste dispositivo.</span>
       </div>
       <button type="button" class="btn-danger" onclick="sairApp()">Sair da Conta</button>
     </div>
@@ -534,7 +594,7 @@
   <p class="copyright">© 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.</p>
 </div>
 
-<div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
+<div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
 
 <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
@@ -611,7 +671,6 @@ async function carregarPerfil() {
   atualizarIdade();
   atualizarPreview();
 
-  // Carrega Métricas e Lista da Imagem
   carregarEstatisticas();
   carregarPessoas();
 }
@@ -694,7 +753,7 @@ function renderPessoas() {
   const listBox = $('pessoas-list');
 
   if (!PESSOAS.length) {
-    const vazio = '<p class="mut" style="text-align:center; padding:12px; grid-column: 1 / -1;">Nenhuma pessoa adicionada ainda.</p>';
+    const vazio = '<p class="mut" style="text-align:center; padding:12px; grid-column: 1 / -1; font-size:13px;">Nenhuma pessoa adicionada ainda.</p>';
     if (heroBox) heroBox.innerHTML = vazio;
     if (listBox) listBox.innerHTML = vazio;
     return;
@@ -717,15 +776,15 @@ function renderPessoas() {
   const htmlList = PESSOAS.map(p => {
     const f = fotoOk(p.foto), nome = p.nome || p.usuario;
     return `
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--bg); border:1px solid var(--bd); border-radius:12px; margin-bottom:10px;">
-      <div style="display:flex; align-items:center; gap:12px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg); border:1px solid var(--bd); border-radius:12px; margin-bottom:8px;">
+      <div style="display:flex; align-items:center; gap:10px;">
         <div class="pessoa-avatar">${f ? `<img src="${esc(f)}" alt="">` : esc((nome[0] || '?').toUpperCase())}</div>
         <div>
-          <b style="font-size:15px;">${esc(nome)}</b>
-          <span class="mut" style="display:block;">@${esc(p.usuario)}</span>
+          <b style="font-size:14px;">${esc(nome)}</b>
+          <span class="mut" style="display:block; font-size:12px;">@${esc(p.usuario)}</span>
         </div>
       </div>
-      <button onclick="removerPessoa('${esc(p.usuario)}')" style="background:none; border:none; color:#ef4444; font-weight:700; cursor:pointer;">Remover</button>
+      <button onclick="removerPessoa('${esc(p.usuario)}')" style="background:none; border:none; color:#ef4444; font-weight:700; cursor:pointer; font-size:13px;">Remover</button>
     </div>`;
   }).join('');
 

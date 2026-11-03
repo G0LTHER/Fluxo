@@ -8,24 +8,72 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
-  /* Tema: Auto (segue o dispositivo) / Claro / Escuro */
+  /* Tema (Claro/Auto/Escuro), cor do site e cor da fonte. Tudo fica salvo no aparelho e vale em todas as páginas. */
   (function () {
     var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-    function modo() {
-      var m = 'auto';
-      try { m = localStorage.getItem('fluxo_tema') || 'auto'; } catch (e) {}
-      return (m === 'light' || m === 'dark') ? m : 'auto';
-    }
+    var ACENTOS = /^(teal|blue|purple|red|orange|pink|green)$/;
+    function ler(k, pad) { try { return localStorage.getItem(k) || pad; } catch (e) { return pad; } }
+    function modo() { var m = ler('fluxo_tema', 'auto'); return (m === 'light' || m === 'dark') ? m : 'auto'; }
+    function accent() { var a = ler('fluxo_accent', 'teal'); return ACENTOS.test(a) ? a : 'teal'; }
+    function fonte() { var f = ler('fluxo_fonte', ''); return (f === 'preto' || f === 'branco') ? f : ''; }
     function aplicar() {
-      var m = modo();
-      var t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
-      document.documentElement.setAttribute('data-theme', t);
+      var m = modo(), t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m, ac = accent(), fo = fonte();
+      var h = document.documentElement;
+      h.setAttribute('data-theme', t);
+      h.setAttribute('data-accent', ac);
+      if (fo) h.setAttribute('data-fonte', fo); else h.removeAttribute('data-fonte');
+  
+      document.querySelectorAll('.tema-seg').forEach(function (g) {
+        g.setAttribute('data-modo', m);
+        g.querySelectorAll('[data-tema]').forEach(function (b) {
+          b.setAttribute('aria-pressed', b.getAttribute('data-tema') === m ? 'true' : 'false');
+        });
+      });
+      document.querySelectorAll('.color-dot').forEach(function (d) {
+        d.classList.toggle('active', d.getAttribute('data-accent') === ac);
+      });
+      document.querySelectorAll('.fonte-opt').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-fonte') === fo ? 'true' : 'false');
+      });
+      var hint = document.getElementById('fonte-hint');
+      if (hint) {
+        var ativa = !fo || (fo === 'preto' && t === 'light') || (fo === 'branco' && t === 'dark');
+        hint.textContent = !fo ? 'Usa a cor padrão do tema.'
+          : ativa ? 'Fonte ' + (fo === 'preto' ? 'preta' : 'branca') + ' ativada.'
+          : (fo === 'branco' ? 'A fonte branca só aparece no tema escuro (no claro o texto sumiria).' : 'A fonte preta só aparece no tema claro (no escuro o texto sumiria).');
+      }
     }
     window.aplicarTema = aplicar;
-    window.definirTema = function (m) {
-      try { localStorage.setItem('fluxo_tema', m); } catch (e) {}
+    window.definirTema = function (m) { try { localStorage.setItem('fluxo_tema', m); } catch (e) {} aplicar(); };
+    window.definirAccent = function (a) { try { localStorage.setItem('fluxo_accent', a); } catch (e) {} aplicar(); };
+    window.definirFonte = function (f) {
+      try { if (f) localStorage.setItem('fluxo_fonte', f); else localStorage.removeItem('fluxo_fonte'); } catch (e) {}
       aplicar();
+      var t = document.documentElement.getAttribute('data-theme');
+      if (window.aviso && ((f === 'branco' && t === 'light') || (f === 'preto' && t === 'dark'))) {
+        window.aviso(f === 'branco' ? 'Fonte branca só aparece no tema escuro.' : 'Fonte preta só aparece no tema claro.');
+      }
     };
+    window.restaurarCores = function () {
+      try { localStorage.removeItem('fluxo_accent'); localStorage.removeItem('fluxo_fonte'); } catch (e) {}
+      aplicar();
+      if (window.aviso) window.aviso('Cores e fonte voltaram ao padrão.');
+    };
+    window.ciclarTema = function () {
+      var prox = { auto: 'light', light: 'dark', dark: 'auto' }[modo()];
+      window.definirTema(prox);
+    };
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest) return;
+      var b = e.target.closest('.tema-seg [data-tema]');
+      if (b) window.definirTema(b.getAttribute('data-tema'));
+      var d = e.target.closest('.color-dot');
+      if (d) window.definirAccent(d.getAttribute('data-accent'));
+      var f = e.target.closest('.fonte-opt');
+      if (f) window.definirFonte(f.getAttribute('data-fonte'));
+    });
+    // mudou em outra aba/página aberta: acompanha na hora
+    window.addEventListener('storage', function (e) { if (e.key && /^fluxo_(tema|accent|fonte)$/.test(e.key)) aplicar(); });
     aplicar();
     document.addEventListener('DOMContentLoaded', aplicar);
     if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
@@ -45,6 +93,27 @@
     --shadow: 0 4px 12px -1px rgba(0,0,0,0.4); --folha-bg: #ffffff; --dock-bg: #1e293b;
   }
 
+  /* ===== Cores do site e cor da fonte =====
+     Escolhidas só em Perfil > Aparência > Cores e fontes; valem no menu, no perfil e no login. */
+  :root { --pri-rgb: 13, 148, 136; --shadow-pri: rgba(var(--pri-rgb), 0.3); }
+  :root[data-theme="light"][data-accent="teal"] { --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --pri-rgb: 13, 148, 136; --shadow-pri: rgba(var(--pri-rgb), 0.3); }
+  :root[data-theme="dark"][data-accent="teal"] { --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; --pri-rgb: 20, 184, 166; --shadow-pri: rgba(20, 184, 166, 0.3); }
+  :root[data-theme="light"][data-accent="blue"] { --pri: #2563eb; --pri-hover: #1f54c8; --pri-light: #e9effd; --pri-rgb: 37, 99, 235; --shadow-pri: rgba(37, 99, 235, 0.3); }
+  :root[data-theme="dark"][data-accent="blue"] { --pri: #5585ef; --pri-hover: #2563eb; --pri-light: #132349; --pri-rgb: 85, 133, 239; --shadow-pri: rgba(85, 133, 239, 0.3); }
+  :root[data-theme="light"][data-accent="purple"] { --pri: #7c3aed; --pri-hover: #6931c9; --pri-light: #f2ebfd; --pri-rgb: 124, 58, 237; --shadow-pri: rgba(124, 58, 237, 0.3); }
+  :root[data-theme="dark"][data-accent="purple"] { --pri: #9965f1; --pri-hover: #7c3aed; --pri-light: #201d49; --pri-rgb: 153, 101, 241; --shadow-pri: rgba(153, 101, 241, 0.3); }
+  :root[data-theme="light"][data-accent="red"] { --pri: #dc2626; --pri-hover: #bb2020; --pri-light: #fce9e9; --pri-rgb: 220, 38, 38; --shadow-pri: rgba(220, 38, 38, 0.3); }
+  :root[data-theme="dark"][data-accent="red"] { --pri: #e45656; --pri-hover: #dc2626; --pri-light: #301929; --pri-rgb: 228, 86, 86; --shadow-pri: rgba(228, 86, 86, 0.3); }
+  :root[data-theme="light"][data-accent="orange"] { --pri: #ea580c; --pri-hover: #c74b0a; --pri-light: #fdeee7; --pri-rgb: 234, 88, 12; --shadow-pri: rgba(234, 88, 12, 0.3); }
+  :root[data-theme="dark"][data-accent="orange"] { --pri: #ef7d41; --pri-hover: #ea580c; --pri-light: #322125; --pri-rgb: 239, 125, 65; --shadow-pri: rgba(239, 125, 65, 0.3); }
+  :root[data-theme="light"][data-accent="pink"] { --pri: #db2777; --pri-hover: #ba2165; --pri-light: #fbe9f1; --pri-rgb: 219, 39, 119; --shadow-pri: rgba(219, 39, 119, 0.3); }
+  :root[data-theme="dark"][data-accent="pink"] { --pri: #e35795; --pri-hover: #db2777; --pri-light: #301a36; --pri-rgb: 227, 87, 149; --shadow-pri: rgba(227, 87, 149, 0.3); }
+  :root[data-theme="light"][data-accent="green"] { --pri: #16a34a; --pri-hover: #138b3f; --pri-light: #e8f6ed; --pri-rgb: 22, 163, 74; --shadow-pri: rgba(22, 163, 74, 0.3); }
+  :root[data-theme="dark"][data-accent="green"] { --pri: #49b772; --pri-hover: #16a34a; --pri-light: #102d2f; --pri-rgb: 73, 183, 114; --shadow-pri: rgba(73, 183, 114, 0.3); }
+  /* fonte preta só no tema claro e branca só no escuro (assim o texto nunca some) */
+  :root[data-theme="light"][data-fonte="preto"] { --tx: #000000; }
+  :root[data-theme="dark"][data-fonte="branco"] { --tx: #ffffff; }
+
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--tx);
@@ -61,138 +130,66 @@
 
   .app-layout { display: flex; flex-direction: column; flex: 1; width: 100%; max-width: 1400px; margin: 0 auto; }
 
-  /* HEADER SUPERIOR TRANSPARENTE (SEM RETÂNGULO/FUNDO/SOMBRA) */
+  /* HEADER SUPERIOR TRANSPARENTE */
   header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 16px 28px; 
-    background: transparent; 
-    border: none; 
-    box-shadow: none; 
-    position: relative; 
-    z-index: 50; 
+    display: flex; justify-content: space-between; align-items: center; 
+    padding: 16px 28px; background: transparent; border: none; 
+    box-shadow: none; position: relative; z-index: 50; 
   }
 
   .header-brand-logo { 
-    display: flex; 
-    align-items: center; 
-    gap: 12px; 
-    font-weight: 800; 
-    font-size: 20px; 
-    color: var(--tx); 
-    text-decoration: none; 
+    display: flex; align-items: center; gap: 12px; font-weight: 800; 
+    font-size: 20px; color: var(--tx); text-decoration: none; 
   }
   .header-brand-icon { 
-    width: 38px; 
-    height: 38px; 
-    background: var(--pri); 
-    border-radius: 10px; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    color: #fff; 
-    font-weight: 800; 
-    font-size: 18px; 
+    width: 38px; height: 38px; background: var(--pri); border-radius: 10px; 
+    display: flex; align-items: center; justify-content: center; 
+    color: #fff; font-weight: 800; font-size: 18px; 
   }
 
-  /* BOTÃO SAIR DO CABEÇALHO */
   .btn-sair-header {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    border-radius: 10px;
-    border: 1px solid var(--bd);
-    background: var(--card);
-    color: #ef4444;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px;
+    border-radius: 10px; border: 1px solid var(--bd); background: var(--card);
+    color: #ef4444; font-weight: 700; font-size: 14px; cursor: pointer;
     transition: all 0.2s ease;
   }
-  .btn-sair-header:hover {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: #ef4444;
-  }
-  .btn-sair-header svg {
-    width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-  }
+  .btn-sair-header:hover { background: rgba(239, 68, 68, 0.1); border-color: #ef4444; }
+  .btn-sair-header svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* BARRA FLUTUANTE INFERIOR ESTILO TELEGRAM / DOCK */
-  .floating-dock-wrapper {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 90;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .floating-dock {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--dock-bg);
-    border: 1px solid var(--bd);
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
-    border-radius: 999px;
-    padding: 6px 14px;
-    backdrop-filter: blur(10px);
-  }
-
-  .dock-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: transparent;
-    border: none;
-    color: var(--mut);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-    position: relative;
-  }
-
+  /* DOCK INFERIOR FLUTUANTE */
+  .floating-dock-wrapper { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 90; display: flex; align-items: center; justify-content: center; }
+  .floating-dock { display: flex; align-items: center; gap: 8px; background: var(--dock-bg); border: 1px solid var(--bd); box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18); border-radius: 999px; padding: 6px 14px; backdrop-filter: blur(10px); }
+  .dock-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: transparent; border: none; color: var(--mut); cursor: pointer; transition: all 0.2s ease; text-decoration: none; position: relative; }
   .dock-item svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .dock-item:hover { color: var(--tx); background: var(--bg); }
   .dock-item.active { color: var(--pri); }
-
-  /* Botão Central Em Destaque (Home / Dashboard) estilo Telegram */
-  .dock-item-center {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--pri), #0ea5e9);
-    color: #ffffff !important;
-    box-shadow: 0 8px 20px rgba(13, 148, 136, 0.4);
-    transform: translateY(-8px);
-  }
+  
+  .dock-item-center { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--pri), #0ea5e9); color: #ffffff !important; box-shadow: 0 8px 20px rgba(var(--pri-rgb), 0.4); transform: translateY(-8px); }
   .dock-item-center:hover { transform: translateY(-10px) scale(1.05); }
   .dock-item-center svg { width: 26px; height: 26px; stroke: #ffffff; }
 
+  /* GERAL E CONTAINERS */
   .main-content { flex: 1; padding: 24px; overflow-y: auto; }
   .wrap { display: grid; grid-template-columns: minmax(360px, 5fr) minmax(0, 7fr); gap: 24px; align-items: start; }
   .col-r { position: sticky; top: 20px; min-width: 0; }
 
+  @media (max-width: 900px) {
+    .wrap { grid-template-columns: 1fr; }
+    .col-r { position: static; }
+  }
+
   .card { background: var(--card); border: 1px solid var(--bd); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
-  .card h2 { margin: 0 0 12px; font-size: 17px; font-weight: 700; }
+  .card h2 { margin: 0; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
   .mut { color: var(--mut); font-size: 13px; }
+  
+  .ic-sm { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin-right: 4px; display: inline-block; vertical-align: middle; }
 
   textarea, input { width: 100%; padding: 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--tx); font: inherit; margin-top: 6px; outline: none; font-size: 15px; }
   textarea { min-height: 160px; resize: vertical; }
 
   .row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
 
-  .btn, .ghost {
-    border-radius: 10px; padding: 10px 16px; font: inherit; font-weight: 700; border: 1px solid transparent; cursor: pointer; font-size: 14px; transition: background 0.2s;
-  }
+  .btn, .ghost { border-radius: 10px; padding: 10px 16px; font: inherit; font-weight: 700; border: 1px solid transparent; cursor: pointer; font-size: 14px; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center;}
   .btn { background: var(--pri); color: #ffffff; }
   .btn:hover { background: var(--pri-hover); }
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -200,11 +197,9 @@
   .ghost:hover { background: var(--bg); color: var(--tx); }
 
   .info-box { background: var(--pri-light); border-left: 4px solid var(--pri); padding: 10px 14px; border-radius: 8px; margin-top: 12px; font-size: 13px; color: var(--tx); }
-
   .lin { display: flex; align-items: center; gap: 8px; }
   .x { border: 0; background: none; color: var(--mut); font-size: 14px; padding: 6px 10px; cursor: pointer; }
   .x:hover { color: #dc2626; }
-
   .items-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
   .chip-item { background: var(--pri-light); color: var(--pri); border-radius: 6px; padding: 4px 10px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
 
@@ -213,18 +208,24 @@
   .metric-card { background: var(--card); border: 1px solid var(--bd); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: var(--shadow); }
   .metric-card span { font-size: 12px; color: var(--mut); font-weight: 700; text-transform: uppercase; }
   .metric-card b { font-size: 26px; font-weight: 800; color: var(--tx); }
-
   .st-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
   .st-amarela  { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); }
   .st-vermelha { background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.22); }
   .st-azul     { background: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.22); }
   
+  /* Tabs Relatório */
   .rel-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-  .rel-tab { padding: 8px 18px; border-radius: 20px; border: 1px solid var(--bd); background: var(--bg); color: var(--mut); font: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer; }
+  .rel-tab { padding: 8px 18px; border-radius: 20px; border: 1px solid var(--bd); background: var(--bg); color: var(--mut); font: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer; display:inline-flex; align-items:center;}
   .rel-tab.active { background: var(--pri); border-color: var(--pri); color: #fff; }
 
-  .rel-filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-  .rel-filtros select, .rel-select { padding: 10px 12px; border: 1px solid var(--bd); border-radius: 8px; background: var(--bg); color: var(--tx); font: inherit; font-size: 14px; }
+  /* Filtros Modernos (Pills) */
+  .pill-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--bd); background: var(--bg); color: var(--mut); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .pill:hover { background: var(--bd); color: var(--tx); }
+  .pill.active { background: var(--pri); color: #fff; border-color: var(--pri); }
+
+  .rel-select { padding: 10px 12px; border: 1px solid var(--bd); border-radius: 8px; background: var(--bg); color: var(--tx); font: inherit; font-size: 14px; }
+  
   .rel-item { padding: 14px; border: 1px solid var(--bd); border-radius: 14px; background: var(--card); margin-bottom: 10px; box-shadow: var(--shadow); }
   .rel-item.atrasado-topo { border-color: #dc2626; background: rgba(220,38,38,0.03); }
 
@@ -237,7 +238,7 @@
   .c-tit .sub { font-size: 12px; color: var(--mut); margin-top: 3px; }
   
   .ic-btn { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--mut); border-radius: 8px; cursor: pointer; padding: 0; }
-  .ic-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; }
+  .ic-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: transform .2s; margin:0; }
   .ic-btn:hover { background: var(--bg); color: var(--tx); }
   .ic-btn.del:hover { color: #dc2626; }
   .ic-btn.seta.aberta svg { transform: rotate(180deg); }
@@ -253,7 +254,7 @@
   .st-menu button:hover { background: var(--bg); color: var(--pri); }
   
   .c-ven { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--tx); }
-  .c-ven svg { width: 16px; height: 16px; stroke: var(--mut); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .c-ven svg { width: 16px; height: 16px; stroke: var(--mut); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; margin:0; }
   .c-ven svg.warn { stroke: #f59e0b; }
   .c-ven.venc { color: #dc2626; }
   
@@ -306,7 +307,7 @@
     .st-menu { left: 0; transform: none; }
   }
 
-  /* Barra de formatação da folha */
+  /* Barra formatação da folha */
   .fmt-bar {
     display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px;
     background: var(--card); border: 1px solid var(--bd); border-radius: 10px;
@@ -321,12 +322,12 @@
   .seg button.on { background: var(--pri); color: #ffffff; }
 
   /* Folha A4 */
-  #folha-scroll { max-height: calc(100vh - 260px); min-height: 320px; overflow: auto; scrollbar-gutter: stable; }
+  #folha-scroll { max-height: calc(100vh - 260px); min-height: 320px; overflow: auto; scrollbar-gutter: stable; background: #e2e8f0; padding:20px; border-radius: 10px; }
   .folha {
     --fs: 12; --cols: 1; --per: 4;
     width: 210mm; min-height: 297mm; margin: 0 auto; padding: 20mm 15mm;
     background: var(--folha-bg); color: #111827; border: 1px solid var(--bd);
-    box-shadow: 0 8px 12px -2px rgba(0,0,0,0.08); border-radius: 6px;
+    box-shadow: 0 8px 12px -2px rgba(0,0,0,0.15); border-radius: 2px;
     font-size: calc(var(--fs) * 1pt); line-height: 1.5;
   }
   .ft { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6mm; border-bottom: 2px solid #111827; padding-bottom: 2mm; }
@@ -336,9 +337,7 @@
   .pn { font-weight: 800; font-size: calc((var(--fs) + 2) * 1pt); border-bottom: 1.5px solid #9ca3af; padding-bottom: 0.2em; margin-top: 0.9em; break-after: avoid; }
   .g { display: grid; grid-template-columns: repeat(var(--per), 1fr); gap: 0.6em 0; margin: 0.6em 0 1em; }
   .g span { white-space: nowrap; }
-  .g i, .same-list li i {
-    display: inline-block; flex-shrink: 0; width: 1.05em; height: 1.05em; border: 1.5px solid #111827; border-radius: 2px; margin-right: 0.45em; vertical-align: -0.15em;
-  }
+  .g i, .same-list li i { display: inline-block; flex-shrink: 0; width: 1.05em; height: 1.05em; border: 1.5px solid #111827; border-radius: 2px; margin-right: 0.45em; vertical-align: -0.15em; }
   .same-list, .prov-list { list-style: none; padding: 0; margin: 0; }
   .same-list li { padding: 0.35em 0; border-bottom: 1px solid #e5e7eb; display: flex; align-items: flex-start; break-inside: avoid; }
   .same-list li b { color: #111827; font-weight: 800; }
@@ -349,16 +348,16 @@
   @media print {
     body * { visibility: hidden; }
     #folha, #folha * { visibility: visible; }
-    #folha-scroll { max-height: none; overflow: visible; }
+    #folha-scroll { max-height: none; overflow: visible; background:transparent; padding:0; border-radius:0; }
     #folha { position: absolute; left: 0; top: 0; width: 100%; min-height: 0; padding: 0; border: none; box-shadow: none; zoom: 1 !important; }
   }
 
   /* Chat Flutuante */
   .chat-root { display: none; }
   #screen-workspace.active ~ .chat-root { display: block; }
-  .chat-fab { position: fixed; right: 22px; bottom: 95px; width: 56px; height: 56px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; color: #fff; z-index: 70; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--pri), #0ea5e9); box-shadow: 0 10px 28px rgba(13, 148, 136, .45); transition: transform .2s, box-shadow .2s; }
-  .chat-fab:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 32px rgba(13, 148, 136, .55); }
-  .chat-fab svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .chat-fab { position: fixed; right: 22px; bottom: 95px; width: 56px; height: 56px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; color: #fff; z-index: 70; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--pri), #0ea5e9); box-shadow: 0 10px 28px rgba(var(--pri-rgb), .45); transition: transform .2s, box-shadow .2s; }
+  .chat-fab:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 14px 32px rgba(var(--pri-rgb), .55); }
+  .chat-fab svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; margin:0;}
   .chat-fab .ic-fechar { display: none; }
   .chat-root.aberto .chat-fab .ic-chat { display: none; }
   .chat-root.aberto .chat-fab .ic-fechar { display: block; }
@@ -372,7 +371,7 @@
   .chat-titulo .tt small { display: block; font-size: 12px; font-weight: 600; color: var(--mut); }
   .chat-ib { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--mut); border-radius: 8px; cursor: pointer; }
   .chat-ib:hover { background: var(--bg); color: var(--tx); }
-  .chat-ib svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .chat-ib svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin:0;}
   .chat-lista { flex: 1; overflow-y: auto; padding: 6px; }
   .chat-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 10px; border: 0; background: none; color: var(--tx); font: inherit; text-align: left; border-radius: 12px; cursor: pointer; }
   .chat-item:hover { background: var(--bg); }
@@ -406,15 +405,12 @@
 <div id="screen-workspace" class="screen active">
   <div class="app-layout">
     
-    <!-- HEADER SUPERIOR TRANSPARENTE -->
+    <!-- HEADER SUPERIOR -->
     <header>
-      <!-- Esquerda: Apenas Logo Fluxo -->
       <a href="javascript:void(0)" onclick="mudarAbaMenu('dash')" class="header-brand-logo">
         <div class="header-brand-icon">F</div>
         <span>Fluxo</span>
       </a>
-
-      <!-- Direita: Opção de Sair -->
       <button type="button" class="btn-sair-header" onclick="sair()" title="Encerrar sessão">
         <svg viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         <span>Sair</span>
@@ -422,18 +418,31 @@
     </header>
 
     <main class="main-content">
+      
       <!-- ÁREA DOS INPUTS E GERADOR DE PDF -->
       <div class="wrap" id="wrap-main" style="display:none">
         <section>
+          
           <div class="card">
-            <h2 id="titulo-input">Entrada de Dados</h2>
+            <!-- CABEÇALHO COM O SELETOR DE DATA DO PEDIDO -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <h2 id="titulo-input" style="margin:0;">Entrada de Dados</h2>
+              
+              <!-- CALENDÁRIO DA DATA DO PEDIDO AQUI -->
+              <div style="display: flex; align-items: center; gap: 8px; background: var(--bg); padding: 4px 10px; border-radius: 8px; border: 1px solid var(--bd);">
+                <svg class="ic-sm mut" viewBox="0 0 24 24" style="margin:0;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                <span class="mut" style="font-size: 12px; font-weight: 700; text-transform: uppercase;">Pedido em:</span>
+                <input type="date" id="data-workspace" onchange="folha()" style="width: auto; margin: 0; padding: 4px; font-size: 14px; border: none; background: transparent; font-weight: 700; outline: none; color: var(--tx);" title="Data em que estas FAAs/Pastas foram pedidas">
+              </div>
+            </div>
+
             <textarea id="txt" oninput="agenda()" placeholder="Cole o texto aqui..."></textarea>
             <div class="row">
               <button class="ghost" onclick="exemplo()">Exemplo</button>
               <button class="ghost" onclick="zerar()">Limpar</button>
             </div>
             <div class="info-box">
-              <b>Aviso:</b> Os dados são organizados em sequência automática.
+              <b>Aviso:</b> Os dados são organizados em sequência automática. A data escolhida acima será salva na dashboard.
             </div>
           </div>
 
@@ -444,10 +453,13 @@
           </div>
         </section>
 
+        <!-- PRÉ-VISUALIZAÇÃO DO PDF -->
         <section class="col-r">
+          <h2><svg class="ic-sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Pré-visualização do PDF</h2>
+          
           <div class="row" style="margin:0 0 12px; justify-content: space-between;">
             <div style="display:flex; gap:8px;">
-              <button id="gerar" class="btn" onclick="pdf()" disabled>Baixar PDF</button>
+              <button id="gerar" class="btn" onclick="pdf()" disabled><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Baixar PDF</button>
               <button id="imprimir" class="ghost" onclick="imprimirFolha()" disabled>Imprimir</button>
               <button id="btn-salvar-rel" class="btn" onclick="salvarRelatorio()" disabled title="Atalho: Ctrl+S">Salvar no dashboard</button>
             </div>
@@ -473,6 +485,7 @@
             <button class="ghost" type="button" onclick="fmtPadrao()">Padrão</button>
           </div>
 
+          <!-- Aqui o PDF é visualizado -->
           <div id="folha-scroll"><div class="folha" id="folha"></div></div>
         </section>
       </div>
@@ -480,6 +493,7 @@
       <!-- RELATÓRIO / DASHBOARD -->
       <div id="rel" style="width:100%">
         <div id="rel-alerta"></div>
+        
         <div class="dash-metrics">
           <div class="metric-card"><span><i class="st-dot st-amarela"></i>Pendentes</span><b id="stat-pend">0</b></div>
           <div class="metric-card"><span><i class="st-dot st-amarela"></i>Executando</span><b id="stat-exec">0</b></div>
@@ -491,35 +505,24 @@
           <h2>Painel de Atividades e Prontuários</h2>
           <div class="rel-tabs">
             <button type="button" class="rel-tab active" id="rel-tab-ativos" onclick="abaRel('ativos')">Em andamento / Ativos</button>
-            <button type="button" class="rel-tab" id="rel-tab-arquivo" onclick="abaRel('arquivo')">📁 Arquivados (Pastas / Provisórias)</button>
+            <button type="button" class="rel-tab" id="rel-tab-arquivo" onclick="abaRel('arquivo')"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg> Arquivados (Pastas / Provisórias)</button>
           </div>
 
-          <!-- Pesquisa Geral -->
-          <input id="rel-busca" placeholder="Pesquisar por nome do paciente, nº do SAME, data ou responsável..." oninput="filtrarRel()" style="margin-bottom: 8px;">
-          
-          <!-- Pesquisa Específica de FAAs -->
-          <div id="box-busca-faa" style="margin-bottom: 12px;">
-            <input id="rel-busca-faa" placeholder="🔍 Pesquisa dedicada exclusiva para Fichas FAA..." oninput="filtrarRel()" style="background: var(--card); border-color: var(--pri);">
+          <!-- PESQUISA ÚNICA E LIMPA COM FILTROS EM "PÍLULAS" -->
+          <div id="box-pesquisa-painel" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+            <div style="flex:1; min-width: 260px; position:relative;">
+              <svg class="ic-sm" viewBox="0 0 24 24" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--mut); margin:0;"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input id="rel-busca" placeholder="Pesquisar paciente, nº do SAME, ou data..." oninput="filtrarRel()" style="margin:0; padding:10px 14px 10px 38px; border-radius:999px;">
+            </div>
+            
+            <div class="pill-group" id="filtros-st">
+              <button type="button" class="pill active" data-st="">Todos</button>
+              <button type="button" class="pill" data-st="pendente">No Prazo</button>
+              <button type="button" class="pill" data-st="atrasado">Atrasados</button>
+            </div>
           </div>
 
-          <div class="rel-filtros">
-            <select id="rel-fcat" onchange="filtrarRel()">
-              <option value="">Todas as categorias</option>
-              <option value="faa">FAAs (Fichas)</option>
-              <option value="same">Pastas / SAME</option>
-              <option value="prov">Provisória</option>
-              <option value="nota">Anotação</option>
-            </select>
-            <select id="rel-fst" onchange="filtrarRel()">
-              <option value="">Todos os status</option>
-              <option value="atrasado">🚨 Atrasados (Topo)</option>
-              <option value="pendente">Pendente (no prazo)</option>
-              <option value="executando">Executando</option>
-              <option value="concluido">Concluído</option>
-            </select>
-          </div>
-
-          <div id="rel-form">
+          <div id="rel-form" style="border-top: 1px solid var(--bd); padding-top: 16px; margin-top: 8px;">
             <div class="row">
               <select id="rel-cat" class="rel-select">
                 <option value="faa">FAAs</option>
@@ -545,7 +548,7 @@
                 <b id="arq-titulo"></b>
               </div>
               <div class="row" style="margin-top:0">
-                <input id="arq-q" placeholder="Nome do paciente ou nº do SAME" oninput="filtrarRel()" style="flex:1;min-width:220px;margin-top:0" autocomplete="off">
+                <input id="arq-q" placeholder="Pesquisar no arquivo..." oninput="filtrarRel()" style="flex:1;min-width:220px;margin-top:0" autocomplete="off">
                 <input type="date" id="arq-data" onchange="filtrarRel()" style="width:auto;margin-top:0">
                 <button type="button" class="ghost" onclick="limparBuscaArq()">Limpar</button>
               </div>
@@ -553,6 +556,7 @@
           </div>
 
           <div id="rel-lista" style="margin-top:16px"></div>
+          
           <div id="rel-mais" style="display:none;text-align:center;margin-top:14px">
             <p class="mut" id="rel-mais-txt" style="margin:0 0 8px"></p>
             <button type="button" class="ghost" onclick="carregarArquivo(false)">Carregar mais</button>
@@ -563,35 +567,30 @@
   </div>
 </div>
 
-<!-- BARRA FLUTUANTE INFERIOR ESTILO TELEGRAM -->
+<!-- DOCK MENU -->
 <div class="floating-dock-wrapper">
   <div class="floating-dock">
     <button class="dock-item" id="dock-faa" onclick="mudarAbaMenu('faa')" title="FAAs (Datas)">
       <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
     </button>
-    
     <button class="dock-item" id="dock-same" onclick="mudarAbaMenu('same')" title="Pastas / SAME">
       <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
     </button>
-
-    <!-- Botão Central Flutuante (Home / Dashboard) -->
     <button class="dock-item dock-item-center" id="dock-dash" onclick="mudarAbaMenu('dash')" title="Dashboard">
       <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/></svg>
     </button>
-
     <button class="dock-item" id="dock-prov" onclick="mudarAbaMenu('prov')" title="Provisórias">
       <svg viewBox="0 0 24 24"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
     </button>
-
     <a href="perfil.html" class="dock-item" id="dock-perfil" title="Meu Perfil">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 016-6h4a6 6 0 016 6v1"/></svg>
     </a>
   </div>
 </div>
 
-<!-- CHAT FLUTUANTE -->
+<!-- CHAT -->
 <div class="chat-root" id="chat-root">
-  <button type="button" class="chat-fab" id="chat-fab" onclick="chatAlternar()" aria-label="Mensagens" title="Mensagens">
+  <button type="button" class="chat-fab" id="chat-fab" onclick="chatAlternar()">
     <svg class="ic-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.4 8.4 0 01-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.4 8.4 0 0112.5 3H13a8.5 8.5 0 018 8v.5z"/></svg>
     <svg class="ic-fechar" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
     <span class="chat-badge" id="chat-badge" style="display:none">0</span>
@@ -640,14 +639,10 @@ function mudarAbaMenu(aba) {
   const btnDock = $('dock-' + aba);
   if (btnDock) btnDock.classList.add('active');
 
-  if (aba === 'dash') {
-    abrirRelatorio();
-  } else {
-    mudarAba(aba);
-  }
+  if (aba === 'dash') abrirRelatorio();
+  else mudarAba(aba);
 }
 
-/* ===== Background Animado ===== */
 const AZUIS_CLARO = ['37, 99, 235', '59, 130, 246', '14, 165, 233', '96, 165, 250'];
 function initBgAnimation() {
   const canvas = $('bg-canvas'); if (!canvas) return;
@@ -655,9 +650,7 @@ function initBgAnimation() {
   let width, height, particles = [];
   function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
   window.addEventListener('resize', resize); resize();
-  for (let i = 0; i < 25; i++) {
-    particles.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 130 + 50, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, tom: i % 4 });
-  }
+  for (let i = 0; i < 25; i++) particles.push({ x: Math.random() * width, y: Math.random() * height, radius: Math.random() * 130 + 50, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, tom: i % 4 });
   function animate() {
     ctx.clearRect(0, 0, width, height);
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -667,12 +660,8 @@ function initBgAnimation() {
       if (p.y < -p.radius) p.y = height + p.radius; if (p.y > height + p.radius) p.y = -p.radius;
       ctx.beginPath();
       const grad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
-      if (isDark) {
-        grad.addColorStop(0, 'rgba(56, 189, 248, 0.08)'); grad.addColorStop(1, 'rgba(56, 189, 248, 0)');
-      } else {
-        const c = AZUIS_CLARO[p.tom];
-        grad.addColorStop(0, 'rgba(' + c + ', 0.26)'); grad.addColorStop(0.55, 'rgba(' + c + ', 0.10)'); grad.addColorStop(1, 'rgba(' + c + ', 0)');
-      }
+      if (isDark) { grad.addColorStop(0, 'rgba(56, 189, 248, 0.08)'); grad.addColorStop(1, 'rgba(56, 189, 248, 0)'); }
+      else { const c = AZUIS_CLARO[p.tom]; grad.addColorStop(0, 'rgba(' + c + ', 0.26)'); grad.addColorStop(0.55, 'rgba(' + c + ', 0.10)'); grad.addColorStop(1, 'rgba(' + c + ', 0)'); }
       ctx.fillStyle = grad; ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
     });
     requestAnimationFrame(animate);
@@ -681,7 +670,7 @@ function initBgAnimation() {
 }
 window.addEventListener('DOMContentLoaded', initBgAnimation);
 
-/* ===== Supabase & Auth Lifecycle ===== */
+/* ===== Supabase ====== */
 const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -691,11 +680,8 @@ const T = { faa: '', same: '', prov: '' };
 window.addEventListener('DOMContentLoaded', async () => {
   if (!db) return;
   const { data } = await db.auth.getSession();
-  if (!data.session) {
-    window.location.href = 'index.html';
-  } else {
-    entrar(data.session.user);
-  }
+  if (!data.session) window.location.href = 'index.html';
+  else entrar(data.session.user);
 });
 
 function iniciarPresenca() {
@@ -705,34 +691,25 @@ function iniciarPresenca() {
 }
 
 async function entrar(user) {
-  uid = user.id;
-  currentUser = tc(user.email.split('@')[0]);
-  
-  iniciarPresenca();
-  chatIniciar();
-  await carregarPerfil();
-  await carregar();
-  abrirRelatorio();
+  uid = user.id; currentUser = tc(user.email.split('@')[0]);
+  iniciarPresenca(); chatIniciar(); await carregarPerfil(); await carregar(); abrirRelatorio();
 }
 
 async function sair() {
   clearTimeout(tSave); clearInterval(tPresenca); chatParar();
   if (pronto) await salvar();
-  await db.auth.signOut();
-  window.location.href = 'index.html';
+  await db.auth.signOut(); window.location.href = 'index.html';
 }
 
 function agendarSalvar() {
   if (!uid || !pronto) return;
-  clearTimeout(tSave); tSave = setTimeout(salvar, 800);
-  $('msg').textContent = 'A guardar...';
+  clearTimeout(tSave); tSave = setTimeout(salvar, 800); $('msg').textContent = 'A guardar...';
 }
 
 async function salvar() {
   T[abaAtiva] = $('txt').value;
   const agora = new Date().toISOString();
-  const linhas = [['faa', P_FAA], ['same', P_SAME], ['prov', P_PROV]]
-    .map(([categoria, dados]) => ({ user_id: uid, categoria, texto: T[categoria], dados, atualizado_em: agora }));
+  const linhas = [['faa', P_FAA], ['same', P_SAME], ['prov', P_PROV]].map(([categoria, dados]) => ({ user_id: uid, categoria, texto: T[categoria], dados, atualizado_em: agora }));
   const { error } = await db.from('listas').upsert(linhas, { onConflict: 'user_id,categoria' });
   $('msg').textContent = error ? 'Erro ao guardar online' : 'Guardado ✓';
 }
@@ -746,8 +723,11 @@ async function carregar() {
     if (r.categoria === 'same') P_SAME = r.dados || [];
     if (r.categoria === 'prov') P_PROV = r.dados || [];
   });
-  abaAtiva = 'faa'; $('txt').value = T.faa;
-  pronto = true;
+  
+  // AO CARREGAR, INICIA O CALENDÁRIO COM A DATA DE HOJE
+  if ($('data-workspace')) $('data-workspace').value = isoHoje();
+  
+  abaAtiva = 'faa'; $('txt').value = T.faa; pronto = true;
 }
 
 /* ===== Relatório & Dashboard ===== */
@@ -757,26 +737,10 @@ const isoHoje = () => { const d = new Date(); return d.getFullYear() + '-' + Str
 
 async function logar(categoria, descricao, detalhe, dataIso, resp) {
   if (!db || !uid) return false;
-  
-  // REGRA: Pastas e Provisórias já nascem como concluídas para irem direto ao arquivo
   const isArqAuto = (categoria === 'same' || categoria === 'prov');
-  
-  const dadosInsert = { 
-    data: dataIso || isoHoje(), 
-    categoria, 
-    descricao, 
-    detalhe: detalhe || '', 
-    responsavel: resp || nomeUsuario(),
-    status: isArqAuto ? 'concluido' : 'pendente'
-  };
-  
-  // Se for arquivamento automático, preenche a data de conclusão
-  if (isArqAuto) {
-    dadosInsert.concluido_em = new Date().toISOString();
-  }
-
+  const dadosInsert = { data: dataIso || isoHoje(), categoria, descricao, detalhe: detalhe || '', responsavel: resp || nomeUsuario(), status: isArqAuto ? 'concluido' : 'pendente' };
+  if (isArqAuto) dadosInsert.concluido_em = new Date().toISOString();
   const { error } = await db.from('relatorio').insert(dadosInsert);
-  
   if (!error && $('rel').style.display !== 'none') carregarRel();
   return !error;
 }
@@ -786,8 +750,6 @@ const parseIso = iso => { const [y, m, d] = iso.split('-').map(Number); return n
 const isoDe = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const somaDias = (iso, n) => { const d = parseIso(iso); d.setDate(d.getDate() + n); return isoDe(d); };
 const diasEntre = (a, b) => Math.round((parseIso(b) - parseIso(a)) / 86400000);
-const corteArquivo = () => somaDias(isoHoje(), -PRAZO_DIAS);
-const fmtTs = ts => ts ? new Date(ts).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
 
 const ST = {
   pendente:   { rot: 'Pendente (no prazo)', curto: 'Pendente',   cor: 'amarela' },
@@ -803,31 +765,18 @@ function statusDe(r) {
   if (diasEntre(r.data, isoHoje()) > PRAZO_DIAS) return 'atrasado';
   return r.status === 'executando' ? 'executando' : 'pendente';
 }
-
-const emAlerta = r => {
-  if (r.status === 'concluido') return false;
-  const d = diasEntre(r.data, isoHoje());
-  return d <= PRAZO_DIAS && (PRAZO_DIAS - d) <= ALERTA_DIAS;
-};
+const emAlerta = r => { if (r.status === 'concluido') return false; const d = diasEntre(r.data, isoHoje()); return d <= PRAZO_DIAS && (PRAZO_DIAS - d) <= ALERTA_DIAS; };
 
 async function carregarRel() {
-  const { data, error } = await db.from('relatorio').select(COLS_REL).order('data', { ascending: false }).order('id', { ascending: false }).limit(500);
+  const { data, error } = await db.from('relatorio').select(COLS_REL).order('id', { ascending: false }).limit(500);
   if (error) aviso('Erro ao carregar painel: ' + error.message);
-  REL = data || [];
-  atualizarMetricasDashboard();
-  if (relAba === 'ativos') renderAtivos();
+  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos();
 }
-
-function recarregarRel() {
-  carregarRel();
-  if (relAba === 'arquivo') { if (arqCat) carregarArquivo(true); else contarArquivo(); }
-}
-
+function recarregarRel() { carregarRel(); if (relAba === 'arquivo') { if (arqCat) carregarArquivo(true); else contarArquivo(); } }
 const rerender = () => relAba === 'arquivo' ? renderArquivo() : renderAtivos();
 
 function atualizarAlerta() {
-  const box = $('rel-alerta');
-  const aVencer = REL.filter(emAlerta).length, atrasados = REL.filter(r => statusDe(r) === 'atrasado').length;
+  const box = $('rel-alerta'); const aVencer = REL.filter(emAlerta).length, atrasados = REL.filter(r => statusDe(r) === 'atrasado').length;
   if (alertaFechado || (!aVencer && !atrasados)) { box.innerHTML = ''; return; }
   const partes = [];
   if (aVencer) partes.push('<b style="display:inline">' + aVencer + '</b> a vencer em até ' + ALERTA_DIAS + ' dias');
@@ -860,9 +809,7 @@ let arqCat = null;
 function abaRel(a) {
   relAba = a; const ar = a === 'arquivo';
   $('rel-tab-ativos').classList.toggle('active', !ar); $('rel-tab-arquivo').classList.toggle('active', ar);
-  $('rel-busca').style.display = ar ? 'none' : ''; 
-  $('box-busca-faa').style.display = ar ? 'none' : ''; 
-  document.querySelector('.rel-filtros').style.display = ar ? 'none' : '';
+  $('box-pesquisa-painel').style.display = ar ? 'none' : 'flex'; 
   $('rel-form').style.display = ar ? 'none' : ''; $('rel-arq').style.display = ar ? '' : 'none';
   if (ar) fecharPasta(); else { $('rel-mais').style.display = 'none'; renderAtivos(); }
 }
@@ -874,75 +821,73 @@ function renderPastas(cont) {
       <div><b>${PASTAS[c].nome}</b><span>${cont && cont[c] != null ? cont[c] + ' arquivado(s)' : '...'}</span></div>
     </button>`).join('');
 }
-
 async function contarArquivo() {
-  renderPastas(null);
-  const cats = Object.keys(PASTAS);
+  renderPastas(null); const cats = Object.keys(PASTAS);
   const res = await Promise.all(cats.map(c => db.from('relatorio').select('id', { count: 'exact', head: true }).eq('status', 'concluido').eq('categoria', c)));
   if (relAba !== 'arquivo' || arqCat) return;
-  const cont = {}; cats.forEach((c, i) => { cont[c] = res[i].count || 0; });
-  renderPastas(cont);
+  const cont = {}; cats.forEach((c, i) => { cont[c] = res[i].count || 0; }); renderPastas(cont);
 }
-
 function fecharPasta() {
   arqCat = null; arqSeq++; ARQ = []; ARQ_TOTAL = 0;
   $('arq-busca').style.display = 'none'; $('arq-pastas').style.display = ''; $('arq-dica').style.display = ''; $('rel-lista').innerHTML = ''; $('rel-mais').style.display = 'none';
   contarArquivo();
 }
-
 function abrirPasta(c) {
   arqCat = c; $('arq-pastas').style.display = 'none'; $('arq-dica').style.display = 'none'; $('arq-busca').style.display = '';
   $('arq-titulo').textContent = PASTAS[c].nome; $('arq-q').value = ''; $('arq-data').value = ''; $('arq-q').placeholder = PASTAS[c].ph;
   carregarArquivo(true);
 }
 function limparBuscaArq() { $('arq-q').value = ''; $('arq-data').value = ''; carregarArquivo(true); }
+function filtrarRel() { if (relAba === 'arquivo') { if (!arqCat) return; clearTimeout(tBuscaArq); tBuscaArq = setTimeout(() => carregarArquivo(true), 300); } else renderAtivos(); }
 
-function filtrarRel() {
-  if (relAba === 'arquivo') { if (!arqCat) return; clearTimeout(tBuscaArq); tBuscaArq = setTimeout(() => carregarArquivo(true), 300); }
-  else renderAtivos();
-}
+// BOTÕES DE FILTRO (Pills)
+$('filtros-st').addEventListener('click', e => {
+  if (e.target.classList.contains('pill')) {
+    document.querySelectorAll('#filtros-st .pill').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    filtrarRel();
+  }
+});
 
 function renderAtivos() {
   const qGeral = key($('rel-busca').value.trim());
-  const qFaa = key($('rel-busca-faa').value.trim());
-  const cat = $('rel-fcat').value; 
-  const fs = $('rel-fst').value;
+  const btnFs = document.querySelector('#filtros-st .pill.active');
+  const fs = btnFs ? btnFs.dataset.st : '';
 
   const lista = REL.filter(r => {
     const sk = statusDe(r);
     if ((r.categoria === 'same' || r.categoria === 'prov') && r.status === 'concluido') return false;
-
-    if (cat && r.categoria !== cat) return false;
-    if (fs && (fs === 'alerta' ? !emAlerta(r) : sk !== fs)) return false;
+    if (fs && sk !== fs) return false;
 
     const textoCompleto = key(dtBR(r.data) + ' ' + r.data + ' ' + (r.responsavel || '') + ' ' + (r.executor || '') + ' ' + r.descricao + ' ' + (r.detalhe || ''));
     if (qGeral && !textoCompleto.includes(qGeral)) return false;
-    if (qFaa && (r.categoria === 'faa' ? !textoCompleto.includes(qFaa) : false)) return false;
-
     return true;
   }).sort((x, y) => {
+    // 1º Prioridade: Status Atrasados primeiro se todos estiverem misturados
     const sx = statusDe(x), sy = statusDe(y);
     if (sx === 'atrasado' && sy !== 'atrasado') return -1;
     if (sy === 'atrasado' && sx !== 'atrasado') return 1;
-    
     const ordem = { executando: 0, pendente: 1, concluido: 2 };
     if (ordem[sx] !== ordem[sy]) return ordem[sx] - ordem[sy];
-    return x.data.localeCompare(y.data) || x.id - y.id;
+    
+    // 2º Prioridade: MAIS RECENTES ACIMA (Data maior/Id maior)
+    const dateDiff = y.data.localeCompare(x.data);
+    if (dateDiff !== 0) return dateDiff;
+    return y.id - x.id; 
   });
 
   $('rel-lista').innerHTML = lista.length ? REL_HEAD + lista.map(itemRel).join('') : '<p class="mut" style="text-align:center; padding: 20px;">Nenhum registo encontrado.</p>';
 }
 
 async function carregarArquivo(reset) {
-  if (!arqCat) return;
-  const seq = ++arqSeq;
+  if (!arqCat) return; const seq = ++arqSeq;
   if (reset) { ARQ = []; ARQ_TOTAL = 0; $('rel-lista').innerHTML = '<p class="mut" style="text-align:center;padding:20px;">A procurar...</p>'; }
   const de = ARQ.length;
   let q = db.from('relatorio').select(COLS_REL, { count: 'exact' }).eq('status', 'concluido').eq('categoria', arqCat);
   const t = key($('arq-q').value.trim()).replace(/[\\%_]/g, m => '\\' + m);
   if (t) q = q.ilike('descricao', '%' + t + '%');
   const dia = $('arq-data').value; if (dia) q = q.eq('data', dia);
-  const { data, error, count } = await q.order('data', { ascending: false }).order('id', { ascending: false }).range(de, de + ARQ_PAG - 1);
+  const { data, error, count } = await q.order('id', { ascending: false }).range(de, de + ARQ_PAG - 1);
   if (seq !== arqSeq || relAba !== 'arquivo' || !arqCat) return;
   if (error) { $('rel-lista').innerHTML = '<p class="mut" style="text-align:center;padding:20px;">Erro ao carregar o arquivo.</p>'; return; }
   ARQ = ARQ.concat(data || []); ARQ_TOTAL = count == null ? ARQ.length : count;
@@ -980,7 +925,6 @@ function itemRel(r) {
   const restam = PRAZO_DIAS - dias;
   const dica = conc ? 'Concluído' : restam < 0 ? 'Atrasado há ' + (-restam) + ' dia(s)' : restam === 0 ? 'Vence hoje' : 'Faltam ' + restam + ' dia(s)';
   const aberto = ABERTOS.has(r.id), ops = opcoesStatus(r);
-  
   const isAtrasadoTopo = sk === 'atrasado';
 
   const badge = `<span class="st-wrap">
@@ -993,7 +937,7 @@ function itemRel(r) {
     <div class="rel-row">
       <div class="c-lix">${dono ? `<button type="button" class="ic-btn del" data-acao="apagar" data-id="${r.id}" title="Apagar">${IC.lixo}</button>` : ''}</div>
       <div class="c-tit">
-        <b class="tit">${isAtrasadoTopo ? '🚨 ' : ''}${esc(r.descricao)}</b>
+        <b class="tit">${esc(r.descricao)}</b>
         <div class="sub">ID: ${r.id} · ${catNome[r.categoria] || esc(r.categoria)} · Pedido: ${dtBR(r.data)}${r.executor ? ' · Executor: <b>' + esc(r.executor) + '</b>' : ''}</div>
       </div>
       <div class="c-st" data-l="Status">${badge}</div>
@@ -1011,10 +955,9 @@ function itemRel(r) {
       <div class="mut">Conteúdo / Detalhes:</div><pre>${r.detalhe ? esc(r.detalhe) : 'Sem mais detalhes.'}</pre>
 
       <div class="row-data pdfs" style="margin-top:12px;">
-        <button type="button" class="mini-btn pri" data-acao="pdf" data-id="${r.id}">👁️ Visualizar PDF</button>
-        <button type="button" class="mini-btn" data-acao="baixar" data-id="${r.id}">📥 Baixar PDF</button>
+        <button type="button" class="mini-btn pri" data-acao="pdf" data-id="${r.id}"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Visualizar PDF</button>
+        <button type="button" class="mini-btn" data-acao="baixar" data-id="${r.id}"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Baixar PDF</button>
       </div>
-
       ${dono ? `<div class="row-data" style="margin-top:10px;"><span class="mut">Alterar data do pedido:</span><input type="date" id="dp-${r.id}" value="${esc(r.data)}"><button type="button" class="mini-btn" data-acao="data" data-id="${r.id}">Salvar data</button></div>` : ''}
     </div>
   </div>`;
@@ -1053,7 +996,11 @@ document.addEventListener('click', e => { if (MENU_ID !== null && !e.target.clos
 $('rel-alerta').addEventListener('click', e => {
   const b = e.target.closest('[data-al]'); if (!b) return;
   if (b.dataset.al === 'fechar') { alertaFechado = true; atualizarAlerta(); return; }
-  abaRel('ativos'); $('rel-fst').value = b.dataset.al; $('rel-busca').value = ''; renderAtivos();
+  abaRel('ativos'); 
+  document.querySelectorAll('#filtros-st .pill').forEach(btn => btn.classList.remove('active'));
+  const btnSt = document.querySelector(`#filtros-st .pill[data-st="${b.dataset.al === 'alerta' ? 'pendente' : 'atrasado'}"]`);
+  if(btnSt) btnSt.classList.add('active');
+  $('rel-busca').value = ''; renderAtivos();
 });
 
 $('arq-pastas').addEventListener('click', e => {
@@ -1066,19 +1013,33 @@ async function apagarRel(id) {
   if (error) aviso('Erro ao apagar registo.'); else { aviso('Registo apagado.'); recarregarRel(); }
 }
 
+/* SALVA NO DASHBOARD COM A DATA SELECIONADA NO TOPO (calendário do workspace) */
 async function salvarRelatorio() {
   if (!uid) return; let desc, det;
+  
+  // Pegando a data que foi selecionada lá no calendário ao lado de "Entrada de Dados"
+  let dataEscolhida = $('data-workspace') ? $('data-workspace').value : isoHoje();
+  if (!dataEscolhida) dataEscolhida = isoHoje();
+
   if (abaAtiva === 'prov') {
     if (!P_PROV.length) return aviso('Nada para guardar.');
-    desc = `Guarda Provisória (${P_PROV.length} pastas)`; det = P_PROV.map(n => 'Pasta ' + n).join('\n');
+    desc = P_PROV.length === 1 ? `Provisória: Pasta ${P_PROV[0]}` : `Provisória (${P_PROV.length} pastas)`; 
+    det = P_PROV.map(n => 'Pasta ' + n).join('\n');
   } else if (abaAtiva === 'same') {
     if (!P_SAME.length) return aviso('Nada para guardar.');
-    desc = `Lista de Pastas / SAME (${P_SAME.length} itens)`; det = P_SAME.map(p => [p.same ? 'SAME ' + p.same : '', p.nome].filter(Boolean).join(' — ')).join('\n');
+    desc = P_SAME.length === 1 ? `SAME: ${P_SAME[0].nome || P_SAME[0].same}` : `Pastas / SAME (${P_SAME.length} itens)`; 
+    det = P_SAME.map(p => [p.same ? 'SAME ' + p.same : '', p.nome].filter(Boolean).join(' — ')).join('\n');
   } else {
     if (!P_FAA.length) return aviso('Nada para guardar.');
-    desc = `Lista de FAAs (${P_FAA.length} pacientes)`; det = P_FAA.map(p => `${p.nome} — ${p.datas.map(fmtData).join(', ')}`).join('\n');
+    if (P_FAA.length === 1) desc = `FAA: ${P_FAA[0].nome}`;
+    else if (P_FAA.length <= 3) desc = `FAAs: ${P_FAA.map(p => p.nome.split(' ')[0]).join(', ')}`;
+    else desc = `FAAs: ${P_FAA.length} pacientes`;
+    det = P_FAA.map(p => `${p.nome} — ${p.datas.map(fmtData).join(', ')}`).join('\n');
   }
-  const ok = await logar(abaAtiva, desc, det); aviso(ok ? `Guardado no dashboard por ${nomeUsuario()}!` : 'Erro ao guardar no relatório.');
+  
+  // Enviando a data escolhida para a função logar (salvar no relatorio)
+  const ok = await logar(abaAtiva, desc, det, dataEscolhida); 
+  aviso(ok ? `Guardado no dashboard por ${nomeUsuario()}!` : 'Erro ao guardar no relatório.');
 }
 
 async function adicionarRel() {
@@ -1112,9 +1073,7 @@ function chatBadge() {
 function chatIniciar() {
   chatParar(); CHAT.base = document.title.replace(/^\(\d+\)\s*/, ''); chatCarregarConversas(); CHAT.timer = setInterval(chatTick, 4000);
   try {
-    CHAT.canal = db.channel('chat-' + uid).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens', filter: 'destinatario_id=eq.' + uid }, () => {
-      chatCarregarConversas(); if (CHAT.aberto && CHAT.atual) chatCarregarMsgs(false);
-    }).subscribe();
+    CHAT.canal = db.channel('chat-' + uid).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens', filter: 'destinatario_id=eq.' + uid }, () => { chatCarregarConversas(); if (CHAT.aberto && CHAT.atual) chatCarregarMsgs(false); }).subscribe();
   } catch (e) {}
 }
 
@@ -1336,17 +1295,22 @@ function folha() { agendarSalvar(); desenharFolha(); }
 
 function desenharFolha() {
   const f = fmtAtual(), el = $('folha'); el.style.setProperty('--fs', f.fs); el.style.setProperty('--cols', f.cols); el.style.setProperty('--per', porLinha(f));
-  const timeStamp = 'documento criado dia ' + hoje() + ' horário ' + new Date().toLocaleTimeString('pt-BR'); let h = '';
+  
+  // Lê a data do calendário principal
+  let dataEscolhida = $('data-workspace') && $('data-workspace').value ? dtBR($('data-workspace').value) : hoje();
+  const timeStamp = 'documento criado dia ' + dataEscolhida + ' horário ' + new Date().toLocaleTimeString('pt-BR'); 
+  let h = '';
+  
   if (abaAtiva === 'faa') {
     const ps = P_FAA.filter(p => p.nome.trim());
-    if (ps.length) h = '<div class="ft"><b>Lista de FAAs</b><span>' + hoje() + '</span></div><div class="cols">' + ps.map(p => '<div class="blk"><div class="pn">' + esc(p.nome.trim()) + '</div><div class="g">' + p.datas.map(k => '<span><i></i>' + fmtData(k) + '</span>').join('') + '</div></div>').join('') + '</div>';
+    if (ps.length) h = '<div class="ft"><b>Lista de FAAs</b><span>' + dataEscolhida + '</span></div><div class="cols">' + ps.map(p => '<div class="blk"><div class="pn">' + esc(p.nome.trim()) + '</div><div class="g">' + p.datas.map(k => '<span><i></i>' + fmtData(k) + '</span>').join('') + '</div></div>').join('') + '</div>';
   } else if (abaAtiva === 'same') {
     const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim());
-    if (ps.length) h = '<div class="ft"><b>Lista de Pastas / SAME</b><span>' + hoje() + '</span></div><div class="cols"><ul class="same-list">' + ps.map(p => '<li><i></i><span>' + [p.same ? '<b>' + esc(p.same) + '</b>' : '', esc(p.nome)].filter(Boolean).join(' - ') + '</span></li>').join('') + '</ul></div>';
+    if (ps.length) h = '<div class="ft"><b>Lista de Pastas / SAME</b><span>' + dataEscolhida + '</span></div><div class="cols"><ul class="same-list">' + ps.map(p => '<li><i></i><span>' + [p.same ? '<b>' + esc(p.same) + '</b>' : '', esc(p.nome)].filter(Boolean).join(' - ') + '</span></li>').join('') + '</ul></div>';
   } else if (P_PROV.length) {
-    h = '<div class="ft"><b>Provisória de ' + esc(nomeUsuario()) + '</b><span>' + hoje() + '</span></div><div class="cols"><ul class="prov-list">' + P_PROV.map(n => '<li>Pasta: ' + n + '</li>').join('') + '</ul></div><div class="prov-footer-stamp">' + timeStamp + '</div>';
+    h = '<div class="ft"><b>Provisória de ' + esc(nomeUsuario()) + '</b><span>' + dataEscolhida + '</span></div><div class="cols"><ul class="prov-list">' + P_PROV.map(n => '<li>Pasta: ' + n + '</li>').join('') + '</ul></div><div class="prov-footer-stamp">' + timeStamp + '</div>';
   }
-  el.innerHTML = h || '<p class="vazio">Visualização A4</p>';
+  el.innerHTML = h || '<p class="vazio">Adicione os dados na entrada para visualizar</p>';
 }
 
 function estado() { const count = abaAtiva === 'faa' ? P_FAA.length : (abaAtiva === 'same' ? P_SAME.length : P_PROV.length); $('gerar').disabled = !count; $('imprimir').disabled = !count; $('btn-salvar-rel').disabled = !count; }
@@ -1359,7 +1323,6 @@ function imprimirFolha() {
   d.close(); setTimeout(() => { fr.contentWindow.focus(); fr.contentWindow.print(); setTimeout(() => fr.remove(), 2000); }, 300);
 }
 
-/* VISUALIZAR E BAIXAR PDF DE QUALQUER REGISTO (FAA, PASTA OU PROVISÓRIA) */
 const pdfTxt = s => String(s ?? '').replace(/[—–]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[^\x00-\xFF]/g, '?');
 
 function pdfRegisto(id, acao) {
@@ -1403,6 +1366,8 @@ async function pdf() {
   const f = fmtAtual(), n = f.cols, pt = f.fs, { L, R, TOP, BOT, GAP } = PG, colW = largCol(n), per = porLinha(f), step = colW / per, lh = pt * MM * 1.7, bx = Math.max(3, pt * MM * 1.05);
   const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }); const fonte = (estilo, tam) => { doc.setFont('helvetica', estilo); doc.setFontSize(tam); }; const un = []; let titulo, rodape = '';
 
+  let dataEscolhida = $('data-workspace') && $('data-workspace').value ? dtBR($('data-workspace').value) : hoje();
+
   if (abaAtiva === 'faa') {
     const ps = P_FAA.filter(p => p.nome.trim() && p.datas.length); if (!ps.length) return; titulo = 'Lista de FAAs'; const rowH = lh + 1.2, nlh = (pt + 2) * MM * 1.35;
     ps.forEach(p => {
@@ -1439,18 +1404,18 @@ async function pdf() {
       });
     });
   } else {
-    if (!P_PROV.length) return; titulo = 'Provisória de ' + nomeUsuario(); rodape = 'documento criado dia ' + hoje() + ' horário ' + new Date().toLocaleTimeString('pt-BR');
+    if (!P_PROV.length) return; titulo = 'Provisória de ' + nomeUsuario(); rodape = 'documento criado dia ' + dataEscolhida + ' horário ' + new Date().toLocaleTimeString('pt-BR');
     P_PROV.forEach(num => un.push({ h: lh + 3, draw: (x, y) => { const yb = y + lh * 0.75; fonte('bold', pt); doc.setTextColor(0); doc.text('Pasta: ' + num, x, yb); doc.setDrawColor(220); doc.setLineWidth(0.2); doc.line(x, yb + 3, x + colW, yb + 3); } }));
   }
 
-  const ft = Math.round(pt * 1.4); fonte('bold', ft); doc.setTextColor(0); const tl = doc.splitTextToSize(titulo, R - L - 28); doc.text(tl, L, TOP); fonte('normal', 11); doc.text(hoje(), R, TOP, { align: 'right' });
+  const ft = Math.round(pt * 1.4); fonte('bold', ft); doc.setTextColor(0); const tl = doc.splitTextToSize(titulo, R - L - 28); doc.text(tl, L, TOP); fonte('normal', 11); doc.text(dataEscolhida, R, TOP, { align: 'right' });
   const top1 = TOP + (tl.length - 1) * ft * MM * 1.2 + ft * MM + 7.6;
   const cap1 = BOT - top1, capN = BOT - TOP; let lim1 = cap1;
   if (n > 1) { const total = un.reduce((s, u) => s + u.h, 0), maior = Math.max(...un.map(u => u.h)); if (total <= cap1 * n) { for (let t = Math.max(maior, total / n); t <= cap1; t += 0.5) { if (colocar(un, n, t, capN).every(p => p.pg === 0)) { lim1 = t; break; } } } }
   const pos = colocar(un, n, lim1, capN);
   un.forEach((u, i) => { const p = pos[i]; while (doc.getNumberOfPages() <= p.pg) doc.addPage(); doc.setPage(p.pg + 1); u.draw(L + p.col * (colW + GAP), (p.pg === 0 ? top1 : TOP) + p.y); });
   if (rodape) { doc.setPage(doc.getNumberOfPages()); fonte('normal', 10); doc.setTextColor(100); doc.text(rodape, R, 288, { align: 'right' }); }
-  doc.save('Fluxo-' + abaAtiva.toUpperCase() + '-' + hoje().replace(/\//g, '-') + '.pdf');
+  doc.save('Fluxo-' + abaAtiva.toUpperCase() + '-' + dataEscolhida.replace(/\//g, '-') + '.pdf');
 }
 </script>
 </body>
