@@ -214,8 +214,8 @@
   .pessoas-vazio { padding: 10px; text-align: center; color: var(--mut); font-size: 12px; }
   .sidebar.recolhida .pessoas-vazio { display: none; }
 
-  .app-layout { margin-left: 240px; transition: margin-left 0.2s ease; }
-  .sidebar.recolhida ~ .app-layout { margin-left: 76px; }
+  .app-layout { margin-left: 240px; width: calc(100% - 240px); transition: margin-left 0.2s ease, width 0.2s ease; }
+  .sidebar.recolhida ~ .app-layout { margin-left: 76px; width: calc(100% - 76px); }
 
   /* CALENDÁRIO E GRÁFICO DO DASHBOARD */
   .dash-grid-extra { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr); gap: 16px; margin-bottom: 16px; }
@@ -225,10 +225,10 @@
   .cal-legenda { display: flex; gap: 12px; font-size: 11px; color: var(--mut); margin-bottom: 8px; flex-wrap: wrap; }
   .cal-legenda span { display: inline-flex; align-items: center; gap: 4px; }
   .cal-legenda i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; width: 100%; min-width: 0; }
   .cal-dsemana { font-size: 10px; color: var(--mut); text-align: center; font-weight: 700; text-transform: uppercase; }
-  .cal-dia { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 8px; color: var(--tx); }
-  .cal-dia.vazio { visibility: hidden; }
+  .cal-dia { position: relative; aspect-ratio: 1; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 8px; color: var(--tx); }
+  .cal-dia.cal-branco { visibility: hidden; }
   .cal-dia.hoje { outline: 1.5px solid var(--pri); font-weight: 800; }
   .cal-pontos { position: absolute; bottom: 3px; display: flex; gap: 2px; }
   .cal-pontos i { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
@@ -508,7 +508,7 @@
     .sidebar, .sidebar.recolhida { width: 280px; max-width: 86vw; height: 100vh; height: 100dvh; transform: translateX(-100%); transition: transform .25s ease; z-index: 120; }
     .sidebar.aberta-mobile { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,.35); }
     .sb-toggle svg, .sidebar.recolhida .sb-toggle svg { transform: rotate(180deg); }
-    .app-layout, .sidebar.recolhida ~ .app-layout { margin-left: 0; }
+    .app-layout, .sidebar.recolhida ~ .app-layout { margin-left: 0; width: 100%; }
     header { padding: 14px 14px 6px !important; gap: 10px !important; }
     .topo-titulo { flex: 1; min-width: 0; }
     .topo-titulo h1 { font-size: 24px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -996,9 +996,7 @@ async function verificarSessao() {
     if (localStorage.getItem('fluxo_expirar_inatividade') !== 'true') return;
     const ultima = SESSAO_ULTIMA || Number(localStorage.getItem('fluxo_ultima_atividade') || 0);
     if (ultima && Date.now() - ultima > SESSAO_LIMITE_MS) {
-      localStorage.removeItem('fluxo_ultima_atividade');
-      await db.auth.signOut();
-      window.location.href = 'index.html';
+      await encerrarSessao();
     }
   } catch (e) {}
 }
@@ -1108,10 +1106,25 @@ async function entrar(user) {
   atualizarConta(user); iniciarPresenca(); iniciarControleSessao(); await carregarPerfil(); await carregar(); mudarAbaMenu('dash'); carregarPessoas(); iniciarNotificacoes();
 }
 
+/* Sair: funciona mesmo sem internet. signOut() sozinho só limpa o aparelho se o servidor responder;
+   se a conexão falhar, a sessão continuava salva e o index.html jogava você de volta para o menu. */
+async function encerrarSessao() {
+  try { await Promise.race([db.auth.signOut(), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}   // revoga no servidor (se der)
+  try { await db.auth.signOut({ scope: 'local' }); } catch (e) {}                                       // limpa aqui, sem depender da rede
+  try {
+    Object.keys(localStorage).forEach(k => { if (k.indexOf('sb-') === 0) localStorage.removeItem(k); });
+    ['fluxo_ultima_atividade', 'fluxo_expirar_inatividade'].forEach(k => localStorage.removeItem(k));
+    sessionStorage.clear();
+  } catch (e) {}
+  window.location.replace('index.html?logout=true');
+}
+db.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') window.location.replace('index.html'); });
+window.addEventListener('pageshow', e => { if (e.persisted) db.auth.getSession().then(({ data }) => { if (!data.session) window.location.replace('index.html'); }); });
+
 async function sair() {
   clearTimeout(tSave); clearInterval(tPresenca);
-  if (pronto) await salvar();
-  await db.auth.signOut(); window.location.href = 'index.html';
+  try { if (pronto) await Promise.race([salvar(), new Promise(r => setTimeout(r, 3000))]); } catch (e) {}   // se o salvamento falhar, sai mesmo assim
+  await encerrarSessao();
 }
 
 function agendarSalvar() {
@@ -1422,7 +1435,7 @@ function renderSino() {
   const sisOn = cfgSis() && sisPermitido(), suporta = 'Notification' in window;
   $('sp-rodape').innerHTML =
     '<label class="sp-opt"><input type="checkbox" ' + (cfgSom() ? 'checked' : '') + ' onchange="setSom(this.checked)"> Som</label>' +
-    '<label class="sp-opt"><input type="checkbox" ' + (sisOn ? 'checked' : '') + (suporta ? '' : ' disabled') + ' onchange="setSistema(this.checked)"> Ativar Notificação</label>' +
+    '<label class="sp-opt"><input type="checkbox" ' + (sisOn ? 'checked' : '') + (suporta ? '' : ' disabled') + ' onchange="setSistema(this.checked)"> Avisos no Windows</label>' +
     '<button type="button" class="mini-btn" onclick="testarAviso()">Testar</button>' +
     (!suporta ? '<small class="sp-nota">Este navegador/app não suporta avisos do sistema.</small>' : (suporta && Notification.permission === 'denied' ? '<small class="sp-nota">Bloqueado no navegador: libere no cadeado ao lado do endereço.</small>' : ''));
 }
@@ -1522,7 +1535,7 @@ function renderCalendarioDash() {
   grid.className = 'cal-grid';
   const primeiroDia = new Date(ano, mes, 1).getDay(), totalDias = new Date(ano, mes + 1, 0).getDate();
   let h = DIAS_SEMANA_PT.map(d => '<div class="cal-dsemana">' + d + '</div>').join('');
-  for (let i = 0; i < primeiroDia; i++) h += '<div class="cal-dia vazio"></div>';
+  for (let i = 0; i < primeiroDia; i++) h += '<div class="cal-dia cal-branco"></div>';
   for (let d = 1; d <= totalDias; d++) {
     const iso = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     const pontos = (ped[iso] ? '<i class="pt-pedido"></i>' : '') + (ven[iso] ? '<i class="pt-vencimento"></i>' : '');
@@ -1928,8 +1941,6 @@ function aviso(msg) {
 
 function aplicarPerfil() {
   const nome = nomeUsuario();
-  const mcNome = document.getElementById('mc-nome');
-  if (mcNome) mcNome.textContent = nome;
 }
 
 async function carregarPerfil() {
