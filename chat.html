@@ -139,6 +139,44 @@
   .btn-enviar:disabled { opacity: .5; cursor: not-allowed; }
   .btn-enviar svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
   .oculto { display: none !important; }
+
+  /* apagar mensagem */
+  .ic.perigo:hover { color: #dc2626; }
+  .acoes-msg { display: none; justify-content: flex-end; margin-top: 4px; white-space: normal; }
+  .bolha.minha.sel .acoes-msg { display: flex; }
+  @media (hover: hover) { .bolha.minha:hover .acoes-msg { display: flex; } }
+  .btn-apagar-msg { border: 1px solid rgba(255,255,255,.7); background: rgba(0,0,0,.15); color: #fff; border-radius: 999px; padding: 3px 10px; font-size: 12px; font-weight: 700; cursor: pointer; }
+  .btn-apagar-msg:hover { background: rgba(0,0,0,.3); }
+
+  /* PDF na conversa */
+  .arq { display: flex; align-items: center; gap: 10px; min-width: 190px; padding: 8px 10px; margin-bottom: 2px; border-radius: 12px; background: rgba(0,0,0,.14); cursor: pointer; white-space: normal; }
+  .bolha.outra .arq { background: var(--card); border: 1px solid var(--bd); }
+  .arq.carregando { opacity: .6; pointer-events: none; }
+  .arq svg { width: 28px; height: 28px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .arq-info { display: flex; flex-direction: column; min-width: 0; }
+  .arq-nome { font-weight: 700; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 220px; }
+  .arq-sub { font-size: 11.5px; opacity: .75; }
+  .envio .ic { margin-bottom: 3px; }
+
+  /* aviso de espaço (800 MB) */
+  .aviso-espaco { margin: 10px 14px 0; padding: 10px 12px; border-radius: 12px; font-size: 13px; line-height: 1.4; background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  :root[data-theme="dark"] .aviso-espaco { background: #3a2a07; color: #fde68a; border-color: #78561a; }
+  .aviso-acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .btn-peq { border: 0; border-radius: 10px; padding: 8px 12px; background: var(--pri); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-peq.perigo { background: #dc2626; }
+  .btn-peq.sec { background: transparent; color: inherit; border: 1px solid currentColor; }
+  .btn-peq:disabled { opacity: .55; cursor: not-allowed; }
+
+  /* janela "Limpar chat" */
+  .modal-fundo { position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { width: 100%; max-width: 400px; background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 18px; padding: 18px; box-shadow: var(--shadow); }
+  .modal h2 { margin: 0 0 6px; font-size: 18px; }
+  .modal p { margin: 0 0 12px; font-size: 13px; color: var(--mut); }
+  .modal label { display: block; margin: 10px 0 5px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--mut); }
+  .modal select { width: 100%; padding: 11px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); color: var(--tx); font: inherit; font-size: 15px; }
+  .modal-acoes { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .modal-res { font-size: 13px; margin-top: 10px; min-height: 16px; color: var(--pri); }
+  .modal-res.erro { color: #dc2626; }
   </style>
 </head>
 <body>
@@ -152,7 +190,12 @@
         <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       </button>
       <h1>Chat</h1>
+      <button type="button" class="ic" id="btn-limpar-topo" title="Limpar chat (liberar espaço)" aria-label="Limpar chat">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      </button>
     </div>
+
+    <div class="aviso-espaco oculto" id="aviso-espaco"></div>
 
     <div class="add-box">
       <label for="novo-usuario">Adicionar pessoa</label>
@@ -174,6 +217,9 @@
       </button>
       <span class="av sm" id="conv-av"></span>
       <div class="conv-topo-info"><b id="conv-nome"></b><small id="conv-user"></small></div>
+      <button type="button" class="ic perigo" id="btn-apagar-conv" title="Apagar conversa" aria-label="Apagar conversa">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      </button>
     </div>
 
     <div class="msgs" id="msgs">
@@ -184,12 +230,41 @@
     </div>
 
     <form class="envio oculto" id="envio" autocomplete="off">
+      <button type="button" class="ic" id="btn-anexo" title="Enviar PDF (até 5 MB)" aria-label="Enviar PDF">
+        <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
+      </button>
+      <input type="file" id="arquivo" accept="application/pdf,.pdf" class="oculto">
       <textarea id="texto" rows="1" placeholder="Escreva uma mensagem..." maxlength="2000" enterkeyhint="enter"></textarea>
       <button type="submit" class="btn-enviar" id="btn-enviar" title="Enviar" aria-label="Enviar">
         <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
       </button>
     </form>
   </section>
+</div>
+
+<div class="modal-fundo oculto" id="modal-limpar">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="limpar-titulo">
+    <h2 id="limpar-titulo">Limpar chat</h2>
+    <p id="limpar-uso"></p>
+    <label for="limpar-modo">O que apagar</label>
+    <select id="limpar-modo">
+      <option value="pdfs">Só os PDFs (a mensagem do PDF some junto)</option>
+      <option value="tudo">Mensagens e PDFs</option>
+    </select>
+    <label for="limpar-dias">De quando</label>
+    <select id="limpar-dias">
+      <option value="0">Tudo, sem filtro de data</option>
+      <option value="7">Com mais de 7 dias</option>
+      <option value="30">Com mais de 30 dias</option>
+      <option value="90">Com mais de 90 dias</option>
+    </select>
+    <p style="margin:10px 0 0">Apaga só das suas conversas, para os dois lados, e não dá para desfazer.</p>
+    <div class="modal-res" id="limpar-res"></div>
+    <div class="modal-acoes">
+      <button type="button" class="btn-peq sec" id="limpar-cancelar">Fechar</button>
+      <button type="button" class="btn-peq perigo" id="limpar-ok">Apagar</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
@@ -202,7 +277,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fotoOk = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
 
-let uid = null, PESSOAS = [], RESUMO = {}, atual = null, ULTIMO_ID = 0, tPoll = null, canal = null, enviando = false;
+let uid = null, PESSOAS = [], RESUMO = {}, atual = null, ULTIMO_ID = 0, tPoll = null, canal = null, enviando = false, USO = null, ultimoUso = 0;
 
 const avatar = p => { const f = fotoOk(p.foto), n = p.nome || p.usuario || '?'; return f ? '<img src="' + esc(f) + '" alt="">' : esc(n.trim().charAt(0).toUpperCase()); };
 const hhmm = iso => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -238,6 +313,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   uid = data.session.user.id;
 
   await carregarLista();
+  carregarUso();
   const params = new URLSearchParams(location.search);
   const u = (params.get('u') || '').trim().toLowerCase();
   if (u) abrirConversa(u);
@@ -273,7 +349,7 @@ function renderLista() {
     return '<button type="button" class="pessoa' + (atual === k ? ' ativa' : '') + '" data-u="' + esc(p.usuario) + '">' +
       '<span class="av">' + avatar(p) + '</span>' +
       '<span class="p-info"><span class="p-linha"><span class="p-nome">' + esc(nome) + '</span><span class="p-hora">' + esc(horaLista(r && r.ultima_em)) + '</span></span>' +
-      '<span class="p-sub"><span class="p-ultima">' + (r && r.ultima_texto ? esc(r.ultima_texto.replace(/\s+/g, ' ')) : '@' + esc(p.usuario)) + '</span>' +
+      '<span class="p-sub"><span class="p-ultima">' + (r && r.ultima_texto ? esc(resumoTexto(r.ultima_texto)) : '@' + esc(p.usuario)) + '</span>' +
       (nl ? '<span class="badge">' + (nl > 99 ? '99+' : nl) + '</span>' : '') + '</span></span></button>';
   }).join('');
 }
@@ -330,7 +406,7 @@ async function carregarConversa(forcarFim) {
   const { data, error } = await db.rpc('chat_conversa', { p_usuario: alvo, p_limite: 200 });
   if (alvo !== atual) return;
   if (error) { $('msgs').innerHTML = '<div class="conv-vazia">Não foi possível carregar a conversa.<br><small>' + esc(error.message) + '</small></div>'; return; }
-  const lista = data || [], ult = lista.length ? lista[lista.length - 1].id : 0;
+  const lista = data || [], ult = lista.map(m => m.id).join(',');
   if (!forcarFim && ult === ULTIMO_ID) return;
   const box = $('msgs');
   const noFim = forcarFim || (box.scrollHeight - box.scrollTop - box.clientHeight < 140);
@@ -349,7 +425,8 @@ function renderMensagens(lista) {
   lista.forEach(m => {
     const dia = diaRotulo(m.criado_em);
     if (dia !== ultimoDia) { h += '<div class="dia-sep">' + esc(dia) + '</div>'; ultimoDia = dia; }
-    h += '<div class="bolha ' + (m.de_mim ? 'minha' : 'outra') + '">' + formatarMensagem(m.texto) + '<time>' + hhmm(m.criado_em) + '</time></div>';
+    h += '<div class="bolha ' + (m.de_mim ? 'minha' : 'outra') + '">' + conteudoMsg(m.texto) + '<time>' + hhmm(m.criado_em) + '</time>' +
+      (m.de_mim ? '<div class="acoes-msg"><button type="button" class="btn-apagar-msg" data-apagar="' + m.id + '">Apagar</button></div>' : '') + '</div>';
   });
   box.innerHTML = h;
 }
@@ -364,6 +441,7 @@ async function atualizarSilencioso() {
   if (document.visibilityState !== 'visible' || !uid) return;
   await carregarResumo();
   if (atual) carregarConversa(false);
+  if (Date.now() - ultimoUso > 60000) carregarUso();
 }
 
 /* ---------- enviar ---------- */
@@ -400,6 +478,180 @@ $('envio').addEventListener('submit', async e => {
   }
   await carregarConversa(true);
   carregarResumo();
+});
+
+/* ---------- PDF, apagar e aviso de espaço ---------- */
+const PDF_RE = /^\[pdf:(\d+)\]\s*(.*)$/;
+const ICONE_PDF = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
+function conteudoMsg(texto) {
+  const m = PDF_RE.exec(String(texto || ''));
+  if (!m) return formatarMensagem(texto);
+  return '<div class="arq" data-arq="' + m[1] + '" role="button" tabindex="0">' + ICONE_PDF +
+    '<span class="arq-info"><span class="arq-nome">' + esc(m[2] || 'arquivo.pdf') + '</span><span class="arq-sub">PDF · toque para abrir</span></span></div>';
+}
+function resumoTexto(t) {
+  const m = PDF_RE.exec(String(t || ''));
+  return m ? '📄 ' + (m[2] || 'PDF') : String(t || '').replace(/\s+/g, ' ');
+}
+function fmtBytes(b) {
+  b = +b || 0;
+  if (b >= 1073741824) return (b / 1073741824).toFixed(2).replace('.', ',') + ' GB';
+  if (b >= 1048576) return (b / 1048576).toFixed(b >= 104857600 ? 0 : 1).replace('.', ',') + ' MB';
+  return Math.max(1, Math.round(b / 1024)) + ' KB';
+}
+
+/* toque na bolha: mostra "Apagar"; toque no PDF: abre */
+$('msgs').addEventListener('click', e => {
+  const ap = e.target.closest('[data-apagar]');
+  if (ap) { apagarMensagem(+ap.dataset.apagar); return; }
+  const arq = e.target.closest('[data-arq]');
+  if (arq) { abrirPdf(+arq.dataset.arq, arq); return; }
+  if (e.target.closest('a')) return;
+  const b = e.target.closest('.bolha.minha');
+  document.querySelectorAll('.bolha.sel').forEach(x => { if (x !== b) x.classList.remove('sel'); });
+  if (b) b.classList.toggle('sel');
+});
+$('msgs').addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('[data-arq]')) { e.preventDefault(); abrirPdf(+e.target.dataset.arq, e.target); }
+});
+
+async function apagarMensagem(id) {
+  if (!confirm('Apagar esta mensagem para os dois lados?\nSe for um PDF, o arquivo também é apagado.')) return;
+  const { data, error } = await db.rpc('chat_apagar_mensagem', { p_id: id });
+  if (error || (data !== 'ok' && data !== 'nao_encontrado')) { alert('Não foi possível apagar: ' + (error ? error.message : data)); return; }
+  await carregarConversa(false);
+  carregarResumo(); carregarUso();
+}
+
+$('btn-apagar-conv').addEventListener('click', async () => {
+  if (!atual) return;
+  const alvo = atual, p = pessoaDe(alvo), nome = p ? (p.nome || p.usuario) : '@' + alvo;
+  if (!confirm('Apagar TODA a conversa com ' + nome + '?\nAs mensagens e os PDFs somem para os dois lados e não dá para desfazer.')) return;
+  const { data, error } = await db.rpc('chat_apagar_conversa', { p_usuario: alvo });
+  if (error || data !== 'ok') { alert('Não foi possível apagar a conversa: ' + (error ? error.message : data)); return; }
+  if (alvo === atual) await carregarConversa(true);
+  carregarResumo(); carregarUso();
+});
+
+/* enviar PDF */
+function lerBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1] || '');
+    r.onerror = () => rej(r.error);
+    r.readAsDataURL(file);
+  });
+}
+$('btn-anexo').addEventListener('click', () => { if (atual && !enviando) $('arquivo').click(); });
+$('arquivo').addEventListener('change', async () => {
+  const f = $('arquivo').files[0];
+  $('arquivo').value = '';
+  if (!f || !atual || enviando) return;
+  if (!(f.type === 'application/pdf' || /\.pdf$/i.test(f.name))) { alert('Só é possível enviar arquivos PDF.'); return; }
+  if (f.size > 5 * 1024 * 1024) { alert('Este PDF tem ' + fmtBytes(f.size) + '. O limite é 5 MB.'); return; }
+
+  enviando = true; $('btn-enviar').disabled = true; $('btn-anexo').disabled = true;
+  const alvo = atual, box = $('msgs');
+  const vazia = box.querySelector('.conv-vazia'); if (vazia) vazia.remove();
+  const tmp = document.createElement('div');
+  tmp.className = 'bolha minha enviando';
+  tmp.innerHTML = '<div class="arq">' + ICONE_PDF + '<span class="arq-info"><span class="arq-nome">' + esc(f.name) + '</span><span class="arq-sub">A enviar...</span></span></div><time>…</time>';
+  box.appendChild(tmp); box.scrollTop = box.scrollHeight;
+
+  let erroMsg = '';
+  try {
+    const b64 = await lerBase64(f);
+    const { data, error } = await db.rpc('chat_enviar_pdf', { p_usuario: alvo, p_nome: f.name, p_base64: b64 });
+    if (error) erroMsg = /chat_enviar_pdf|PGRST202|does not exist/i.test(error.message) ? 'O envio de PDF ainda não foi ativado no banco (rode o SQL de atualização do chat).' : error.message;
+    else if (data !== 'ok') erroMsg = ({ arquivo_grande: 'O PDF passa de 5 MB.', arquivo_invalido: 'O arquivo não é um PDF válido.', sem_permissao: 'Essa pessoa não está na sua lista.', nao_encontrado: 'Utilizador não encontrado.' })[data] || 'Erro ao enviar.';
+  } catch (e) { erroMsg = 'Não foi possível ler o arquivo.'; }
+
+  enviando = false; $('btn-enviar').disabled = false; $('btn-anexo').disabled = false;
+  tmp.remove();
+  if (erroMsg) { alert('Não foi possível enviar o PDF: ' + erroMsg); return; }
+  if (alvo === atual) await carregarConversa(true);
+  carregarResumo(); carregarUso();
+});
+
+/* abrir/baixar PDF */
+async function abrirPdf(id, el) {
+  if (el.classList.contains('carregando')) return;
+  el.classList.add('carregando');
+  try {
+    const { data, error } = await db.rpc('chat_arquivo_obter', { p_id: id });
+    if (error || !data || !data.base64) { alert('Não foi possível abrir o PDF. Ele pode ter sido apagado.'); return; }
+    const bin = atob(data.base64), bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = data.nome || 'arquivo.pdf'; a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) {
+    alert('Não foi possível abrir o PDF.');
+  } finally {
+    el.classList.remove('carregando');
+  }
+}
+
+/* uso do banco + aviso de 800 MB */
+async function carregarUso() {
+  ultimoUso = Date.now();
+  const { data, error } = await db.rpc('chat_uso');
+  if (error || !data) return;
+  USO = data;
+  renderAviso();
+  if (!$('modal-limpar').classList.contains('oculto')) textoUsoModal();
+}
+function avisoAdiado() { try { return (+localStorage.getItem('fluxo_chat_aviso_ate') || 0) > Date.now(); } catch (e) { return false; } }
+function renderAviso() {
+  const box = $('aviso-espaco');
+  if (!USO || +USO.chat_bytes < +USO.aviso_bytes || avisoAdiado()) { box.classList.add('oculto'); return; }
+  box.innerHTML = '<b>O chat já ocupa ' + esc(fmtBytes(USO.chat_bytes)) + ' do banco de dados.</b> ' +
+    'Passou do aviso de ' + esc(fmtBytes(USO.aviso_bytes)) + '. Apague mensagens e PDFs antigos para liberar espaço. ' +
+    'Se o banco chegar a ' + esc(fmtBytes(USO.limite_bytes)) + ', o sistema apaga os mais antigos sozinho.' +
+    '<div class="aviso-acoes"><button type="button" class="btn-peq perigo" data-aviso="limpar">Limpar chat</button>' +
+    '<button type="button" class="btn-peq sec" data-aviso="manter">Manter por enquanto</button></div>';
+  box.classList.remove('oculto');
+}
+$('aviso-espaco').addEventListener('click', e => {
+  const b = e.target.closest('[data-aviso]'); if (!b) return;
+  if (b.dataset.aviso === 'limpar') abrirLimpeza();
+  else { try { localStorage.setItem('fluxo_chat_aviso_ate', String(Date.now() + 24 * 3600 * 1000)); } catch (x) {} renderAviso(); }
+});
+
+/* janela "Limpar chat" */
+function textoUsoModal() {
+  $('limpar-uso').textContent = USO
+    ? 'O chat usa ' + fmtBytes(USO.chat_bytes) + ' (' + USO.mensagens + ' mensagens, ' + USO.pdfs + ' PDFs, ' + fmtBytes(USO.pdf_bytes) + ' em PDFs). Banco inteiro: ' + fmtBytes(USO.banco_bytes) + ' de ' + fmtBytes(USO.limite_bytes) + '.'
+    : 'Escolha o que apagar para liberar espaço no banco.';
+}
+function abrirLimpeza() {
+  $('limpar-res').textContent = ''; $('limpar-res').className = 'modal-res';
+  textoUsoModal();
+  $('modal-limpar').classList.remove('oculto');
+  carregarUso();
+}
+function fecharLimpeza() { $('modal-limpar').classList.add('oculto'); }
+$('btn-limpar-topo').addEventListener('click', abrirLimpeza);
+$('limpar-cancelar').addEventListener('click', fecharLimpeza);
+$('modal-limpar').addEventListener('click', e => { if (e.target === $('modal-limpar')) fecharLimpeza(); });
+$('limpar-ok').addEventListener('click', async () => {
+  const modo = $('limpar-modo').value, dias = +$('limpar-dias').value;
+  const oQue = modo === 'pdfs' ? 'os PDFs' : 'as mensagens e os PDFs';
+  const quando = dias ? ' com mais de ' + dias + ' dias' : '';
+  if (!confirm('Apagar ' + oQue + quando + ' das suas conversas?\nIsso some para os dois lados e não dá para desfazer.')) return;
+  const btn = $('limpar-ok'), res = $('limpar-res');
+  btn.disabled = true;
+  const { data, error } = await db.rpc('chat_limpar', { p_modo: modo, p_dias: dias });
+  btn.disabled = false;
+  if (error || !data || data.erro) { res.className = 'modal-res erro'; res.textContent = 'Erro: ' + (error ? error.message : (data && data.erro) || 'tente de novo'); return; }
+  const n = data.apagadas || 0;
+  res.className = 'modal-res';
+  res.textContent = n ? n + (n === 1 ? ' item apagado.' : ' itens apagados.') : 'Nada para apagar com esse filtro.';
+  await carregarUso();
+  carregarResumo();
+  if (atual) carregarConversa(true);
 });
 
 /* ---------- tempo real ---------- */
