@@ -64,7 +64,6 @@
   }
   button { font: inherit; color: inherit; }
 
-  /* Casca: 1 painel no celular, 2 no computador */
   .shell { height: 100dvh; max-width: 1100px; margin: 0 auto; display: flex; background: var(--bg); padding-top: 0; }
   @supports not (height: 100dvh) { .shell { height: 100vh; } }
   .shell { height: calc(100dvh - env(safe-area-inset-top, 0px)); }
@@ -82,14 +81,12 @@
     .btn-voltar-conv { display: none !important; }
   }
 
-  /* Topo */
   .topo { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--bd); background: var(--card); min-height: 58px; }
   .topo h1 { font-size: 18px; margin: 0; font-weight: 800; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .ic { width: 40px; height: 40px; border: 0; border-radius: 12px; background: transparent; color: var(--mut); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; }
   .ic:hover { background: var(--bg); color: var(--tx); }
   .ic svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-  /* Adicionar pessoa */
   .add-box { padding: 12px 14px; border-bottom: 1px solid var(--bd); }
   .add-box label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--mut); margin-bottom: 6px; letter-spacing: .04em; }
   .add-row { display: flex; gap: 8px; }
@@ -102,7 +99,6 @@
   .msg-add.erro { color: #dc2626; }
   .msg-add.ok { color: var(--pri); }
 
-  /* Lista de pessoas */
   .lista { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; }
   .pessoa { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px; border: 0; background: transparent; border-radius: 14px; cursor: pointer; text-align: left; }
   .pessoa:hover { background: var(--bg); }
@@ -119,7 +115,6 @@
   .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--pri); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .vazio-txt { color: var(--mut); text-align: center; padding: 28px 18px; font-size: 14px; }
 
-  /* Conversa */
   .conv-topo-info { flex: 1; min-width: 0; line-height: 1.2; }
   .conv-topo-info b { display: block; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .conv-topo-info small { color: var(--mut); font-size: 12px; }
@@ -130,6 +125,7 @@
   .bolha.minha { align-self: flex-end; background: var(--pri); color: #fff; border-bottom-right-radius: 6px; }
   .bolha.outra { align-self: flex-start; background: var(--recebida); color: var(--tx); border-bottom-left-radius: 6px; }
   .bolha.enviando { opacity: .6; }
+  .bolha a { color: inherit; text-decoration: underline; font-weight: 700; }
   .conv-vazia { margin: auto; text-align: center; color: var(--mut); padding: 24px; font-size: 14px; }
   .sem-selecao { margin: auto; text-align: center; color: var(--mut); padding: 24px; }
   .sem-selecao svg { width: 54px; height: 54px; stroke: var(--bd); fill: none; stroke-width: 1.5; margin-bottom: 8px; }
@@ -220,6 +216,19 @@ function horaLista(iso) {
   if (!iso) return '';
   const d = new Date(iso), h = new Date();
   return (d.toDateString() === h.toDateString()) ? hhmm(iso) : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
+/* ---------- formatar links nas mensagens ---------- */
+function formatarMensagem(texto) {
+  const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi;
+  let limpo = esc(texto);
+  return limpo.replace(urlRegex, function(url) {
+    let href = url;
+    if (url.toLowerCase().startsWith('www.')) {
+      href = 'http://' + url;
+    }
+    return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
+  });
 }
 
 /* ---------- início ---------- */
@@ -328,7 +337,6 @@ async function carregarConversa(forcarFim) {
   ULTIMO_ID = ult;
   renderMensagens(lista);
   if (noFim) box.scrollTop = box.scrollHeight;
-  // marca como lidas e atualiza as bolinhas
   if (lista.some(m => !m.de_mim)) {
     db.rpc('chat_marcar_lidas', { p_usuario: alvo }).then(() => carregarResumo(), () => {});
   }
@@ -341,7 +349,7 @@ function renderMensagens(lista) {
   lista.forEach(m => {
     const dia = diaRotulo(m.criado_em);
     if (dia !== ultimoDia) { h += '<div class="dia-sep">' + esc(dia) + '</div>'; ultimoDia = dia; }
-    h += '<div class="bolha ' + (m.de_mim ? 'minha' : 'outra') + '">' + esc(m.texto) + '<time>' + hhmm(m.criado_em) + '</time></div>';
+    h += '<div class="bolha ' + (m.de_mim ? 'minha' : 'outra') + '">' + formatarMensagem(m.texto) + '<time>' + hhmm(m.criado_em) + '</time></div>';
   });
   box.innerHTML = h;
 }
@@ -363,7 +371,6 @@ const campo = $('texto');
 function ajustarAltura() { campo.style.height = 'auto'; campo.style.height = Math.min(campo.scrollHeight, 130) + 'px'; }
 campo.addEventListener('input', ajustarAltura);
 campo.addEventListener('keydown', e => {
-  // no computador: Enter envia, Shift+Enter quebra linha. No celular: Enter quebra linha (use o botão).
   if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(pointer:fine)').matches) { e.preventDefault(); $('envio').requestSubmit(); }
 });
 
@@ -374,11 +381,10 @@ $('envio').addEventListener('submit', async e => {
   enviando = true; $('btn-enviar').disabled = true;
   const alvo = atual;
 
-  // mostra já na tela (esmaecida) enquanto salva
   const box = $('msgs');
   const vazia = box.querySelector('.conv-vazia'); if (vazia) vazia.remove();
   const tmp = document.createElement('div');
-  tmp.className = 'bolha minha enviando'; tmp.innerHTML = esc(txt) + '<time>…</time>';
+  tmp.className = 'bolha minha enviando'; tmp.innerHTML = formatarMensagem(txt) + '<time>…</time>';
   box.appendChild(tmp); box.scrollTop = box.scrollHeight;
   campo.value = ''; ajustarAltura();
 
@@ -405,7 +411,7 @@ function ligarTempoReal() {
         if (atual) carregarConversa(false);
       })
       .subscribe();
-  } catch (e) { /* sem tempo real: o checador de 6s continua funcionando */ }
+  } catch (e) {}
 }
 window.addEventListener('beforeunload', () => { clearInterval(tPoll); try { if (canal) db.removeChannel(canal); } catch (e) {} });
 </script>
