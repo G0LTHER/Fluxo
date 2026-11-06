@@ -1422,7 +1422,7 @@ function renderSino() {
   const sisOn = cfgSis() && sisPermitido(), suporta = 'Notification' in window;
   $('sp-rodape').innerHTML =
     '<label class="sp-opt"><input type="checkbox" ' + (cfgSom() ? 'checked' : '') + ' onchange="setSom(this.checked)"> Som</label>' +
-    '<label class="sp-opt"><input type="checkbox" ' + (sisOn ? 'checked' : '') + (suporta ? '' : ' disabled') + ' onchange="setSistema(this.checked)"> Avisos no Windows</label>' +
+    '<label class="sp-opt"><input type="checkbox" ' + (sisOn ? 'checked' : '') + (suporta ? '' : ' disabled') + ' onchange="setSistema(this.checked)"> Ativar Notificação</label>' +
     '<button type="button" class="mini-btn" onclick="testarAviso()">Testar</button>' +
     (!suporta ? '<small class="sp-nota">Este navegador/app não suporta avisos do sistema.</small>' : (suporta && Notification.permission === 'denied' ? '<small class="sp-nota">Bloqueado no navegador: libere no cadeado ao lado do endereço.</small>' : ''));
 }
