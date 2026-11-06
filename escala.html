@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Fluxo - Escala</title>
+  <meta name="theme-color" content="#0d9488">
+
+  <script>
+  (function () {
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    var ACENTOS = /^(teal|blue|purple|red|orange|pink|green)$/;
+    var FUNDOS = /^(padrao|eclipse|ocean|scarlet|amethyst|volcano)$/;
+    function ler(k, pad) { try { return localStorage.getItem(k) || pad; } catch (e) { return pad; } }
+    function modo() { var m = ler('fluxo_tema', 'auto'); return (m === 'light' || m === 'dark') ? m : 'auto'; }
+    function accent() { var a = ler('fluxo_accent', 'teal'); return ACENTOS.test(a) ? a : 'teal'; }
+    function fonte() { var f = ler('fluxo_fonte', ''); return (f === 'preto' || f === 'branco') ? f : ''; }
+    function fundo() { var b = ler('fluxo_fundo', 'padrao'); return FUNDOS.test(b) ? b : 'padrao'; }
+    function aplicar() {
+      var m = modo(), t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
+      var ac = accent(), fo = fonte(), bg = fundo();
+      var h = document.documentElement;
+      h.setAttribute('data-theme', t);
+      h.setAttribute('data-accent', ac);
+      if (t === 'dark') h.setAttribute('data-bg', bg); else h.removeAttribute('data-bg');
+      if (fo) h.setAttribute('data-fonte', fo); else h.removeAttribute('data-fonte');
+    }
+    aplicar();
+    document.addEventListener('DOMContentLoaded', aplicar);
+    window.addEventListener('storage', function (e) { if (e.key && /^fluxo_(tema|accent|fonte|fundo)$/.test(e.key)) aplicar(); });
+    if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
+  })();
+  </script>
+
+  <style>
+  :root[data-theme="light"] { --bg: #f4f6fa; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --bd: #e6eaf0; --shadow: 0 1px 2px rgba(15,23,42,.04), 0 4px 14px rgba(15,23,42,.05); }
+  :root[data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --tx: #f8fafc; --mut: #9ca3af; --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; --bd: #334155; --shadow: 0 4px 12px -1px rgba(0,0,0,.4); }
+  :root[data-theme="dark"][data-bg="eclipse"] { --bg: #000000; --card: #111111; --bd: #222222; }
+  :root[data-theme="dark"][data-bg="ocean"] { --bg: #020617; --card: #0f172a; --bd: #1e293b; }
+  :root[data-theme="dark"][data-bg="scarlet"] { --bg: #2a0808; --card: #3f0c0c; --bd: #5c1414; }
+  :root[data-theme="dark"][data-bg="amethyst"] { --bg: #1e0a2d; --card: #2d1045; --bd: #4a1d6e; }
+  :root[data-theme="dark"][data-bg="volcano"] { --bg: #2a1104; --card: #3f1a06; --bd: #5c260a; }
+  :root[data-theme="light"][data-accent="blue"] { --pri: #2563eb; --pri-hover: #1f54c8; --pri-light: #e9effd; }
+  :root[data-theme="dark"][data-accent="blue"] { --pri: #5585ef; --pri-hover: #2563eb; --pri-light: #132349; }
+  :root[data-theme="light"][data-accent="purple"] { --pri: #7c3aed; --pri-hover: #6931c9; --pri-light: #f2ebfd; }
+  :root[data-theme="dark"][data-accent="purple"] { --pri: #9965f1; --pri-hover: #7c3aed; --pri-light: #201d49; }
+  :root[data-theme="light"][data-accent="red"] { --pri: #dc2626; --pri-hover: #bb2020; --pri-light: #fce9e9; }
+  :root[data-theme="dark"][data-accent="red"] { --pri: #e45656; --pri-hover: #dc2626; --pri-light: #301929; }
+  :root[data-theme="light"][data-accent="orange"] { --pri: #ea580c; --pri-hover: #c74b0a; --pri-light: #fdeee7; }
+  :root[data-theme="dark"][data-accent="orange"] { --pri: #ef7d41; --pri-hover: #ea580c; --pri-light: #322125; }
+  :root[data-theme="light"][data-accent="pink"] { --pri: #db2777; --pri-hover: #ba2165; --pri-light: #fbe9f1; }
+  :root[data-theme="dark"][data-accent="pink"] { --pri: #e35795; --pri-hover: #db2777; --pri-light: #301a36; }
+  :root[data-theme="light"][data-accent="green"] { --pri: #16a34a; --pri-hover: #138b3f; --pri-light: #e8f6ed; }
+  :root[data-theme="dark"][data-accent="green"] { --pri: #49b772; --pri-hover: #16a34a; --pri-light: #102d2f; }
+  :root[data-theme="light"][data-fonte="preto"] { --tx: #000000; }
+  :root[data-theme="dark"][data-fonte="branco"] { --tx: #ffffff; }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--tx); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; min-height: 100vh; padding-top: env(safe-area-inset-top, 0px); }
+  button { font: inherit; color: inherit; }
+  .mut { color: var(--mut); }
+  svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+  .wrap { max-width: 1250px; margin: 0 auto; padding: 14px 16px 60px; }
+  .topo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+  .ic { width: 42px; height: 42px; border: 1px solid var(--bd); border-radius: 12px; background: var(--card); color: var(--tx); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; text-decoration: none; }
+  .topo h1 { margin: 0; font-size: 24px; font-weight: 800; line-height: 1.1; }
+  .topo small { display: block; color: var(--mut); font-size: 13px; margin-top: 2px; }
+  .topo-tit { flex: 1; min-width: 180px; }
+  .sel-dono { display: flex; align-items: center; gap: 8px; }
+  .sel-dono label { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--mut); letter-spacing: .04em; }
+
+  input, select, textarea { font: inherit; color: var(--tx); background: var(--bg); border: 1px solid var(--bd); border-radius: 10px; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--pri); }
+  input, select { padding: 10px 12px; font-size: 15px; }
+
+  .card { background: var(--card); border: 1px solid var(--bd); border-radius: 18px; box-shadow: var(--shadow); padding: 14px; margin-bottom: 14px; }
+
+  /* abas das semanas */
+  .abas { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .aba { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); color: var(--mut); font-weight: 700; font-size: 14px; cursor: pointer; }
+  .aba.ativa { background: var(--pri); border-color: var(--pri); color: #fff; }
+  .aba .agora { font-size: 10px; font-weight: 800; text-transform: uppercase; background: var(--pri-light); color: var(--pri); border-radius: 999px; padding: 1px 7px; }
+  .aba.ativa .agora { background: rgba(255,255,255,.25); color: #fff; }
+  .aba .nao-salva { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; }
+  .aba-nova { border-style: dashed; }
+
+  .barra { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .barra input[type=text] { flex: 1; min-width: 150px; max-width: 280px; }
+  .btn { border: 0; border-radius: 10px; padding: 0 16px; background: var(--pri); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn:hover { background: var(--pri-hover); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .ghost { border: 1px solid var(--bd); border-radius: 10px; padding: 0 14px; background: var(--card); color: var(--tx); font-weight: 700; font-size: 13.5px; cursor: pointer; min-height: 42px; display: inline-flex; align-items: center; gap: 6px; }
+  .ghost:hover { background: var(--bg); }
+  .ghost.perigo { color: #dc2626; border-color: rgba(220,38,38,.4); }
+  .ghost.perigo:hover { background: rgba(220,38,38,.08); }
+  .aviso-suja { font-size: 12.5px; color: #b45309; font-weight: 700; }
+  :root[data-theme="dark"] .aviso-suja { color: #fbbf24; }
+
+  /* sugestões */
+  .sugest { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .sugest > span { font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--mut); letter-spacing: .04em; margin-right: 2px; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; border: 1px solid var(--bd); background: var(--pri-light); color: var(--pri); border-radius: 999px; padding: 5px 6px 5px 12px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .chip button { border: 0; background: transparent; color: inherit; opacity: .6; cursor: pointer; padding: 0 6px; font-size: 15px; line-height: 1; }
+  .chip button:hover { opacity: 1; }
+  .chip-add { background: transparent; color: var(--mut); border-style: dashed; padding: 5px 12px; }
+
+  /* planilha */
+  .planilha { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--bd); border-radius: 14px; background: var(--card); }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 980px; }
+  th, td { border-bottom: 1px solid var(--bd); border-right: 1px solid var(--bd); padding: 0; vertical-align: top; }
+  th:last-child, td:last-child { border-right: 0; }
+  tbody tr:last-child td { border-bottom: 0; }
+  th { background: var(--bg); padding: 10px 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--mut); text-align: center; }
+  th small { display: block; font-size: 12px; font-weight: 700; color: var(--tx); letter-spacing: 0; margin-top: 1px; }
+  th.hoje { background: var(--pri); color: #fff; }
+  th.hoje small { color: #fff; }
+  td.hoje { background: var(--pri-light); }
+  th.col-pessoa, td.col-pessoa { position: sticky; left: 0; z-index: 2; min-width: 170px; width: 170px; text-align: left; background: var(--card); }
+  th.col-pessoa { background: var(--bg); z-index: 3; }
+  td.col-pessoa { padding: 10px; }
+  .pessoa { display: flex; align-items: center; gap: 10px; }
+  .av { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--pri), var(--pri-hover)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+  .p-nome { font-weight: 700; font-size: 14px; line-height: 1.2; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .p-user { display: block; font-weight: 500; font-size: 11.5px; color: var(--mut); }
+  .p-user.conv { display: block !important; color: var(--pri); font-weight: 700; }
+  .p-ciclo { display: block; font-size: 11px; font-weight: 600; color: var(--mut); margin-top: 1px; }
+  .p-ciclo b { color: var(--pri); }
+  .rm { margin-left: auto; border: 0; background: transparent; color: var(--mut); cursor: pointer; padding: 4px; border-radius: 8px; display: inline-flex; }
+  .rm:hover { color: #dc2626; background: rgba(220,38,38,.08); }
+  td.cel textarea { display: block; width: 100%; min-width: 130px; min-height: 64px; border: 0; border-radius: 0; background: transparent; padding: 9px 10px; resize: none; font-size: 14px; line-height: 1.35; overflow: hidden; }
+  td.cel textarea:focus { background: var(--bg); box-shadow: inset 0 0 0 2px var(--pri); }
+  td.cel textarea[readonly] { cursor: default; }
+  .linha-add { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .linha-add select { min-width: 200px; }
+  .vazio { text-align: center; padding: 40px 16px; color: var(--mut); }
+  .vazio h2 { color: var(--tx); font-size: 18px; margin: 0 0 6px; }
+  .dica { font-size: 12.5px; color: var(--mut); margin: 10px 2px 0; }
+  #toast { position: fixed; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); background: var(--tx); color: var(--bg); padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 99; max-width: 90vw; text-align: center; }
+
+  @media (max-width: 700px) {
+    .wrap { padding: 10px 10px 60px; }
+    .topo h1 { font-size: 21px; }
+    .sel-dono { width: 100%; } .sel-dono select { flex: 1; }
+    input, select, textarea { font-size: 16px; }
+    .barra .btn, .barra .ghost { flex: 1 1 auto; }
+    .barra input[type=text] { max-width: none; flex-basis: 100%; }
+    th.col-pessoa, td.col-pessoa { min-width: 120px; width: 120px; }
+    .p-user { display: none; }
+    .av { width: 28px; height: 28px; font-size: 12px; }
+    .linha-add select { flex: 1; min-width: 0; }
+  }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topo">
+    <a class="ic" href="menu.html" title="Voltar ao Dashboard" aria-label="Voltar"><svg class="i" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></a>
+    <div class="topo-tit"><h1>Escala</h1><small id="sub-topo">Ciclo automático ativado.</small></div>
+    <div class="sel-dono" id="box-dono" hidden>
+      <label for="sel-dono">Escala de</label>
+      <select id="sel-dono" onchange="trocarDono(this.value)"></select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="abas" id="abas"></div>
+    <div id="area-barra"></div>
+  </div>
+
+  <div id="area-planilha"><div class="vazio">A carregar...</div></div>
+</div>
+
+<div id="toast" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const DIAS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+const SUGESTOES_PADRAO = ['Cadastrar provisória', 'Guardar arquivos', 'Pedir FAA', 'Pastas SAME', 'Folga'];
+
+let uid = null, ME = { usuario: '', nome: '' }, CONTATOS = [];
+let DADOS = null;                 
+let DONO = null;                  
+let SEM = {};                     
+let atual = null, SUJAS = new Set(), FOCO = null, tToast;
+let SUGESTOES = (function () { try { const v = JSON.parse(localStorage.getItem('fluxo_escala_sugestoes') || 'null'); return Array.isArray(v) ? v : SUGESTOES_PADRAO.slice(); } catch (e) { return SUGESTOES_PADRAO.slice(); } })();
+
+const editavel = () => !DADOS || DADOS.editavel;
+function aviso(m) { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(tToast); tToast = setTimeout(() => { t.style.display = 'none'; }, 3200); }
+const nomeDe = p => p.nome || p.usuario || '?';
+
+// segunda-feira desta semana (para mostrar as datas na semana vigente)
+function segundaDestaSemana() { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
+const diaHojeIdx = () => (new Date().getDay() + 6) % 7;
+
+/* ---------- CICLO POR PESSOA ----------
+   Cada pessoa gira só nas semanas em que aparece (1-2-1-2, 1-2-3-1-2-3...).
+   O servidor diz qual linha vale "agora" (campo l.agora); aqui só mostramos. */
+const chaveLinha = l => l.convidado ? 'c:' + String(l.convidado).toLowerCase() : 'u:' + String(l.usuario).toLowerCase();
+function cicloDe(l) {
+  const k = chaveLinha(l);
+  return Object.keys(SEM).map(Number).sort((a, b) => a - b).filter(n => SEM[n].linhas.some(x => chaveLinha(x) === k));
+}
+const semanaTemAgora = n => !!(SEM[n] && SEM[n].salva && SEM[n].linhas.some(l => l.agora));
+function semanaPadrao() {
+  const nums = Object.keys(SEM).map(Number).sort((a, b) => a - b);
+  const minha = nums.find(n => SEM[n].linhas.some(l => l.agora && !l.convidado && String(l.usuario).toLowerCase() === String(ME.usuario).toLowerCase()));
+  return minha || nums.find(semanaTemAgora) || nums[0] || null;
+}
+
+/* ---------- início ---------- */
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data } = await db.auth.getSession();
+  if (!data.session) { window.location.href = 'index.html'; return; }
+  uid = data.session.user.id;
+  const email = data.session.user.email || '';
+
+  const [perf, cont] = await Promise.all([
+    db.from('perfis').select('usuario,nome').eq('user_id', uid).maybeSingle(),
+    db.rpc('listar_contatos')
+  ]);
+  const pu = (perf.data && perf.data.usuario) || email.split('@')[0] || 'eu';
+  ME = { usuario: pu, nome: (perf.data && perf.data.nome) || pu };
+  CONTATOS = (cont.data || []).filter(p => String(p.usuario).toLowerCase() !== pu.toLowerCase());
+
+  await carregarDonos();
+  await carregar();
+});
+
+window.addEventListener('beforeunload', e => { if (SUJAS.size) { e.preventDefault(); e.returnValue = ''; } });
+
+async function carregarDonos() {
+  const { data } = await db.rpc('escala_donos');
+  const lista = Array.isArray(data) ? data : [];
+  const box = $('box-dono');
+  if (!lista.length) { box.hidden = true; return; }
+  $('sel-dono').innerHTML = '<option value="">Minha escala</option>' + lista.map(d => '<option value="' + esc(d.dono) + '">' + esc(d.nome || d.usuario) + '</option>').join('');
+  box.hidden = false;
+}
+
+function trocarDono(v) {
+  if (SUJAS.size && !confirm('Há alterações não salvas. Trocar de escala mesmo assim?')) { $('sel-dono').value = DONO || ''; return; }
+  DONO = v || null; SUJAS.clear(); atual = null; carregar();
+}
+
+async function carregar() {
+  const { data, error } = await db.rpc('escala_ver', DONO ? { p_dono: DONO } : {});
+  if (error) {
+    $('area-planilha').innerHTML = '<div class="vazio"><h2>Escala ainda não ativada</h2>Rode o <b>fluxo_update6_escala.sql</b> no Supabase.<br><small>' + esc(error.message) + '</small></div>';
+    $('abas').innerHTML = ''; $('area-barra').innerHTML = ''; return;
+  }
+  DADOS = data;
+  if (!DADOS) { $('area-planilha').innerHTML = '<div class="vazio"><h2>Escala indisponível</h2>Você não tem acesso a essa escala.</div>'; return; }
+
+  const antigas = SEM; SEM = {};
+  (DADOS.semanas || []).forEach(s => {
+    SEM[s.numero] = { nome: s.nome || ('Semana ' + s.numero), salva: true, linhas: (s.linhas || []).map(l => ({ usuario: l.usuario || '', convidado: l.convidado || '', agora: !!l.agora, nome: l.nome, dias: normalizaDias(l.dias) })) };
+  });
+  
+  Object.keys(antigas).forEach(n => { if (SUJAS.has(Number(n)) && editavel()) SEM[n] = antigas[n]; });
+
+  if (!SEM[atual]) atual = semanaPadrao();
+  $('sub-topo').textContent = editavel() ? 'Monte até 4 semanas. Cada pessoa gira só nas semanas em que aparece.' : 'Escala de ' + (DADOS.dono_nome || DADOS.dono_usuario) + ' (somente leitura)';
+  render();
+}
+
+const normalizaDias = d => { const a = Array.isArray(d) ? d.slice(0, 7) : []; while (a.length < 7) a.push(''); return a.map(x => String(x || '')); };
+
+/* ---------- desenho ---------- */
+function render() { renderAbas(); renderBarra(); renderPlanilha(); }
+
+function renderAbas() {
+  const nums = Object.keys(SEM).map(Number).sort((a, b) => a - b);
+  let h = nums.map(n => '<button type="button" class="aba' + (n === atual ? ' ativa' : '') + '" onclick="irSemana(' + n + ')">' + esc(SEM[n].nome || ('Semana ' + n)) +
+    (semanaTemAgora(n) ? '<span class="agora" title="Tem gente nesta semana agora">agora</span>' : '') + (SUJAS.has(n) ? '<span class="nao-salva" title="Não salva"></span>' : '') + '</button>').join('');
+  if (editavel() && nums.length < 4) h += '<button type="button" class="aba aba-nova" onclick="novaSemana(false)">+ Nova semana</button>';
+  $('abas').innerHTML = h;
+}
+
+function renderBarra() {
+  const box = $('area-barra');
+  if (atual === null) { box.innerHTML = ''; return; }
+  if (!editavel()) {
+    box.innerHTML = '<p class="dica" style="margin-top:12px">Esta é a escala de quem te adicionou. Só o dono pode editar.</p>'; return;
+  }
+  const s = SEM[atual], suja = SUJAS.has(atual);
+  box.innerHTML =
+    '<div class="barra">' +
+      '<input type="text" id="nome-semana" value="' + esc(s.nome) + '" maxlength="40" placeholder="Nome da semana" oninput="mudarNomeSemana(this.value)" aria-label="Nome da semana">' +
+      '<button type="button" class="btn" id="btn-salvar" onclick="salvarSemana()">Salvar semana</button>' +
+      (suja ? '<span class="aviso-suja">● alterações não salvas</span>' : '') +
+    '</div>' +
+    '<div class="barra">' +
+      '<button type="button" class="ghost" onclick="definirVigente()" title="Define que a semana de hoje do calendário é a Semana ' + atual + ' do ciclo">🔄 Esta semana = Semana ' + atual + '</button>' +
+      '<button type="button" class="ghost" onclick="novaSemana(true)" ' + (Object.keys(SEM).length >= 4 ? 'disabled title="Limite de 4 semanas"' : '') + '>Duplicar</button>' +
+      '<button type="button" class="ghost perigo" onclick="apagarSemana()">Apagar semana</button>' +
+    '</div>' +
+    '<div class="sugest"><span>Funções rápidas</span>' +
+      SUGESTOES.map((t, i) => '<span class="chip" onclick="inserirSugestao(' + i + ')">' + esc(t) + '<button type="button" onclick="event.stopPropagation();removerSugestao(' + i + ')" aria-label="Remover">×</button></span>').join('') +
+      '<span class="chip chip-add" onclick="novaSugestao()">+ criar</span>' +
+    '</div>';
+}
+
+function renderPlanilha() {
+  const box = $('area-planilha');
+  if (atual === null) {
+    box.innerHTML = '<div class="card vazio"><h2>Nenhuma semana ainda</h2>' + (editavel() ? 'Crie a primeira semana e distribua as funções de cada pessoa por dia.<br><br><button type="button" class="btn" onclick="novaSemana(false)">Criar Semana 1</button>' : '') + '</div>';
+    return;
+  }
+  const s = SEM[atual], ed = editavel();
+  const algumAgora = semanaTemAgora(atual);
+  const seg = segundaDestaSemana(), hojeI = diaHojeIdx();
+
+  let h = '<div class="planilha"><table><thead><tr><th class="col-pessoa">Pessoa</th>';
+  DIAS.forEach((d, i) => {
+    const dt = new Date(seg.getFullYear(), seg.getMonth(), seg.getDate() + i);
+    h += '<th' + (algumAgora && i === hojeI ? ' class="hoje"' : '') + '>' + d + (algumAgora ? '<small>' + String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0') + '</small>' : '') + '</th>';
+  });
+  h += '</tr></thead><tbody>';
+  if (!s.linhas.length) h += '<tr><td colspan="8" class="vazio" style="border:0">Adicione pessoas abaixo para montar a escala.</td></tr>';
+  s.linhas.forEach((l, ri) => {
+    
+    // Verifica se a pessoa não é o usuário logado e não está na lista de contatos do sistema (ou seja, é externo/convidado)
+    const isExterno = !!l.convidado;
+    const labelUsuario = isExterno ? 'Convidado' : '@' + esc(l.usuario);
+    const ciclo = cicloDe(l), agoraL = !!(l.agora && s.salva);
+    const cicloTxt = (ciclo.length > 1 ? 'Ciclo ' + ciclo.join(' → ') : 'Semana fixa') + (agoraL ? ' · <b>agora</b>' : '');
+
+    h += '<tr><td class="col-pessoa"><div class="pessoa"><span class="av">' + esc(nomeDe(l).trim().charAt(0).toUpperCase()) + '</span><span class="p-nome">' + esc(nomeDe(l)) + '<span class="p-user' + (isExterno ? ' conv' : '') + '">' + labelUsuario + '</span><span class="p-ciclo">' + cicloTxt + '</span></span>' +
+      (ed ? '<button type="button" class="rm" title="Remover linha" aria-label="Remover linha" onclick="removerLinha(' + ri + ')"><svg class="i" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></button>' : '') + '</div></td>';
+    for (let di = 0; di < 7; di++) {
+      h += '<td class="cel' + (agoraL && di === hojeI ? ' hoje' : '') + '"><textarea rows="2" data-r="' + ri + '" data-d="' + di + '" maxlength="500" ' + (ed ? '' : 'readonly ') + 'placeholder="' + (ed ? '—' : '') + '" aria-label="' + esc(nomeDe(l)) + ' - ' + DIAS[di] + '">' + esc(l.dias[di]) + '</textarea></td>';
+    }
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+
+  if (ed) {
+    const usados = new Set(s.linhas.map(l => String(l.usuario).toLowerCase()));
+    const todas = [ME].concat(CONTATOS).filter(p => !usados.has(String(p.usuario).toLowerCase()));
+    h += '<div class="linha-add">' + (todas.length
+      ? '<select id="sel-add" aria-label="Pessoa">' + todas.map(p => '<option value="' + esc(p.usuario) + '">' + esc(nomeDe(p)) + (String(p.usuario).toLowerCase() === ME.usuario.toLowerCase() ? ' (eu)' : '') + '</option>').join('') + '</select><button type="button" class="ghost" onclick="adicionarLinha()">+ Adicionar</button>'
+      : '<span class="mut" style="font-size:13px">Todos os contatos já estão na semana.</span>') + 
+      '<button type="button" class="ghost" onclick="adicionarConvidado()" style="margin-left: 6px;">+ Convidado (Sem conta)</button>' +
+      '</div>' +
+      '<p class="dica">Toque numa célula e escreva a função do dia. Cada pessoa gira só nas semanas em que aparece: quem está nas semanas 1 e 2 faz 1, 2, 1, 2…; quem está nas semanas 1, 2 e 3 faz 1, 2, 3, 1, 2, 3… Para tirar alguém de uma semana, remova a linha dele nela.</p>';
+  }
+  box.innerHTML = h;
+  box.querySelectorAll('textarea').forEach(ta => crescer(ta));
+}
+
+const crescer = ta => { ta.style.height = 'auto'; ta.style.height = Math.max(64, ta.scrollHeight) + 'px'; };
+
+$('area-planilha').addEventListener('input', e => {
+  const ta = e.target; if (ta.tagName !== 'TEXTAREA' || !editavel()) return;
+  SEM[atual].linhas[+ta.dataset.r].dias[+ta.dataset.d] = ta.value;
+  crescer(ta); marcarSuja();
+});
+$('area-planilha').addEventListener('focusin', e => { if (e.target.tagName === 'TEXTAREA') FOCO = e.target; });
+
+function marcarSuja() {
+  if (SUJAS.has(atual)) return;
+  SUJAS.add(atual); renderAbas();
+  const b = document.querySelector('#area-barra .barra'); if (b && !b.querySelector('.aviso-suja')) b.insertAdjacentHTML('beforeend', '<span class="aviso-suja">● alterações não salvas</span>');
+}
+
+/* ---------- ações ---------- */
+function irSemana(n) { atual = n; FOCO = null; render(); }
+function mudarNomeSemana(v) { SEM[atual].nome = v; marcarSuja(); }
+
+function novaSemana(duplicar) {
+  const livre = [1, 2, 3, 4].find(n => !SEM[n]);
+  if (!livre) return aviso('O limite é de 4 semanas.');
+  const base = duplicar && SEM[atual] ? SEM[atual].linhas.map(l => ({ usuario: l.usuario, convidado: l.convidado || '', nome: l.nome, dias: l.dias.slice() })) : [{ usuario: ME.usuario, nome: ME.nome, dias: ['', '', '', '', '', '', ''] }];
+  SEM[livre] = { nome: duplicar ? (SEM[atual].nome + ' (cópia)').slice(0, 40) : 'Semana ' + livre, salva: false, linhas: base };
+  SUJAS.add(livre); atual = livre; render();
+}
+
+function adicionarLinha() {
+  const u = ($('sel-add') || {}).value; if (!u) return;
+  const p = [ME].concat(CONTATOS).find(x => String(x.usuario).toLowerCase() === String(u).toLowerCase()); if (!p) return;
+  SEM[atual].linhas.push({ usuario: p.usuario, nome: p.nome, dias: ['', '', '', '', '', '', ''] });
+  SUJAS.add(atual); render();
+}
+
+/* Função nova para adicionar quem não tem conta */
+function adicionarConvidado() {
+  let nome = prompt('Nome do convidado (a pessoa não precisa ter conta no Fluxo):');
+  if (!nome) return;
+  nome = nome.trim().slice(0, 40);
+  if (!nome) return;
+  if (SEM[atual].linhas.some(l => l.convidado && l.convidado.toLowerCase() === nome.toLowerCase())) return aviso('Esse convidado já está na semana.');
+  SEM[atual].linhas.push({ usuario: '', convidado: nome, nome: nome, dias: ['', '', '', '', '', '', ''] });
+  SUJAS.add(atual);
+  render();
+}
+
+function removerLinha(i) {
+  const l = SEM[atual].linhas[i];
+  if (l.dias.some(x => x.trim()) && !confirm('Remover a linha de ' + nomeDe(l) + ' desta semana?')) return;
+  SEM[atual].linhas.splice(i, 1); SUJAS.add(atual); render();
+}
+
+async function salvarSemana() {
+  const s = SEM[atual], n = atual;
+  const btn = $('btn-salvar'); if (btn) { btn.disabled = true; btn.textContent = 'A guardar...'; }
+  const { data, error } = await db.rpc('escala_salvar_semana', { p_numero: n, p_nome: s.nome, p_linhas: s.linhas.map(l => ({ usuario: l.convidado ? null : l.usuario, convidado: l.convidado || null, dias: l.dias })) });
+  if (error || data !== 'ok') {
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar semana'; }
+    return aviso('Não foi possível salvar: ' + (error ? error.message : data));
+  }
+  SUJAS.delete(n); aviso('Semana salva!');
+  await carregar();
+}
+
+async function definirVigente() {
+  if (!confirm('Marcar a semana de hoje como a Semana ' + atual + ' do ciclo? Cada pessoa continua girando só nas semanas em que aparece.')) return;
+  const { data, error } = await db.rpc('escala_definir_vigente', { p_numero: atual });
+  if (error || data !== 'ok') return aviso('Não foi possível: ' + (error ? error.message : data));
+  aviso('Ciclo ajustado.'); await carregar();
+}
+
+async function apagarSemana() {
+  const s = SEM[atual];
+  if (!confirm('Apagar "' + s.nome + '"? Isso não pode ser desfeito.')) return;
+  if (s.salva) {
+    const { data, error } = await db.rpc('escala_apagar_semana', { p_numero: atual });
+    if (error || data !== 'ok') return aviso('Não foi possível apagar: ' + (error ? error.message : data));
+  }
+  delete SEM[atual]; SUJAS.delete(atual); atual = null; aviso('Semana apagada.'); await carregar();
+}
+
+/* ---------- funções rápidas ---------- */
+function salvarSugestoes() { try { localStorage.setItem('fluxo_escala_sugestoes', JSON.stringify(SUGESTOES)); } catch (e) {} }
+function inserirSugestao(i) {
+  if (!FOCO || !document.body.contains(FOCO)) return aviso('Toque primeiro numa célula da planilha.');
+  const t = SUGESTOES[i], ta = FOCO, v = ta.value.trim();
+  ta.value = v ? v + ', ' + t.toLowerCase() : t;
+  SEM[atual].linhas[+ta.dataset.r].dias[+ta.dataset.d] = ta.value;
+  crescer(ta); marcarSuja();
+}
+function novaSugestao() {
+  const t = (prompt('Nova função rápida (ex.: Atender balcão):') || '').trim().slice(0, 40);
+  if (!t) return; SUGESTOES.push(t); salvarSugestoes(); renderBarra();
+}
+function removerSugestao(i) { SUGESTOES.splice(i, 1); salvarSugestoes(); renderBarra(); }
+</script>
+</body>
+</html>

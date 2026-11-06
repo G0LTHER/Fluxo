@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Fluxo - Chat</title>
+  <meta name="theme-color" content="#0d9488">
+
+  <script>
+  (function () {
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    var ACENTOS = /^(teal|blue|purple|red|orange|pink|green)$/;
+    var FUNDOS = /^(padrao|eclipse|ocean|scarlet|amethyst|volcano)$/;
+    function ler(k, pad) { try { return localStorage.getItem(k) || pad; } catch (e) { return pad; } }
+    function modo() { var m = ler('fluxo_tema', 'auto'); return (m === 'light' || m === 'dark') ? m : 'auto'; }
+    function accent() { var a = ler('fluxo_accent', 'teal'); return ACENTOS.test(a) ? a : 'teal'; }
+    function fonte() { var f = ler('fluxo_fonte', ''); return (f === 'preto' || f === 'branco') ? f : ''; }
+    function fundo() { var b = ler('fluxo_fundo', 'padrao'); return FUNDOS.test(b) ? b : 'padrao'; }
+    function aplicar() {
+      var m = modo(), t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
+      var ac = accent(), fo = fonte(), bg = fundo();
+      var h = document.documentElement;
+      h.setAttribute('data-theme', t);
+      h.setAttribute('data-accent', ac);
+      if (t === 'dark') h.setAttribute('data-bg', bg); else h.removeAttribute('data-bg');
+      if (fo) h.setAttribute('data-fonte', fo); else h.removeAttribute('data-fonte');
+    }
+    aplicar();
+    document.addEventListener('DOMContentLoaded', aplicar);
+    window.addEventListener('storage', function (e) { if (e.key && /^fluxo_(tema|accent|fonte|fundo)$/.test(e.key)) aplicar(); });
+    if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
+  })();
+  </script>
+
+  <style>
+  :root[data-theme="light"] { --bg: #f4f6fa; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --bd: #e6eaf0; --recebida: #eef1f5; --shadow: 0 4px 12px -1px rgba(0,0,0,0.08); }
+  :root[data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --tx: #f8fafc; --mut: #9ca3af; --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; --bd: #334155; --recebida: #273449; --shadow: 0 4px 12px -1px rgba(0,0,0,0.4); }
+  :root[data-theme="dark"][data-bg="eclipse"] { --bg: #000000; --card: #111111; --bd: #222222; --recebida: #1c1c1c; }
+  :root[data-theme="dark"][data-bg="ocean"] { --bg: #020617; --card: #0f172a; --bd: #1e293b; --recebida: #1b2740; }
+  :root[data-theme="dark"][data-bg="scarlet"] { --bg: #2a0808; --card: #3f0c0c; --bd: #5c1414; --recebida: #521212; }
+  :root[data-theme="dark"][data-bg="amethyst"] { --bg: #1e0a2d; --card: #2d1045; --bd: #4a1d6e; --recebida: #3b1759; }
+  :root[data-theme="dark"][data-bg="volcano"] { --bg: #2a1104; --card: #3f1a06; --bd: #5c260a; --recebida: #54220a; }
+  :root[data-theme="light"][data-accent="blue"] { --pri: #2563eb; --pri-hover: #1f54c8; --pri-light: #e9effd; }
+  :root[data-theme="dark"][data-accent="blue"] { --pri: #5585ef; --pri-hover: #2563eb; --pri-light: #132349; }
+  :root[data-theme="light"][data-accent="purple"] { --pri: #7c3aed; --pri-hover: #6931c9; --pri-light: #f2ebfd; }
+  :root[data-theme="dark"][data-accent="purple"] { --pri: #9965f1; --pri-hover: #7c3aed; --pri-light: #201d49; }
+  :root[data-theme="light"][data-accent="red"] { --pri: #dc2626; --pri-hover: #bb2020; --pri-light: #fce9e9; }
+  :root[data-theme="dark"][data-accent="red"] { --pri: #e45656; --pri-hover: #dc2626; --pri-light: #301929; }
+  :root[data-theme="light"][data-accent="orange"] { --pri: #ea580c; --pri-hover: #c74b0a; --pri-light: #fdeee7; }
+  :root[data-theme="dark"][data-accent="orange"] { --pri: #ef7d41; --pri-hover: #ea580c; --pri-light: #322125; }
+  :root[data-theme="light"][data-accent="pink"] { --pri: #db2777; --pri-hover: #ba2165; --pri-light: #fbe9f1; }
+  :root[data-theme="dark"][data-accent="pink"] { --pri: #e35795; --pri-hover: #db2777; --pri-light: #301a36; }
+  :root[data-theme="light"][data-accent="green"] { --pri: #16a34a; --pri-hover: #138b3f; --pri-light: #e8f6ed; }
+  :root[data-theme="dark"][data-accent="green"] { --pri: #49b772; --pri-hover: #16a34a; --pri-light: #102d2f; }
+  :root[data-theme="light"][data-fonte="preto"] { --tx: #000000; }
+  :root[data-theme="dark"][data-fonte="branco"] { --tx: #ffffff; }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--tx); overflow: hidden;
+    font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  button { font: inherit; color: inherit; }
+
+  /* Casca: 1 painel no celular, 2 no computador */
+  .shell { height: 100dvh; max-width: 1100px; margin: 0 auto; display: flex; background: var(--bg); padding-top: 0; }
+  @supports not (height: 100dvh) { .shell { height: 100vh; } }
+  .shell { height: calc(100dvh - env(safe-area-inset-top, 0px)); }
+
+  .painel-lista { width: 100%; display: flex; flex-direction: column; min-width: 0; background: var(--card); }
+  .painel-conv { width: 100%; display: none; flex-direction: column; min-width: 0; background: var(--bg); }
+  .shell.em-conversa .painel-lista { display: none; }
+  .shell.em-conversa .painel-conv { display: flex; }
+
+  @media (min-width: 820px) {
+    .shell { border-left: 1px solid var(--bd); border-right: 1px solid var(--bd); }
+    .painel-lista { width: 340px; flex-shrink: 0; border-right: 1px solid var(--bd); }
+    .painel-conv { display: flex; flex: 1; }
+    .shell.em-conversa .painel-lista { display: flex; }
+    .btn-voltar-conv { display: none !important; }
+  }
+
+  /* Topo */
+  .topo { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--bd); background: var(--card); min-height: 58px; }
+  .topo h1 { font-size: 18px; margin: 0; font-weight: 800; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ic { width: 40px; height: 40px; border: 0; border-radius: 12px; background: transparent; color: var(--mut); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; }
+  .ic:hover { background: var(--bg); color: var(--tx); }
+  .ic svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Adicionar pessoa */
+  .add-box { padding: 12px 14px; border-bottom: 1px solid var(--bd); }
+  .add-box label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--mut); margin-bottom: 6px; letter-spacing: .04em; }
+  .add-row { display: flex; gap: 8px; }
+  .add-row input { flex: 1; min-width: 0; padding: 11px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); color: var(--tx); font: inherit; font-size: 16px; outline: none; }
+  .add-row input:focus { border-color: var(--pri); }
+  .btn { border: 0; border-radius: 12px; padding: 0 16px; background: var(--pri); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; min-height: 44px; }
+  .btn:hover { background: var(--pri-hover); }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .msg-add { font-size: 12.5px; margin: 8px 0 0; min-height: 16px; }
+  .msg-add.erro { color: #dc2626; }
+  .msg-add.ok { color: var(--pri); }
+
+  /* Lista de pessoas */
+  .lista { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; }
+  .pessoa { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px; border: 0; background: transparent; border-radius: 14px; cursor: pointer; text-align: left; }
+  .pessoa:hover { background: var(--bg); }
+  .pessoa.ativa { background: var(--pri-light); }
+  .av { width: 46px; height: 46px; border-radius: 50%; background: linear-gradient(135deg, var(--pri), var(--pri-hover)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; flex-shrink: 0; overflow: hidden; }
+  .av img { width: 100%; height: 100%; object-fit: cover; }
+  .av.sm { width: 38px; height: 38px; font-size: 15px; }
+  .p-info { flex: 1; min-width: 0; }
+  .p-linha { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+  .p-nome { font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .p-hora { font-size: 11px; color: var(--mut); flex-shrink: 0; }
+  .p-sub { display: flex; justify-content: space-between; gap: 8px; align-items: center; margin-top: 2px; }
+  .p-ultima { font-size: 13px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .badge { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--pri); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .vazio-txt { color: var(--mut); text-align: center; padding: 28px 18px; font-size: 14px; }
+
+  /* Conversa */
+  .conv-topo-info { flex: 1; min-width: 0; line-height: 1.2; }
+  .conv-topo-info b { display: block; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .conv-topo-info small { color: var(--mut); font-size: 12px; }
+  .msgs { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 12px; display: flex; flex-direction: column; gap: 4px; overscroll-behavior: contain; }
+  .dia-sep { align-self: center; margin: 10px 0 6px; font-size: 11px; font-weight: 700; color: var(--mut); background: var(--card); border: 1px solid var(--bd); padding: 3px 10px; border-radius: 999px; }
+  .bolha { max-width: 82%; padding: 8px 12px 6px; border-radius: 18px; word-break: break-word; overflow-wrap: anywhere; white-space: pre-wrap; font-size: 15px; line-height: 1.4; }
+  .bolha time { display: block; margin-top: 2px; font-size: 10.5px; opacity: .7; text-align: right; white-space: nowrap; }
+  .bolha.minha { align-self: flex-end; background: var(--pri); color: #fff; border-bottom-right-radius: 6px; }
+  .bolha.outra { align-self: flex-start; background: var(--recebida); color: var(--tx); border-bottom-left-radius: 6px; }
+  .bolha.enviando { opacity: .6; }
+  .conv-vazia { margin: auto; text-align: center; color: var(--mut); padding: 24px; font-size: 14px; }
+  .sem-selecao { margin: auto; text-align: center; color: var(--mut); padding: 24px; }
+  .sem-selecao svg { width: 54px; height: 54px; stroke: var(--bd); fill: none; stroke-width: 1.5; margin-bottom: 8px; }
+  .sem-selecao p { margin: 4px 0 0; font-size: 14px; }
+
+  .envio { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--bd); background: var(--card); }
+  .envio textarea { flex: 1; min-width: 0; resize: none; max-height: 130px; padding: 11px 14px; border: 1px solid var(--bd); border-radius: 22px; background: var(--bg); color: var(--tx); font: inherit; font-size: 16px; line-height: 1.35; outline: none; }
+  .envio textarea:focus { border-color: var(--pri); }
+  .btn-enviar { width: 46px; height: 46px; border: 0; border-radius: 50%; background: var(--pri); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; }
+  .btn-enviar:hover { background: var(--pri-hover); }
+  .btn-enviar:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-enviar svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .oculto { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="shell" id="shell">
+
+  <!-- LISTA: pessoas + adicionar -->
+  <section class="painel-lista" id="painel-lista">
+    <div class="topo">
+      <button type="button" class="ic" onclick="window.location.href='menu.html'" title="Voltar ao menu" aria-label="Voltar ao menu">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <h1>Chat</h1>
+    </div>
+
+    <div class="add-box">
+      <label for="novo-usuario">Adicionar pessoa</label>
+      <div class="add-row">
+        <input id="novo-usuario" placeholder="Utilizador (ex: maria.silva)" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
+        <button type="button" class="btn" id="btn-add" onclick="adicionarPessoa()">Adicionar</button>
+      </div>
+      <p class="msg-add" id="msg-add"></p>
+    </div>
+
+    <div class="lista" id="lista"><p class="vazio-txt">A carregar...</p></div>
+  </section>
+
+  <!-- CONVERSA -->
+  <section class="painel-conv" id="painel-conv">
+    <div class="topo oculto" id="conv-topo">
+      <button type="button" class="ic btn-voltar-conv" onclick="fecharConversa()" title="Voltar" aria-label="Voltar para a lista">
+        <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </button>
+      <span class="av sm" id="conv-av"></span>
+      <div class="conv-topo-info"><b id="conv-nome"></b><small id="conv-user"></small></div>
+    </div>
+
+    <div class="msgs" id="msgs">
+      <div class="sem-selecao">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        <p>Escolha uma pessoa para conversar.</p>
+      </div>
+    </div>
+
+    <form class="envio oculto" id="envio" autocomplete="off">
+      <textarea id="texto" rows="1" placeholder="Escreva uma mensagem..." maxlength="2000" enterkeyhint="enter"></textarea>
+      <button type="submit" class="btn-enviar" id="btn-enviar" title="Enviar" aria-label="Enviar">
+        <svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      </button>
+    </form>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fotoOk = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
+
+let uid = null, PESSOAS = [], RESUMO = {}, atual = null, ULTIMO_ID = 0, tPoll = null, canal = null, enviando = false;
+
+const avatar = p => { const f = fotoOk(p.foto), n = p.nome || p.usuario || '?'; return f ? '<img src="' + esc(f) + '" alt="">' : esc(n.trim().charAt(0).toUpperCase()); };
+const hhmm = iso => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+function diaRotulo(iso) {
+  const d = new Date(iso), h = new Date(), ontem = new Date(); ontem.setDate(h.getDate() - 1);
+  const mesmo = (a, b) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  if (mesmo(d, h)) return 'Hoje'; if (mesmo(d, ontem)) return 'Ontem';
+  return d.toLocaleDateString('pt-BR');
+}
+function horaLista(iso) {
+  if (!iso) return '';
+  const d = new Date(iso), h = new Date();
+  return (d.toDateString() === h.toDateString()) ? hhmm(iso) : d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
+/* ---------- início ---------- */
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data } = await db.auth.getSession();
+  if (!data.session) { window.location.href = 'index.html'; return; }
+  uid = data.session.user.id;
+
+  await carregarLista();
+  const params = new URLSearchParams(location.search);
+  const u = (params.get('u') || '').trim().toLowerCase();
+  if (u) abrirConversa(u);
+  else if (params.get('add')) $('novo-usuario').focus();
+
+  ligarTempoReal();
+  tPoll = setInterval(atualizarSilencioso, 6000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') atualizarSilencioso(); });
+});
+
+/* ---------- lista de pessoas ---------- */
+async function carregarLista() {
+  const [p, r] = await Promise.all([db.rpc('listar_contatos'), db.rpc('chat_resumo')]);
+  PESSOAS = (p.data || []).slice();
+  RESUMO = {};
+  (r.data || []).forEach(x => { RESUMO[String(x.usuario).toLowerCase()] = x; });
+  if (r.error && !p.error) avisoAdd('O chat ainda não foi ativado no banco (rode o fluxo_update5_chat.sql).', 'erro');
+  renderLista();
+}
+
+function renderLista() {
+  const box = $('lista');
+  if (!PESSOAS.length) { box.innerHTML = '<p class="vazio-txt">Ninguém adicionado ainda.<br>Adicione pelo utilizador acima.</p>'; return; }
+  const ord = PESSOAS.slice().sort((a, b) => {
+    const ra = RESUMO[String(a.usuario).toLowerCase()], rb = RESUMO[String(b.usuario).toLowerCase()];
+    const ta = ra && ra.ultima_em ? +new Date(ra.ultima_em) : 0, tb = rb && rb.ultima_em ? +new Date(rb.ultima_em) : 0;
+    if (ta !== tb) return tb - ta;
+    return String(a.nome || a.usuario).localeCompare(String(b.nome || b.usuario));
+  });
+  box.innerHTML = ord.map(p => {
+    const k = String(p.usuario).toLowerCase(), r = RESUMO[k], nome = p.nome || p.usuario;
+    const nl = r ? (r.nao_lidas || 0) : 0;
+    return '<button type="button" class="pessoa' + (atual === k ? ' ativa' : '') + '" data-u="' + esc(p.usuario) + '">' +
+      '<span class="av">' + avatar(p) + '</span>' +
+      '<span class="p-info"><span class="p-linha"><span class="p-nome">' + esc(nome) + '</span><span class="p-hora">' + esc(horaLista(r && r.ultima_em)) + '</span></span>' +
+      '<span class="p-sub"><span class="p-ultima">' + (r && r.ultima_texto ? esc(r.ultima_texto.replace(/\s+/g, ' ')) : '@' + esc(p.usuario)) + '</span>' +
+      (nl ? '<span class="badge">' + (nl > 99 ? '99+' : nl) + '</span>' : '') + '</span></span></button>';
+  }).join('');
+}
+
+$('lista').addEventListener('click', e => {
+  const b = e.target.closest('.pessoa'); if (b) abrirConversa(b.dataset.u);
+});
+
+/* ---------- adicionar pessoa ---------- */
+function avisoAdd(t, tipo) { const el = $('msg-add'); el.textContent = t; el.className = 'msg-add ' + (tipo || ''); }
+async function adicionarPessoa() {
+  const u = $('novo-usuario').value.trim().replace(/^@/, '').toLowerCase();
+  if (!u) return avisoAdd('Escreva o utilizador da pessoa.', 'erro');
+  $('btn-add').disabled = true;
+  const { data, error } = await db.rpc('adicionar_contato', { p_usuario: u });
+  $('btn-add').disabled = false;
+  if (error) return avisoAdd('Erro: ' + error.message, 'erro');
+  if (data === 'ok') { $('novo-usuario').value = ''; avisoAdd('@' + u + ' adicionado!', 'ok'); await carregarLista(); }
+  else avisoAdd('Não foi possível adicionar @' + u + '. Confira o utilizador.', 'erro');
+}
+$('novo-usuario').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); adicionarPessoa(); } });
+
+/* ---------- conversa ---------- */
+function pessoaDe(u) { return PESSOAS.find(p => String(p.usuario).toLowerCase() === u) || null; }
+
+async function abrirConversa(usuario) {
+  const u = String(usuario).toLowerCase();
+  let p = pessoaDe(u);
+  if (!p) { await carregarLista(); p = pessoaDe(u); }
+  if (!p) { avisoAdd('@' + u + ' não está na sua lista.', 'erro'); return; }
+
+  atual = u; ULTIMO_ID = 0;
+  $('shell').classList.add('em-conversa');
+  $('conv-topo').classList.remove('oculto'); $('envio').classList.remove('oculto');
+  $('conv-av').innerHTML = avatar(p); $('conv-nome').textContent = p.nome || p.usuario; $('conv-user').textContent = '@' + p.usuario;
+  $('msgs').innerHTML = '<div class="conv-vazia">A carregar...</div>';
+  renderLista();
+  await carregarConversa(true);
+  if (window.matchMedia('(pointer:fine)').matches) $('texto').focus();
+}
+
+function fecharConversa() {
+  atual = null; ULTIMO_ID = 0;
+  $('shell').classList.remove('em-conversa');
+  $('conv-topo').classList.add('oculto'); $('envio').classList.add('oculto');
+  $('msgs').innerHTML = '<div class="sem-selecao"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><p>Escolha uma pessoa para conversar.</p></div>';
+  history.replaceState(null, '', 'chat.html');
+  renderLista();
+}
+
+async function carregarConversa(forcarFim) {
+  if (!atual) return;
+  const alvo = atual;
+  const { data, error } = await db.rpc('chat_conversa', { p_usuario: alvo, p_limite: 200 });
+  if (alvo !== atual) return;
+  if (error) { $('msgs').innerHTML = '<div class="conv-vazia">Não foi possível carregar a conversa.<br><small>' + esc(error.message) + '</small></div>'; return; }
+  const lista = data || [], ult = lista.length ? lista[lista.length - 1].id : 0;
+  if (!forcarFim && ult === ULTIMO_ID) return;
+  const box = $('msgs');
+  const noFim = forcarFim || (box.scrollHeight - box.scrollTop - box.clientHeight < 140);
+  ULTIMO_ID = ult;
+  renderMensagens(lista);
+  if (noFim) box.scrollTop = box.scrollHeight;
+  // marca como lidas e atualiza as bolinhas
+  if (lista.some(m => !m.de_mim)) {
+    db.rpc('chat_marcar_lidas', { p_usuario: alvo }).then(() => carregarResumo(), () => {});
+  }
+}
+
+function renderMensagens(lista) {
+  const box = $('msgs');
+  if (!lista.length) { box.innerHTML = '<div class="conv-vazia">Nenhuma mensagem ainda.<br>Diga olá 👋</div>'; return; }
+  let h = '', ultimoDia = '';
+  lista.forEach(m => {
+    const dia = diaRotulo(m.criado_em);
+    if (dia !== ultimoDia) { h += '<div class="dia-sep">' + esc(dia) + '</div>'; ultimoDia = dia; }
+    h += '<div class="bolha ' + (m.de_mim ? 'minha' : 'outra') + '">' + esc(m.texto) + '<time>' + hhmm(m.criado_em) + '</time></div>';
+  });
+  box.innerHTML = h;
+}
+
+async function carregarResumo() {
+  const { data } = await db.rpc('chat_resumo');
+  RESUMO = {}; (data || []).forEach(x => { RESUMO[String(x.usuario).toLowerCase()] = x; });
+  renderLista();
+}
+
+async function atualizarSilencioso() {
+  if (document.visibilityState !== 'visible' || !uid) return;
+  await carregarResumo();
+  if (atual) carregarConversa(false);
+}
+
+/* ---------- enviar ---------- */
+const campo = $('texto');
+function ajustarAltura() { campo.style.height = 'auto'; campo.style.height = Math.min(campo.scrollHeight, 130) + 'px'; }
+campo.addEventListener('input', ajustarAltura);
+campo.addEventListener('keydown', e => {
+  // no computador: Enter envia, Shift+Enter quebra linha. No celular: Enter quebra linha (use o botão).
+  if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(pointer:fine)').matches) { e.preventDefault(); $('envio').requestSubmit(); }
+});
+
+$('envio').addEventListener('submit', async e => {
+  e.preventDefault();
+  const txt = campo.value.trim();
+  if (!txt || !atual || enviando) return;
+  enviando = true; $('btn-enviar').disabled = true;
+  const alvo = atual;
+
+  // mostra já na tela (esmaecida) enquanto salva
+  const box = $('msgs');
+  const vazia = box.querySelector('.conv-vazia'); if (vazia) vazia.remove();
+  const tmp = document.createElement('div');
+  tmp.className = 'bolha minha enviando'; tmp.innerHTML = esc(txt) + '<time>…</time>';
+  box.appendChild(tmp); box.scrollTop = box.scrollHeight;
+  campo.value = ''; ajustarAltura();
+
+  const { data, error } = await db.rpc('chat_enviar', { p_usuario: alvo, p_texto: txt });
+  enviando = false; $('btn-enviar').disabled = false;
+
+  if (error || data !== 'ok') {
+    tmp.remove();
+    campo.value = txt; ajustarAltura();
+    const motivo = error ? error.message : data === 'sem_permissao' ? 'Essa pessoa não está na sua lista.' : data === 'nao_encontrado' ? 'Utilizador não encontrado.' : 'Mensagem vazia.';
+    alert('Não foi possível enviar: ' + motivo);
+    return;
+  }
+  await carregarConversa(true);
+  carregarResumo();
+});
+
+/* ---------- tempo real ---------- */
+function ligarTempoReal() {
+  try {
+    canal = db.channel('chat-' + uid)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_mensagens', filter: 'para=eq.' + uid }, () => {
+        carregarResumo();
+        if (atual) carregarConversa(false);
+      })
+      .subscribe();
+  } catch (e) { /* sem tempo real: o checador de 6s continua funcionando */ }
+}
+window.addEventListener('beforeunload', () => { clearInterval(tPoll); try { if (canal) db.removeChannel(canal); } catch (e) {} });
+</script>
+</body>
+</html>

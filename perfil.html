@@ -7,52 +7,66 @@
   <meta name="theme-color" content="#0d9488">
   <link rel="manifest" href="manifest.json">
 
-  <!-- Script Inline de Tema e Cores -->
+  <!-- Motor de Temas, Cores, Fundos e Barra de Status -->
   <script>
   (function () {
     var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-    function modo() {
-      var m = 'auto';
-      try { m = localStorage.getItem('fluxo_tema') || 'auto'; } catch (e) {}
-      return (m === 'light' || m === 'dark') ? m : 'auto';
-    }
-    function accent() {
-      var a = 'teal';
-      try { a = localStorage.getItem('fluxo_accent') || 'teal'; } catch (e) {}
-      return a;
-    }
+    var ACENTOS = /^(teal|blue|purple|red|orange|pink|green)$/;
+    var FUNDOS = /^(padrao|eclipse|ocean|scarlet|amethyst|volcano)$/;
+
+    function ler(k, pad) { try { return localStorage.getItem(k) || pad; } catch (e) { return pad; } }
+    function modo() { var m = ler('fluxo_tema', 'auto'); return (m === 'light' || m === 'dark') ? m : 'auto'; }
+    function accent() { var a = ler('fluxo_accent', 'teal'); return ACENTOS.test(a) ? a : 'teal'; }
+    function fonte() { var f = ler('fluxo_fonte', ''); return (f === 'preto' || f === 'branco') ? f : ''; }
+    function fundo() { var b = ler('fluxo_fundo', 'padrao'); return FUNDOS.test(b) ? b : 'padrao'; }
+
     function aplicar() {
-      var m = modo();
-      var t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
-      document.documentElement.setAttribute('data-theme', t);
-      document.documentElement.setAttribute('data-accent', accent());
+      var m = modo(), t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
+      var ac = accent(), fo = fonte(), bg = fundo();
+      var h = document.documentElement;
 
-      document.querySelectorAll('.tema-seg').forEach(function (g) {
-        g.setAttribute('data-modo', m);
-        g.querySelectorAll('[data-tema]').forEach(function (b) {
-          b.setAttribute('aria-pressed', b.getAttribute('data-tema') === m ? 'true' : 'false');
-        });
+      h.setAttribute('data-theme', t);
+      h.setAttribute('data-accent', ac);
+      if (t === 'dark') h.setAttribute('data-bg', bg); else h.removeAttribute('data-bg');
+      if (fo) h.setAttribute('data-fonte', fo); else h.removeAttribute('data-fonte');
+
+      document.querySelectorAll('.theme-card').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-tema') === m);
       });
-
+      document.querySelectorAll('.seg [data-tema]').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-tema') === m);
+      });
       document.querySelectorAll('.color-dot').forEach(function (d) {
-        d.classList.toggle('active', d.getAttribute('data-accent') === accent());
+        d.classList.toggle('active', d.getAttribute('data-accent') === ac);
       });
+      document.querySelectorAll('.fonte-opt').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-fonte') === fo);
+      });
+      var selFundo = document.getElementById('sel-fundo');
+      if (selFundo) selFundo.value = bg;
+
+      if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+        var StatusBar = window.Capacitor.Plugins.StatusBar;
+        var corAtual = '#f8fafc', estiloIcones = 'LIGHT';
+        if (t === 'dark') {
+          estiloIcones = 'DARK';
+          var cores = { 'padrao': '#0f172a', 'eclipse': '#000000', 'ocean': '#020617', 'scarlet': '#2a0808', 'amethyst': '#1e0a2d', 'volcano': '#2a1104' };
+          corAtual = cores[bg] || '#0f172a';
+        }
+        try {
+          StatusBar.setOverlaysWebView({ overlay: false });
+          StatusBar.setBackgroundColor({ color: corAtual });
+          StatusBar.setStyle({ style: estiloIcones });
+        } catch (e) { console.log('Erro Status Bar:', e); }
+      }
     }
+
     window.aplicarTema = aplicar;
-    window.definirTema = function (m) {
-      try { localStorage.setItem('fluxo_tema', m); } catch (e) {}
-      aplicar();
-    };
-    window.definirAccent = function (acc) {
-      try { localStorage.setItem('fluxo_accent', acc); } catch (e) {}
-      aplicar();
-    };
-    document.addEventListener('click', function (e) {
-      var b = e.target.closest ? e.target.closest('.tema-seg [data-tema]') : null;
-      if (b) window.definirTema(b.getAttribute('data-tema'));
-      var dot = e.target.closest ? e.target.closest('.color-dot') : null;
-      if (dot) window.definirAccent(dot.getAttribute('data-accent'));
-    });
+    window.definirTema = function (m) { try { localStorage.setItem('fluxo_tema', m); } catch (e) {} aplicar(); };
+    window.definirAccent = function (a) { try { localStorage.setItem('fluxo_accent', a); } catch (e) {} aplicar(); };
+    window.definirFundo = function (b) { try { localStorage.setItem('fluxo_fundo', b); } catch (e) {} aplicar(); };
+    window.definirFonte = function (f) { try { if (f) localStorage.setItem('fluxo_fonte', f); else localStorage.removeItem('fluxo_fonte'); } catch (e) {} aplicar(); };
+
     aplicar();
     document.addEventListener('DOMContentLoaded', aplicar);
     if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
@@ -60,50 +74,38 @@
   </script>
 
   <style>
-  /* Variáveis de Cores Primárias (Paleta de Cores Customizáveis) */
-  :root {
-    --pri: #0d9488;
-    --pri-hover: #0f766e;
-    --pri-light: #f0fdf4;
-    --shadow-pri: rgba(13, 148, 136, 0.3);
-  }
+  /* Variáveis e Temas */
+  :root[data-theme="light"] { --bg: #f8fafc; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --bd: #e2e8f0; --shadow: 0 4px 12px -2px rgba(0,0,0,0.06); --sidebar-bg: #f1f5f9; }
+  :root[data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --tx: #f8fafc; --mut: #9ca3af; --bd: #334155; --shadow: 0 4px 12px -2px rgba(0,0,0,0.4); --sidebar-bg: #0b1121; }
 
-  [data-accent="teal"] {
-    --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --shadow-pri: rgba(13, 148, 136, 0.3);
-  }
-  [data-accent="blue"] {
-    --pri: #2563eb; --pri-hover: #1d4ed8; --pri-light: #eff6ff; --shadow-pri: rgba(37, 99, 235, 0.3);
-  }
-  [data-accent="purple"] {
-    --pri: #7c3aed; --pri-hover: #6d28d9; --pri-light: #f5f3ff; --shadow-pri: rgba(124, 58, 237, 0.3);
-  }
-  [data-accent="orange"] {
-    --pri: #ea580c; --pri-hover: #c2410c; --pri-light: #fff7ed; --shadow-pri: rgba(234, 88, 12, 0.3);
-  }
-  [data-accent="pink"] {
-    --pri: #db2777; --pri-hover: #be185d; --pri-light: #fdf2f8; --shadow-pri: rgba(219, 39, 119, 0.3);
-  }
+  :root[data-theme="dark"][data-bg="eclipse"] { --bg: #000000; --card: #111111; --bd: #222222; --sidebar-bg: #050505; }
+  :root[data-theme="dark"][data-bg="ocean"] { --bg: #020617; --card: #0f172a; --bd: #1e293b; --sidebar-bg: #01030d; }
+  :root[data-theme="dark"][data-bg="scarlet"] { --bg: #2a0808; --card: #3f0c0c; --bd: #5c1414; --sidebar-bg: #1c0505; }
+  :root[data-theme="dark"][data-bg="amethyst"] { --bg: #1e0a2d; --card: #2d1045; --bd: #4a1d6e; --sidebar-bg: #13061d; }
+  :root[data-theme="dark"][data-bg="volcano"] { --bg: #2a1104; --card: #3f1a06; --bd: #5c260a; --sidebar-bg: #1c0b02; }
 
-  :root[data-theme="light"] {
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --tx: #0f172a;
-    --mut: #64748b;
-    --bd: #e2e8f0;
-    --shadow: 0 4px 12px -2px rgba(0,0,0,0.06);
-  }
+  :root { --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --pri-rgb: 13, 148, 136; --shadow-pri: rgba(var(--pri-rgb), 0.3); }
+  :root[data-theme="light"][data-accent="teal"] { --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; }
+  :root[data-theme="dark"][data-accent="teal"] { --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; }
+  :root[data-theme="light"][data-accent="blue"] { --pri: #2563eb; --pri-hover: #1f54c8; --pri-light: #e9effd; }
+  :root[data-theme="dark"][data-accent="blue"] { --pri: #5585ef; --pri-hover: #2563eb; --pri-light: #132349; }
+  :root[data-theme="light"][data-accent="purple"] { --pri: #7c3aed; --pri-hover: #6931c9; --pri-light: #f2ebfd; }
+  :root[data-theme="dark"][data-accent="purple"] { --pri: #9965f1; --pri-hover: #7c3aed; --pri-light: #201d49; }
+  :root[data-theme="light"][data-accent="red"] { --pri: #dc2626; --pri-hover: #bb2020; --pri-light: #fce9e9; }
+  :root[data-theme="dark"][data-accent="red"] { --pri: #e45656; --pri-hover: #dc2626; --pri-light: #301929; }
+  :root[data-theme="light"][data-accent="orange"] { --pri: #ea580c; --pri-hover: #c74b0a; --pri-light: #fdeee7; }
+  :root[data-theme="dark"][data-accent="orange"] { --pri: #ef7d41; --pri-hover: #ea580c; --pri-light: #322125; }
+  :root[data-theme="light"][data-accent="pink"] { --pri: #db2777; --pri-hover: #ba2165; --pri-light: #fbe9f1; }
+  :root[data-theme="dark"][data-accent="pink"] { --pri: #e35795; --pri-hover: #db2777; --pri-light: #301a36; }
+  :root[data-theme="light"][data-accent="green"] { --pri: #16a34a; --pri-hover: #138b3f; --pri-light: #e8f6ed; }
+  :root[data-theme="dark"][data-accent="green"] { --pri: #49b772; --pri-hover: #16a34a; --pri-light: #102d2f; }
 
-  :root[data-theme="dark"] {
-    --bg: #0f172a;
-    --card: #1e293b;
-    --tx: #f8fafc;
-    --mut: #9ca3af;
-    --bd: #334155;
-    --shadow: 0 4px 12px -2px rgba(0,0,0,0.4);
-  }
+  :root[data-theme="light"][data-fonte="preto"] { --tx: #000000; }
+  :root[data-theme="dark"][data-fonte="branco"] { --tx: #ffffff; }
 
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
+  
   body {
     margin: 0;
     background: var(--bg);
@@ -111,249 +113,164 @@
     font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     transition: background 0.3s, color 0.3s;
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    position: relative;
+    height: 100vh;
+    overflow: hidden;
   }
 
-  #bg-canvas {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    z-index: 0; pointer-events: none;
-  }
-
-  .app-container {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 24px 16px 40px;
+  /* --- LAYOUT DA BARRA LATERAL (SIDEBAR) --- */
+  .sidebar {
+    width: 260px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--bd);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    transition: width 0.3s ease;
+    z-index: 100;
+    overflow-x: hidden; /* CORREÇÃO 2: Garante que nada vaze da barra */
   }
-
-  /* Cabeçalho Superior */
-  header {
+  
+  .sidebar.collapsed { width: 70px; }
+  
+  .sidebar-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    padding: 20px;
+    gap: 12px;
+    border-bottom: 1px solid var(--bd);
+    white-space: nowrap; /* Impede quebra de linha ao animar */
+  }
+  
+  .sidebar-toggle-btn {
     background: var(--card);
     border: 1px solid var(--bd);
-    padding: 14px 20px;
-    border-radius: 16px;
-    box-shadow: var(--shadow);
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .header-brand {
+    color: var(--tx);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: var(--tx);
+    justify-content: center;
     cursor: pointer;
+    font-weight: bold;
+    flex-shrink: 0;
   }
-
-  .header-brand-icon {
-    width: 38px; height: 38px; background: var(--pri); border-radius: 10px;
-    display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 18px;
-    transition: transform 0.2s;
+  
+  .sidebar-brand-icon {
+    width: 34px; height: 34px; background: var(--pri); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; color: #fff; 
+    font-weight: 800; font-size: 18px; flex-shrink: 0;
+    transition: opacity 0.2s, width 0.2s; /* Animação suave pro F sumir */
   }
-  .header-brand:hover .header-brand-icon { transform: scale(1.05); }
-
-  .header-nav {
+  
+  .sidebar-brand-name {
+    font-size: 18px; font-weight: 800; color: var(--tx); white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+  
+  /* CORREÇÃO 2: Esconde completamente o "F" e o Texto quando a barra encolhe */
+  .sidebar.collapsed .sidebar-brand-name,
+  .sidebar.collapsed .sidebar-brand-icon { 
+    opacity: 0; pointer-events: none; width: 0; overflow: hidden; margin: 0; padding: 0;
+  }
+  
+  .sidebar-nav {
+    flex: 1;
+    padding: 20px 12px;
+    overflow-y: auto;
     display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 4px;
   }
-
-  .btn-nav-back {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 14px;
-    border-radius: 10px;
-    border: 1px solid var(--bd);
+  
+  .nav-section-title {
+    font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--mut);
+    margin: 10px 0 6px 8px; letter-spacing: 0.5px; white-space: nowrap;
+  }
+  .sidebar.collapsed .nav-section-title { opacity: 0; }
+  
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 10px;
+    background: transparent; color: var(--mut); border: none;
+    font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none;
+    transition: all 0.2s; white-space: nowrap; overflow: hidden; text-align: left;
+  }
+  .nav-item:hover { background: var(--bd); color: var(--tx); }
+  .nav-item.active { background: var(--pri-light); color: var(--pri); }
+  
+  .nav-item svg { width: 20px; height: 20px; flex-shrink: 0; stroke: currentColor; stroke-width: 2; fill: none; }
+  
+  /* --- ÁREA PRINCIPAL --- */
+  .main-area {
+    flex: 1;
+    overflow-y: auto;
     background: var(--bg);
-    color: var(--tx);
-    font-weight: 700;
-    font-size: 13px;
-    text-decoration: none;
-    transition: 0.2s;
+    padding: 30px;
+    position: relative;
   }
-  .btn-nav-back:hover { background: var(--card); border-color: var(--pri); }
-
-  /* Bolinhas de Cores para escolha rápida no topo */
-  .color-picker-header {
+  
+  .content-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
     display: flex;
-    gap: 6px;
-    align-items: center;
-    background: var(--bg);
-    padding: 4px 8px;
-    border-radius: 999px;
-    border: 1px solid var(--bd);
+    flex-direction: column;
+    gap: 24px;
   }
-  .color-dot {
-    width: 22px; height: 22px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; transition: transform 0.2s;
-  }
-  .color-dot:hover { transform: scale(1.15); }
-  .color-dot.active { border-color: var(--tx); transform: scale(1.1); }
 
+  .page-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .page-title { font-size: 24px; font-weight: 800; margin: 0; color: var(--tx); }
+  
   /* Cartão de Destaque do Perfil */
   .profile-hero-card {
-    background: var(--card);
-    border: 1px solid var(--bd);
-    border-radius: 20px;
-    padding: 28px 20px;
-    box-shadow: var(--shadow);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    position: relative;
+    background: var(--card); border: 1px solid var(--bd); border-radius: 20px;
+    padding: 28px 24px; box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
   }
-
+  
+  .profile-hero-info { flex: 1; min-width: 200px; }
   .profile-avatar-large {
-    width: 84px;
-    height: 84px;
-    border-radius: 50%;
-    background: var(--pri);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 34px;
-    font-weight: 800;
-    margin-bottom: 12px;
-    overflow: hidden;
-    border: 4px solid var(--bg);
-    box-shadow: 0 4px 14px var(--shadow-pri);
+    width: 90px; height: 90px; border-radius: 50%; background: var(--pri); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 34px;
+    font-weight: 800; overflow: hidden; border: 4px solid var(--bg); box-shadow: 0 4px 14px var(--shadow-pri);
   }
   .profile-avatar-large img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-name { font-size: 24px; font-weight: 800; margin: 0 0 4px; color: var(--tx); }
+  .profile-handle { font-size: 14px; color: var(--mut); margin: 0 0 12px; font-weight: 600; }
+  
+  /* Estatísticas dentro do card principal */
+  .stats-grid { display: flex; gap: 20px; }
+  .stat-item { display: flex; flex-direction: column; }
+  .stat-val { font-size: 18px; font-weight: 800; color: var(--tx); }
+  .stat-lbl { font-size: 11px; font-weight: 700; color: var(--mut); text-transform: uppercase; }
 
-  .profile-name { font-size: 22px; font-weight: 800; margin: 0 0 4px; color: var(--tx); word-break: break-word; }
-  .profile-handle { font-size: 14px; color: var(--mut); margin: 0 0 6px; font-weight: 600; }
-  .profile-bio { font-size: 13px; color: var(--mut); margin: 0 0 20px; }
-
-  /* Estatísticas */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    width: 100%;
-    max-width: 600px;
-    background: var(--bg);
-    border: 1px solid var(--bd);
-    border-radius: 14px;
-    padding: 14px 6px;
-  }
-
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  .stat-item:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 15%;
-    height: 70%;
-    width: 1px;
-    background: var(--bd);
-  }
-  .stat-val { font-size: 20px; font-weight: 800; color: var(--tx); }
-  .stat-lbl { font-size: 11px; font-weight: 700; color: var(--mut); text-transform: uppercase; margin-top: 2px; letter-spacing: 0.5px; }
-
-  /* Seção de Pessoas Adicionadas */
+  /* Seções Brancas */
   .section-card {
-    background: var(--card);
-    border: 1px solid var(--bd);
-    border-radius: 20px;
-    padding: 20px;
-    box-shadow: var(--shadow);
+    background: var(--card); border: 1px solid var(--bd); border-radius: 20px;
+    padding: 24px; box-shadow: var(--shadow);
   }
+  .section-card h3 { font-size: 18px; font-weight: 800; margin: 0 0 6px; color: var(--tx); }
+  .section-card p.subtitle { font-size: 14px; color: var(--mut); margin: 0 0 20px; }
 
-  .section-title-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-  }
-  .section-title-row h3 { font-size: 17px; font-weight: 800; margin: 0; color: var(--tx); }
-  .link-action { color: var(--pri); font-weight: 700; text-decoration: none; font-size: 13px; cursor: pointer; }
-  .link-action:hover { text-decoration: underline; }
-
-  .pessoas-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 12px;
-  }
-
-  .pessoa-card {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--bg);
-    border: 1px solid var(--bd);
-    padding: 10px 12px;
-    border-radius: 12px;
-  }
-  .pessoa-avatar {
-    width: 40px; height: 40px; border-radius: 50%; background: var(--pri); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px;
-    overflow: hidden; flex-shrink: 0;
-  }
-  .pessoa-avatar img { width: 100%; height: 100%; object-fit: cover; }
-  .pessoa-info { min-width: 0; flex: 1; }
-  .pessoa-info b { display: block; font-size: 13px; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pessoa-info span { display: block; font-size: 11px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  /* Navegação em Abas */
-  .tabs-bar {
-    display: flex;
-    gap: 6px;
-    border-bottom: 1px solid var(--bd);
-    padding-bottom: 10px;
-    margin-bottom: 16px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .tabs-bar::-webkit-scrollbar { display: none; }
-
-  .tab-btn {
-    padding: 8px 14px;
-    border-radius: 10px;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--mut);
-    font-weight: 700;
-    font-size: 13px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
-  }
-  .tab-btn:hover { background: var(--bg); color: var(--tx); }
-  .tab-btn.active { background: var(--pri); color: #ffffff; }
-
-  /* Formulários e Inputs */
+  /* Grid de Formulários */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; font-weight: 700; color: var(--tx); }
+  
   input, select {
-    width: 100%; padding: 10px 12px; border: 1px solid var(--bd); border-radius: 10px;
+    padding: 12px 14px; border: 1px solid var(--bd); border-radius: 10px;
     background: var(--bg); color: var(--tx); font: inherit; outline: none; font-size: 14px;
-    margin-top: 6px;
+    transition: border-color 0.2s;
   }
-  input:focus { border-color: var(--pri); }
+  input:focus, select:focus { border-color: var(--pri); }
   input[readonly] { opacity: 0.7; cursor: not-allowed; }
 
-  .row-gap { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
+  .row-gap { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; align-items: center; }
 
   .btn {
-    border-radius: 10px; padding: 10px 18px; font: inherit; font-weight: 700;
+    border-radius: 10px; padding: 12px 20px; font: inherit; font-weight: 700;
     border: none; cursor: pointer; font-size: 14px; background: var(--pri); color: #ffffff;
     transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   }
@@ -361,242 +278,352 @@
   .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
   .ghost {
-    border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 700; font-size: 13px;
-    background: transparent; color: var(--mut); border: 1px solid var(--bd); cursor: pointer;
+    border-radius: 10px; padding: 11px 18px; font: inherit; font-weight: 700; font-size: 13px;
+    background: transparent; color: var(--tx); border: 1px solid var(--bd); cursor: pointer;
   }
-  .ghost:hover { background: var(--bg); color: var(--tx); }
+  .ghost:hover { background: var(--bg); }
+  .btn-danger { background: #fee2e2; color: #ef4444; border: none; border-radius: 10px; padding: 12px 20px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s; }
+  .btn-danger:hover { background: #fca5a5; color: #dc2626; }
+  :root[data-theme="dark"] .btn-danger { background: rgba(239, 68, 68, 0.15); }
+  :root[data-theme="dark"] .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
 
-  .btn-danger {
-    background: #ef4444; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; font-size: 13px; cursor: pointer; transition: 0.2s;
+  /* CARDS DE APARÊNCIA */
+  .theme-options-grid { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .theme-card {
+    background: var(--bg); border: 2px solid var(--bd); border-radius: 16px;
+    padding: 16px; cursor: pointer; flex: 1; min-width: 140px; text-align: center; transition: all 0.2s;
   }
-  .btn-danger:hover { background: #dc2626; }
+  .theme-card:hover { border-color: var(--mut); }
+  .theme-card.active { border-color: var(--pri); background: var(--pri-light); }
+  
+  .theme-preview {
+    height: 80px; border-radius: 8px; margin-bottom: 12px; border: 1px solid var(--bd);
+    display: flex; flex-direction: column; gap: 6px; padding: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .theme-preview .mock-line { height: 6px; border-radius: 4px; width: 60%; background: var(--mut); opacity: 0.5; }
+  .theme-preview .mock-line.short { width: 40%; }
+  .theme-preview .mock-btn { margin-top: auto; height: 16px; border-radius: 4px; width: 50%; background: var(--pri); }
+  
+  .preview-light { background: #f8fafc; }
+  .preview-dark { background: #0f172a; border-color: #334155; }
+  .preview-auto { background: linear-gradient(135deg, #f8fafc 50%, #0f172a 50%); }
 
-  /* Seletor de Tema Segmentado */
-  .tema-seg { position: relative; display: inline-flex; padding: 3px; background: var(--bg); border: 1px solid var(--bd); border-radius: 999px; flex-shrink: 0; }
-  .tema-seg button { position: relative; z-index: 1; width: 32px; height: 28px; min-height: 0; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 0; background: none; box-shadow: none; color: var(--mut); border-radius: 999px; cursor: pointer; transition: color .25s; }
-  .tema-seg button:hover { color: var(--tx); }
-  .tema-seg button[aria-pressed="true"] { color: #fff; }
-  .tema-seg button svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .tema-thumb { position: absolute; top: 3px; left: 3px; width: 32px; height: 28px; border-radius: 999px; background: var(--pri); box-shadow: 0 2px 8px var(--shadow-pri); transition: transform .28s cubic-bezier(.4, 0, .2, 1); }
-  .tema-seg[data-modo="auto"] .tema-thumb { transform: translateX(32px); }
-  .tema-seg[data-modo="dark"] .tema-thumb { transform: translateX(64px); }
+  .theme-card span { font-weight: 700; font-size: 14px; color: var(--tx); }
 
+  /* Bolinhas de cores */
+  .color-picker { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .color-dot {
+    width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; cursor: pointer;
+    padding: 0; outline: none; box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: transform 0.2s;
+  }
+  .color-dot:hover { transform: scale(1.12); }
+  .color-dot.active { box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--tx); transform: scale(1.05); }
+
+  .opt-box { margin-bottom: 24px; }
+  .opt-box b { display: block; font-size: 15px; margin-bottom: 4px; }
+  .opt-box small { display: block; font-size: 13px; color: var(--mut); margin-bottom: 12px; }
+
+  /* CORREÇÃO 1: Lista de Pessoas (Cards flexíveis) */
+  .pessoas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  
+  .pessoa-card {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; /* Adicionado um respiro (gap) */
+    background: var(--bg); border: 1px solid var(--bd); padding: 12px 14px; border-radius: 12px;
+  }
+  
+  /* A área de texto ganha min-width: 0 para permitir que os textos muito compridos usem os "..." */
+  .pessoa-info-box { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+  
+  .pessoa-avatar {
+    width: 42px; height: 42px; border-radius: 50%; background: var(--pri); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; 
+    overflow: hidden; flex-shrink: 0; /* Garante que o círculo não seja esmagado */
+  }
+  .pessoa-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  
+  /* Reticências (...) aplicadas e encolhimento ativado */
+  .pessoa-info { min-width: 0; flex: 1; }
+  .pessoa-info b { display: block; font-size: 14px; color: var(--tx); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pessoa-info span { display: block; font-size: 12px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  /* Garante que os botões não sejam espremidos pelo nome grande */
+  .pessoa-acoes { display: flex; gap: 8px; flex-shrink: 0; }
+  .pessoa-acoes button { background: none; border: none; font-size: 13px; font-weight: 700; cursor: pointer; padding: 0; }
+
+  /* Diversos */
+  .code-box { font-family: monospace; font-size: 24px; font-weight: 800; letter-spacing: 3px; text-align: center; color: var(--tx); background: var(--bg); border: 2px dashed var(--pri); border-radius: 12px; padding: 16px; margin-top: 12px; }
   .warn-box { background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; color: var(--tx); padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 12px; }
   .ok-box { background: var(--pri-light); border: 1px solid var(--pri); color: var(--tx); padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 12px; }
-  .code-box { font-family: monospace; font-size: 24px; font-weight: 800; letter-spacing: 3px; text-align: center; color: var(--tx); background: var(--bg); border: 2px dashed var(--pri); border-radius: 12px; padding: 16px; margin-top: 12px; }
 
-  .copyright { text-align: center; font-size: 12px; color: var(--mut); margin-top: 16px; }
-
-  /* Ajustes Mobile específicos */
-  @media(max-width: 600px) {
-    .app-container { padding: 12px 10px 30px; }
-    .profile-hero-card { padding: 20px 14px; }
-    header { padding: 10px 14px; }
+  /* Mobile */
+  .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--tx); font-size: 24px; cursor: pointer; padding: 0; }
+  @media(max-width: 768px) {
+    .sidebar { position: fixed; left: -260px; top: 0; bottom: 0; width: 260px; z-index: 999; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+    .sidebar.open { left: 0; }
+    .mobile-menu-btn { display: block; }
+    .sidebar-toggle-btn { display: none; }
+    .main-area { padding: 20px 16px; }
+    .profile-hero-card { padding: 20px; flex-direction: column; text-align: center; }
+    .stats-grid { width: 100%; justify-content: center; border-top: 1px solid var(--bd); padding-top: 16px; margin-top: 10px; }
+    .stat-item { padding: 0 14px; border-right: 1px solid var(--bd); }
+    .stat-item:last-child { border-right: none; }
   }
+
+  /* Overlay Mobile */
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 998; }
+  .sidebar-overlay.open { display: block; }
   </style>
 </head>
 <body>
-<canvas id="bg-canvas"></canvas>
 
-<div class="app-container">
-  <!-- Cabeçalho Superior com Logótipo clicável para o Dashboard -->
-  <header>
-    <a href="menu.html" class="header-brand" title="Voltar ao início">
-      <div class="header-brand-icon">F</div>
-      <div style="display:flex; flex-direction:column;">
-        <span style="font-size:16px; font-weight:800;">Meu Perfil</span>
-        <span style="font-size:11px; color:var(--mut);">Fluxo</span>
-      </div>
-    </a>
-
-    <div class="header-nav">
-      <!-- Seletor Rápido de Cores (Bolinhas) -->
-      <div class="color-picker-header" title="Escolha a cor do app">
-        <div class="color-dot" data-accent="teal" style="background:#0d9488;" title="Teal Padrão"></div>
-        <div class="color-dot" data-accent="blue" style="background:#2563eb;" title="Azul"></div>
-        <div class="color-dot" data-accent="purple" style="background:#7c3aed;" title="Roxo"></div>
-        <div class="color-dot" data-accent="orange" style="background:#ea580c;" title="Laranja"></div>
-        <div class="color-dot" data-accent="pink" style="background:#db2777;" title="Rosa"></div>
-      </div>
-
-      <!-- Seletor de Tema -->
-      <div class="tema-seg" role="group" aria-label="Tema do site" data-modo="auto">
-        <i class="tema-thumb"></i>
-        <button type="button" data-tema="light" aria-pressed="false" title="Claro"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg></button>
-        <button type="button" data-tema="auto" aria-pressed="true" title="Automático"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
-        <button type="button" data-tema="dark" aria-pressed="false" title="Escuro"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
-      </div>
-
-      <a href="menu.html" class="btn-nav-back">
-        ← Início
+  <!-- BARRA LATERAL (SIDEBAR) ESTILO FLUXO -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <button class="sidebar-toggle-btn" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="sidebar-brand-icon">F</div>
+      <div class="sidebar-brand-name">Fluxo</div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Navegação</div>
+      <a href="menu.html" class="nav-item">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Dashboard</span>
       </a>
-    </div>
-  </header>
 
-  <!-- Cartão de Destaque do Perfil + Estatísticas -->
-  <div class="profile-hero-card">
-    <div class="profile-avatar-large" id="hero-avatar-box">
-      <span id="hero-avatar-letter">R</span>
-      <img id="hero-avatar-img" alt="Foto de Perfil" hidden>
-    </div>
-    <h1 class="profile-name" id="hero-name">Carregando...</h1>
-    <div class="profile-handle" id="hero-handle">@demo</div>
-    <div class="profile-bio">Fichas, pastas e provisórias em um só lugar.</div>
+      <div class="nav-section-title" style="margin-top: 16px;">Configurações</div>
+      <button class="nav-item active" id="tab-btn-perfil" onclick="mudarAba('perfil')">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span>Meu Perfil</span>
+      </button>
+      <button class="nav-item" id="tab-btn-pessoas" onclick="mudarAba('pessoas')">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span>Pessoas</span>
+      </button>
+      <button class="nav-item" id="tab-btn-aparencia" onclick="mudarAba('aparencia')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <span>Aparência</span>
+      </button>
+      <button class="nav-item" id="tab-btn-recuperacao" onclick="mudarAba('recuperacao')">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>Segurança</span>
+      </button>
+    </nav>
+  </aside>
 
-    <!-- Barra de Estatísticas -->
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-val" id="stat-abertas">0</div>
-        <div class="stat-lbl">ABERTAS</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-val" id="stat-concluidas">0</div>
-        <div class="stat-lbl">CONCLUÍDAS</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-val" id="stat-pessoas">0</div>
-        <div class="stat-lbl">PESSOAS</div>
-      </div>
-    </div>
-  </div>
+  <!-- Fundo escuro para mobile -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebarMobile()"></div>
 
-  <!-- Seção de Pessoas Adicionadas -->
-  <div class="section-card">
-    <div class="section-title-row">
-      <h3>Pessoas</h3>
-      <span class="link-action" onclick="mudarAba('pessoas')">Gerenciar</span>
-    </div>
-
-    <div class="pessoas-grid" id="hero-pessoas-list">
-      <!-- Inserido dinamicamente -->
-    </div>
-  </div>
-
-  <!-- Painel Principal de Configurações da Conta -->
-  <div class="section-card">
-    <div style="margin-bottom: 16px;">
-      <h3 style="font-size:18px; font-weight:800; margin:0 0 2px;">Conta</h3>
-      <span class="mut" style="font-size:13px;">Gerencie suas configurações, segurança e preferências visuais.</span>
-    </div>
-
-    <!-- Navegação em Abas -->
-    <div class="tabs-bar">
-      <button class="tab-btn active" id="tab-btn-perfil" onclick="mudarAba('perfil')">Configurações</button>
-      <button class="tab-btn" id="tab-btn-pessoas" onclick="mudarAba('pessoas')">Pessoas Add</button>
-      <button class="tab-btn" id="tab-btn-recuperacao" onclick="mudarAba('recuperacao')">Recuperação</button>
-      <button class="tab-btn" id="tab-btn-aparencia" onclick="mudarAba('aparencia')">Aparência & Cores</button>
-    </div>
-
-    <!-- ABA 1: CONFIGURAÇÕES DO PERFIL -->
-    <div id="sec-perfil" class="tab-panel">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;">
-        <div>
-          <label style="font-size: 12px; font-weight: 700;">Nome Completo</label>
-          <input type="text" id="input-nome" oninput="atualizarPreview()" maxlength="80">
-        </div>
-        <div>
-          <label style="font-size: 12px; font-weight: 700;">Nome de Utilizador (@)</label>
-          <input type="text" id="input-usuario" readonly title="Login de acesso">
-        </div>
-        <div>
-          <label style="font-size: 12px; font-weight: 700;">E-mail de Contato</label>
-          <input type="email" id="input-email" maxlength="120" placeholder="seu@email.com">
-        </div>
-        <div>
-          <label style="font-size: 12px; font-weight: 700;">Ano de Nascimento <span id="idade-txt" class="mut"></span></label>
-          <input type="number" id="input-ano" min="1900" max="2100" placeholder="Ex.: 2003" oninput="atualizarIdade()">
-        </div>
-      </div>
-
-      <div class="row-gap" style="margin-top: 16px;">
-        <button class="btn" id="btn-salvar-perfil" onclick="salvarPerfil(false)">Salvar Alterações</button>
-        <button class="ghost" type="button" onclick="$('input-foto').click()">Trocar Foto</button>
-        <button class="ghost" type="button" id="btn-rm-foto" onclick="removerFoto()" style="display:none">Remover Foto</button>
-        <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="escolherFoto(this)">
-      </div>
-    </div>
-
-    <!-- ABA 2: PESSOAS ADD -->
-    <div id="sec-pessoas" class="tab-panel" style="display:none;">
-      <p class="mut" style="margin-top:0; font-size:13px;">Adicione pessoas pelo nome de utilizador (ex.: maria.silva). Vocês passarão a partilhar atualizações de atividades e presença.</p>
-
-      <div class="row-gap">
-        <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 220px; margin-top: 0;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
-        <button class="btn" id="btn-add-pessoa" onclick="adicionarPessoa()">Adicionar</button>
-      </div>
-
-      <div id="pessoas-list" style="margin-top: 16px;"></div>
-    </div>
-
-    <!-- ABA 3: RECUPERAÇÃO DE SENHA -->
-    <div id="sec-recuperacao" class="tab-panel" style="display:none;">
-      <p class="mut" style="margin-top:0; font-size:13px;">Gere um código de segurança único para redefinir sua senha caso perca o acesso.</p>
+  <!-- ÁREA PRINCIPAL DIREITA -->
+  <main class="main-area">
+    <div class="content-wrapper">
       
-      <div id="rec-status"></div>
-
-      <div class="row-gap" style="margin-top: 14px;">
-        <button class="btn" id="btn-gerar-codigo" onclick="gerarCodigo()">Gerar código de recuperação</button>
+      <!-- Cabeçalho (Mobile + Título) -->
+      <div class="page-header">
+        <button class="mobile-menu-btn" onclick="toggleSidebarMobile()">☰</button>
+        <h1 class="page-title">Configurações</h1>
+        <div style="width: 24px;"></div> <!-- Spacer -->
       </div>
 
-      <div id="rec-resultado" style="display:none">
-        <div class="code-box" id="rec-codigo"></div>
-        <div class="row-gap" style="justify-content:center;">
-          <button class="ghost" type="button" onclick="copiarCodigo()">Copiar Código</button>
-          <button class="ghost" type="button" onclick="baixarCodigo()">Baixar Ficheiro .txt</button>
+      <!-- PAINEL 1: MEU PERFIL -->
+      <div id="sec-perfil" class="tab-panel">
+        <div class="profile-hero-card">
+          <div class="profile-avatar-large" id="hero-avatar-box">
+            <span id="hero-avatar-letter">R</span>
+            <img id="hero-avatar-img" alt="Foto de Perfil" hidden>
+          </div>
+          <div class="profile-hero-info">
+            <h2 class="profile-name" id="hero-name">Carregando...</h2>
+            <div class="profile-handle" id="hero-handle">@demo</div>
+            <div class="row-gap" style="margin-top: 0;">
+              <button class="ghost" type="button" onclick="$('input-foto').click()" style="padding: 6px 12px;">Alterar Foto</button>
+              <button class="ghost" type="button" id="btn-rm-foto" onclick="removerFoto()" style="display:none; color: #ef4444; border-color: #ef4444; padding: 6px 12px;">Remover</button>
+              <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="escolherFoto(this)">
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <span class="stat-val" id="stat-abertas">0</span>
+              <span class="stat-lbl">Abertas</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-val" id="stat-concluidas">0</span>
+              <span class="stat-lbl">Concluídas</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-val" id="stat-pessoas">0</span>
+              <span class="stat-lbl">Pessoas</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card" style="margin-top: 24px;">
+          <h3>Dados Pessoais</h3>
+          <p class="subtitle">Atualize suas informações básicas.</p>
+          
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome Completo</label>
+              <input type="text" id="input-nome" oninput="atualizarPreview()" maxlength="80">
+            </div>
+            <div class="form-group">
+              <label>Nome de Utilizador (@)</label>
+              <input type="text" id="input-usuario" readonly title="Login de acesso">
+            </div>
+            <div class="form-group">
+              <label>E-mail de Contato</label>
+              <input type="email" id="input-email" maxlength="120" placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+              <label>Ano de Nascimento <span id="idade-txt" style="font-weight:normal; color:var(--mut)"></span></label>
+              <input type="number" id="input-ano" min="1900" max="2100" placeholder="Ex.: 2003" oninput="atualizarIdade()">
+            </div>
+          </div>
+
+          <div class="row-gap" style="justify-content: flex-end; margin-top: 24px;">
+            <button class="btn" id="btn-salvar-perfil" onclick="salvarPerfil(false)">Guardar Alterações</button>
+          </div>
         </div>
       </div>
+
+      <!-- PAINEL 2: PESSOAS -->
+      <div id="sec-pessoas" class="tab-panel" style="display:none;">
+        <div class="section-card">
+          <h3>Pessoas e Equipe</h3>
+          <p class="subtitle">Adicione pessoas pelo nome de utilizador (ex.: maria.silva). Vocês partilharão atualizações.</p>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 220px;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
+            <button class="btn" id="btn-add-pessoa" onclick="adicionarPessoa()">Adicionar</button>
+          </div>
+        </div>
+
+        <div class="pessoas-grid" id="pessoas-list" style="margin-top: 24px;">
+          <!-- Lista carregada via JS -->
+        </div>
+      </div>
+
+      <!-- PAINEL 3: APARÊNCIA E CORES -->
+      <div id="sec-aparencia" class="tab-panel" style="display:none;">
+        <div class="section-card">
+          <h3>Aparência do Sistema</h3>
+          <p class="subtitle">Personalize o aspeto visual para o seu espaço de trabalho.</p>
+
+          <div class="opt-box">
+            <b>Modo de Ecrã (Tema)</b>
+            <small>Escolha como o sistema deve ser exibido.</small>
+            
+            <!-- Cards Visuais baseados na imagem -->
+            <div class="theme-options-grid">
+              <div class="theme-card active" data-tema="light" onclick="window.definirTema('light')">
+                <div class="theme-preview preview-light">
+                  <div class="mock-line"></div>
+                  <div class="mock-line short"></div>
+                  <div class="mock-btn"></div>
+                </div>
+                <span>Claro</span>
+              </div>
+              
+              <div class="theme-card" data-tema="dark" onclick="window.definirTema('dark')">
+                <div class="theme-preview preview-dark">
+                  <div class="mock-line" style="background:#64748b"></div>
+                  <div class="mock-line short" style="background:#64748b"></div>
+                  <div class="mock-btn"></div>
+                </div>
+                <span>Escuro</span>
+              </div>
+
+              <div class="theme-card" data-tema="auto" onclick="window.definirTema('auto')">
+                <div class="theme-preview preview-auto">
+                  <div class="mock-line" style="background:#94a3b8"></div>
+                  <div class="mock-line short" style="background:#94a3b8"></div>
+                  <div class="mock-btn" style="background:var(--pri)"></div>
+                </div>
+                <span>Automático</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="opt-box">
+            <b>Cor de Destaque</b>
+            <small>Clique numa bolinha para mudar a cor principal dos botões.</small>
+            <div class="color-picker">
+              <button type="button" class="color-dot" data-accent="teal" style="background:#0d9488" title="Teal" onclick="window.definirAccent('teal')"></button>
+              <button type="button" class="color-dot" data-accent="blue" style="background:#2563eb" title="Azul" onclick="window.definirAccent('blue')"></button>
+              <button type="button" class="color-dot" data-accent="purple" style="background:#7c3aed" title="Roxo" onclick="window.definirAccent('purple')"></button>
+              <button type="button" class="color-dot" data-accent="red" style="background:#dc2626" title="Vermelho" onclick="window.definirAccent('red')"></button>
+              <button type="button" class="color-dot" data-accent="orange" style="background:#ea580c" title="Laranja" onclick="window.definirAccent('orange')"></button>
+              <button type="button" class="color-dot" data-accent="pink" style="background:#db2777" title="Rosa" onclick="window.definirAccent('pink')"></button>
+              <button type="button" class="color-dot" data-accent="green" style="background:#16a34a" title="Verde" onclick="window.definirAccent('green')"></button>
+            </div>
+          </div>
+
+          <div class="opt-box">
+            <b>Cor de Fundo Escuro</b>
+            <small>Válido apenas quando o modo Escuro está ativado.</small>
+            <select id="sel-fundo" style="max-width: 300px;" onchange="window.definirFundo(this.value)">
+              <option value="padrao">Padrão (Azul Marinho)</option>
+              <option value="eclipse">Eclipse (Preto Absoluto)</option>
+              <option value="ocean">Oceano Noturno</option>
+              <option value="scarlet">Nebulosa Escarlate</option>
+              <option value="amethyst">Ametista Sombria</option>
+              <option value="volcano">Crepúsculo Vulcânico</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAINEL 4: SEGURANÇA E RECUPERAÇÃO -->
+      <div id="sec-recuperacao" class="tab-panel" style="display:none;">
+        <div class="section-card">
+          <h3>Segurança da Conta</h3>
+          <p class="subtitle">Gere um código de segurança único para redefinir sua senha caso perca o acesso.</p>
+          
+          <div id="rec-status"></div>
+
+          <div style="margin-top: 20px;">
+            <button class="btn" id="btn-gerar-codigo" onclick="gerarCodigo()">Gerar código de recuperação</button>
+          </div>
+
+          <div id="rec-resultado" style="display:none; margin-top: 20px;">
+            <div class="code-box" id="rec-codigo"></div>
+            <div class="row-gap">
+              <button class="ghost" type="button" onclick="copiarCodigo()">Copiar Código</button>
+              <button class="ghost" type="button" onclick="baixarCodigo()">Baixar Arquivo .txt</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Área de Exclusão e Logout (Fica dentro de segurança para melhor organização) -->
+        <div class="section-card" style="margin-top: 24px; border-color: #fca5a5;">
+          <h3 style="color: #ef4444;">Zona de Perigo</h3>
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--bd);">
+            <div>
+              <b style="font-size:15px; display:block;">Sair da conta</b>
+              <span class="mut" style="font-size:13px;">Encerrar a sessão ativa neste dispositivo.</span>
+            </div>
+            <button type="button" class="btn-danger" onclick="sairApp()">Terminar Sessão</button>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px;">
+            <div>
+              <b style="font-size:15px; display:block;">Apagar conta</b>
+              <span class="mut" style="font-size:13px;">Remove sua conta e todos os dados permanentemente.</span>
+            </div>
+            <button type="button" class="btn-danger" onclick="apagarConta()">Excluir Permanentemente</button>
+          </div>
+        </div>
+      </div>
+
     </div>
+  </main>
 
-    <!-- ABA 4: APARÊNCIA & CORES -->
-    <div id="sec-aparencia" class="tab-panel" style="display:none;">
-      <p class="mut" style="margin-top:0; font-size:13px;">Personalize o aspeto visual e as cores principais da aplicação.</p>
-      
-      <div style="background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:12px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-        <div>
-          <b style="display:block; font-size:15px;">Cor de Destaque</b>
-          <span class="mut" style="font-size:13px;">Clique numa bolinha para mudar o tema de cor instantaneamente.</span>
-        </div>
+<div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:1000;max-width:90vw;text-align:center"></div>
 
-        <div style="display:flex; gap:8px; align-items:center;">
-          <div class="color-dot" data-accent="teal" style="background:#0d9488; width:28px; height:28px;" title="Teal Padrão"></div>
-          <div class="color-dot" data-accent="blue" style="background:#2563eb; width:28px; height:28px;" title="Azul"></div>
-          <div class="color-dot" data-accent="purple" style="background:#7c3aed; width:28px; height:28px;" title="Roxo"></div>
-          <div class="color-dot" data-accent="orange" style="background:#ea580c; width:28px; height:28px;" title="Laranja"></div>
-          <div class="color-dot" data-accent="pink" style="background:#db2777; width:28px; height:28px;" title="Rosa"></div>
-        </div>
-      </div>
-
-      <div style="background:var(--bg); border:1px solid var(--bd); padding:16px; border-radius:12px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-        <div>
-          <b style="display:block; font-size:15px;">Modo de Tema</b>
-          <span class="mut" style="font-size:13px;">Selecione entre Claro, Automático ou Escuro.</span>
-        </div>
-
-        <div class="tema-seg" role="group" aria-label="Tema do aplicativo" data-modo="auto">
-          <i class="tema-thumb"></i>
-          <button type="button" data-tema="light" aria-pressed="false" title="Claro">Claro</button>
-          <button type="button" data-tema="auto" aria-pressed="true" title="Automático">Auto</button>
-          <button type="button" data-tema="dark" aria-pressed="false" title="Escuro">Escuro</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ENCERRAMENTO DA SESSÃO -->
-    <div style="margin-top: 24px; border-top: 1px solid var(--bd); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-      <div>
-        <b style="color:#ef4444; font-size:15px; display:block;">Sair da conta</b>
-        <span class="mut" style="font-size:13px;">Encerrar a sessão ativa neste dispositivo.</span>
-      </div>
-      <button type="button" class="btn-danger" onclick="sairApp()">Sair da Conta</button>
-    </div>
-  </div>
-
-  <p class="copyright">© 2026 Fluxo - Ruan Henrique. Todos os direitos reservados.</p>
-</div>
-
-<div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
-
-<!-- Supabase SDK -->
+<!-- Supabase SDK e Scripts Lógicos -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
@@ -614,14 +641,31 @@ function aviso(msg) {
   clearTimeout(tToast); tToast = setTimeout(() => { t.style.display = 'none'; }, 3500);
 }
 
+// Controle da Sidebar Desktop e Mobile
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  sb.classList.toggle('collapsed');
+}
+function toggleSidebarMobile() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+
+// Troca de Abas
 function mudarAba(aba) {
   document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   
   const target = $('sec-' + aba);
   const btn = $('tab-btn-' + aba);
   if (target) target.style.display = 'block';
   if (btn) btn.classList.add('active');
+
+  // Fecha sidebar mobile ao clicar em um item
+  if(window.innerWidth <= 768) {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebar-overlay').classList.remove('open');
+  }
 
   clearInterval(tPessoas);
   if (aba === 'pessoas') { carregarPessoas(); tPessoas = setInterval(carregarPessoas, 30000); }
@@ -732,12 +776,12 @@ function escolherFoto(inp) {
     URL.revokeObjectURL(url);
     fotoAtual = c.toDataURL('image/jpeg', 0.85);
     atualizarPreview();
-    aviso('Foto escolhida. Clique em Salvar Alterações.');
+    aviso('Foto escolhida. Clique em Guardar Alterações.');
   };
   img.onerror = () => { URL.revokeObjectURL(url); aviso('Não foi possível ler essa imagem.'); };
   img.src = url;
 }
-function removerFoto() { fotoAtual = ''; atualizarPreview(); aviso('Foto removida. Clique em Salvar Alterações.'); }
+function removerFoto() { fotoAtual = ''; atualizarPreview(); aviso('Foto removida. Clique em Guardar Alterações.'); }
 
 /* Pessoas */
 let PESSOAS = [];
@@ -749,42 +793,28 @@ async function carregarPessoas() {
 }
 
 function renderPessoas() {
-  const heroBox = $('hero-pessoas-list');
   const listBox = $('pessoas-list');
 
   if (!PESSOAS.length) {
-    const vazio = '<p class="mut" style="text-align:center; padding:12px; grid-column: 1 / -1; font-size:13px;">Nenhuma pessoa adicionada ainda.</p>';
-    if (heroBox) heroBox.innerHTML = vazio;
-    if (listBox) listBox.innerHTML = vazio;
+    if (listBox) listBox.innerHTML = '<p class="mut" style="font-size:14px;">Nenhuma pessoa adicionada ainda.</p>';
     return;
   }
-
-  const htmlHero = PESSOAS.slice(0, 6).map(p => {
-    const f = fotoOk(p.foto), nome = p.nome || p.usuario;
-    return `
-    <div class="pessoa-card">
-      <div class="pessoa-avatar">${f ? `<img src="${esc(f)}" alt="">` : esc((nome[0] || '?').toUpperCase())}</div>
-      <div class="pessoa-info">
-        <b>${esc(nome)}</b>
-        <span>@${esc(p.usuario)}</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  if (heroBox) heroBox.innerHTML = htmlHero;
 
   const htmlList = PESSOAS.map(p => {
     const f = fotoOk(p.foto), nome = p.nome || p.usuario;
     return `
-    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--bg); border:1px solid var(--bd); border-radius:12px; margin-bottom:8px;">
-      <div style="display:flex; align-items:center; gap:10px;">
+    <div class="pessoa-card">
+      <div class="pessoa-info-box">
         <div class="pessoa-avatar">${f ? `<img src="${esc(f)}" alt="">` : esc((nome[0] || '?').toUpperCase())}</div>
-        <div>
-          <b style="font-size:14px;">${esc(nome)}</b>
-          <span class="mut" style="display:block; font-size:12px;">@${esc(p.usuario)}</span>
+        <div class="pessoa-info">
+          <b>${esc(nome)}</b>
+          <span>@${esc(p.usuario)}</span>
         </div>
       </div>
-      <button onclick="removerPessoa('${esc(p.usuario)}')" style="background:none; border:none; color:#ef4444; font-weight:700; cursor:pointer; font-size:13px;">Remover</button>
+      <div class="pessoa-acoes">
+        <button onclick="abrirChat('${esc(p.usuario)}')" style="color:var(--pri);">Conversar</button>
+        <button onclick="removerPessoa('${esc(p.usuario)}')" style="color:#ef4444;">Remover</button>
+      </div>
     </div>`;
   }).join('');
 
@@ -801,6 +831,8 @@ async function adicionarPessoa() {
   if (data === 'ok') { $('new-person-user').value = ''; carregarPessoas(); aviso('@' + u + ' adicionado!'); }
   else aviso('Não foi possível adicionar @' + u);
 }
+
+function abrirChat(u) { window.location.href = 'chat.html?u=' + encodeURIComponent(u); }
 
 async function removerPessoa(u) {
   if (!confirm('Remover @' + u + ' da sua lista?')) return;
@@ -841,6 +873,15 @@ function baixarCodigo() {
   a.click();
 }
 
+async function apagarConta() {
+  if (!confirm('Tem a certeza absoluta de que quer apagar a sua conta? Todos os seus dados, relatórios e conversas serão eliminados. Esta ação não pode ser desfeita.')) return;
+  const { error } = await db.rpc('apagar_minha_conta');
+  if (error) return aviso('Erro ao apagar: ' + error.message);
+  clearInterval(tPresenca);
+  await db.auth.signOut();
+  window.location.href = 'index.html';
+}
+
 async function sairApp() {
   if (!confirm('Deseja encerrar a sessão neste dispositivo?')) return;
   clearInterval(tPresenca);
@@ -858,6 +899,9 @@ window.addEventListener('DOMContentLoaded', async () => {
   ping(); tPresenca = setInterval(ping, 60000);
 
   await carregarPerfil();
+
+  const abaPedida = (location.hash || '').replace('#', '');
+  if (['perfil', 'pessoas', 'recuperacao', 'aparencia'].indexOf(abaPedida) !== -1) mudarAba(abaPedida);
 });
 </script>
 </body>
