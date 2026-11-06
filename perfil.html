@@ -355,6 +355,41 @@
   .warn-box { background: rgba(245, 158, 11, 0.1); border: 1px solid #f59e0b; color: var(--tx); padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 12px; }
   .ok-box { background: var(--pri-light); border: 1px solid var(--pri); color: var(--tx); padding: 12px; border-radius: 10px; font-size: 13px; margin-top: 12px; }
 
+
+  /* --- ARMAZENAMENTO (unido ao perfil) --- */
+  .mut { color: var(--mut); }
+  .section-card h3.com-icone { display: flex; align-items: center; gap: 8px; }
+  .action-box { background: var(--bg); padding: 18px; border-radius: 12px; border: 1px solid var(--bd); display: flex; flex-direction: column; justify-content: space-between; }
+  .action-box b { font-size: 15px; display: block; color: var(--tx); }
+  .action-box p { font-size: 13px; color: var(--mut); margin: 6px 0 16px; line-height: 1.4; }
+  .action-box .ghost { width: 100%; padding: 11px 18px; }
+  .action-box .ghost:hover { background: var(--bd); }
+  .progress-bar { height: 12px; background: var(--bd); border-radius: 6px; overflow: hidden; margin: 12px 0 6px; }
+  .progress-fill { height: 100%; background: var(--pri); transition: width 0.4s ease; }
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; }
+  .stat-card { background: var(--bg); padding: 16px; border-radius: 12px; border: 1px solid var(--bd); }
+  .stat-card span { font-size: 12px; color: var(--mut); font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 4px; }
+  .stat-card b { font-size: 22px; font-weight: 800; color: var(--tx); display: block; }
+  .stat-card small { font-size: 13px; color: var(--mut); font-weight: 600; margin-left: 6px; }
+
+  /* --- PESSOAS: sugestões e aceitação --- */
+  .nav-item .nav-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #dc2626; color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sidebar.collapsed .nav-badge { display: none; }
+  .bloco-pessoas { margin-top: 24px; }
+  .bloco-pessoas:first-child { margin-top: 0; }
+  .bloco-pessoas h3 .qtd { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 7px; margin-left: 8px; border-radius: 11px; background: #dc2626; color: #fff; font-size: 12px; font-weight: 800; vertical-align: middle; }
+  .bloco-pessoas h3 .qtd.neutro { background: var(--bd); color: var(--mut); }
+  .pessoa-card.pedido { flex-wrap: wrap; }
+  .pessoa-card.pedido .pessoa-acoes { width: 100%; justify-content: flex-end; }
+  .btn-sm { border: 0; border-radius: 8px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: var(--pri); color: #fff; }
+  .btn-sm:hover { background: var(--pri-hover); }
+  .btn-sm:disabled { opacity: .55; cursor: default; }
+  .btn-sm.sec { background: transparent; color: var(--tx); border: 1px solid var(--bd); }
+  .btn-sm.sec:hover { background: var(--bg); }
+  .btn-sm.perigo { background: transparent; color: #ef4444; border: 1px solid rgba(239,68,68,.5); }
+  .btn-sm.perigo:hover { background: rgba(239,68,68,.08); }
+  .pessoas-vazio-txt { margin: 0; font-size: 14px; color: var(--mut); }
+
   /* Mobile */
   .mobile-menu-btn { display: none; background: transparent; border: none; color: var(--tx); font-size: 24px; cursor: pointer; padding: 0; }
   @media(max-width: 768px) {
@@ -401,6 +436,7 @@
       <button class="nav-item" id="tab-btn-pessoas" onclick="mudarAba('pessoas')">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
         <span>Pessoas</span>
+        <span class="nav-badge" id="badge-pessoas" hidden>0</span>
       </button>
       <button class="nav-item" id="tab-btn-aparencia" onclick="mudarAba('aparencia')">
         <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
@@ -409,6 +445,10 @@
       <button class="nav-item" id="tab-btn-recuperacao" onclick="mudarAba('recuperacao')">
         <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
         <span>Segurança</span>
+      </button>
+      <button class="nav-item" id="tab-btn-armazenamento" onclick="mudarAba('armazenamento')">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        <span>Armazenamento</span>
       </button>
     </nav>
   </aside>
@@ -439,6 +479,7 @@
             <div class="profile-handle" id="hero-handle">@demo</div>
             <div class="row-gap" style="margin-top: 0;">
               <button class="ghost" type="button" onclick="$('input-foto').click()" style="padding: 6px 12px;">Alterar Foto</button>
+              <button class="ghost" type="button" onclick="mudarAba('pessoas')" style="padding: 6px 12px; color: var(--pri); border-color: var(--pri);">+ Adicionar pessoas</button>
               <button class="ghost" type="button" id="btn-rm-foto" onclick="removerFoto()" style="display:none; color: #ef4444; border-color: #ef4444; padding: 6px 12px;">Remover</button>
               <input type="file" id="input-foto" accept="image/*" style="display:none" onchange="escolherFoto(this)">
             </div>
@@ -488,20 +529,39 @@
         </div>
       </div>
 
-      <!-- PAINEL 2: PESSOAS -->
+      <!-- PAINEL 2: PESSOAS (sugestões + pedidos com aceitação) -->
       <div id="sec-pessoas" class="tab-panel" style="display:none;">
-        <div class="section-card">
-          <h3>Pessoas e Equipe</h3>
-          <p class="subtitle">Adicione pessoas pelo nome de utilizador (ex.: maria.silva). Vocês partilharão atualizações.</p>
 
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 220px;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
-            <button class="btn" id="btn-add-pessoa" onclick="adicionarPessoa()">Adicionar</button>
+        <div class="section-card bloco-pessoas" id="box-recebidos" hidden>
+          <h3>Pedidos para você aceitar <span class="qtd" id="qtd-recebidos">0</span></h3>
+          <p class="subtitle">Só depois que você aceitar é que vocês passam a se ver e a partilhar atualizações.</p>
+          <div class="pessoas-grid" id="lista-recebidos"></div>
+        </div>
+
+        <div class="section-card bloco-pessoas">
+          <h3>Sugestões para adicionar</h3>
+          <p class="subtitle">Pessoas que já têm conta no Fluxo. Ao adicionar, é enviado um pedido; a partilha só começa quando a pessoa aceitar.</p>
+          <div class="pessoas-grid" id="lista-sugestoes"><p class="pessoas-vazio-txt">A carregar...</p></div>
+
+          <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--bd);">
+            <label style="display:block; font-size:13px; font-weight:700; margin-bottom:6px;">Não achou? Envie um pedido pelo nome de utilizador</label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <input id="new-person-user" placeholder="Utilizador (ex: maria.silva)" style="flex: 1; min-width: 220px;" autocapitalize="none" autocomplete="off" onkeydown="if(event.key==='Enter')adicionarPessoa()">
+              <button class="btn" id="btn-add-pessoa" onclick="adicionarPessoa()">Enviar pedido</button>
+            </div>
           </div>
         </div>
 
-        <div class="pessoas-grid" id="pessoas-list" style="margin-top: 24px;">
-          <!-- Lista carregada via JS -->
+        <div class="section-card bloco-pessoas" id="box-enviados" hidden>
+          <h3>Pedidos enviados <span class="qtd neutro" id="qtd-enviados">0</span></h3>
+          <p class="subtitle">Aguardando a outra pessoa aceitar.</p>
+          <div class="pessoas-grid" id="lista-enviados"></div>
+        </div>
+
+        <div class="section-card bloco-pessoas">
+          <h3>Suas pessoas</h3>
+          <p class="subtitle">Quem já aceitou: vocês partilham atualizações e podem conversar.</p>
+          <div class="pessoas-grid" id="pessoas-list"></div>
         </div>
       </div>
 
@@ -618,6 +678,43 @@
         </div>
       </div>
 
+      <!-- PAINEL 5: ARMAZENAMENTO (banco de dados e limpeza) -->
+      <div id="sec-armazenamento" class="tab-panel" style="display:none;">
+        <div class="section-card">
+          <h3 class="com-icone"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg> Uso do Banco de Dados</h3>
+          <p class="subtitle">A base de dados tem um limite total de 5 GB. Ao atingir 4 GB, o sistema irá apagar registos muito antigos automaticamente para preservar espaço.</p>
+          <div id="uso-container"><p class="mut">A calcular armazenamento...</p></div>
+        </div>
+
+        <div class="section-card" style="margin-top: 24px;">
+          <h3 class="com-icone"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> Ferramentas de Limpeza</h3>
+          <p class="subtitle">Liberte espaço no sistema apagando dados antigos manualmente ou limpando os dados locais do seu dispositivo.</p>
+          <div class="form-grid">
+            <div class="action-box">
+              <div>
+                <b>FAAs e Pastas SAME</b>
+                <p>Apaga registos de FAAs, SAME e Provisórias concluídos que tenham mais de 90 dias.</p>
+              </div>
+              <button class="ghost" type="button" onclick="limparFaaS()">Apagar FAAs Antigas</button>
+            </div>
+            <div class="action-box">
+              <div>
+                <b>Mensagens e PDFs do Chat</b>
+                <p>Apaga mensagens e documentos enviados há mais de 30 dias em todas as suas conversas.</p>
+              </div>
+              <button class="ghost" type="button" onclick="limparChat()">Limpar Chat Antigo</button>
+            </div>
+            <div class="action-box">
+              <div>
+                <b>Limpar Cache Local</b>
+                <p>Resolve problemas de lentidão limpando os ficheiros temporários do navegador (não apaga dados do servidor).</p>
+              </div>
+              <button class="ghost" type="button" onclick="limparCache()">Limpar Cache</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -670,6 +767,7 @@ function mudarAba(aba) {
   clearInterval(tPessoas);
   if (aba === 'pessoas') { carregarPessoas(); tPessoas = setInterval(carregarPessoas, 30000); }
   if (aba === 'recuperacao') statusRecuperacao();
+  if (aba === 'armazenamento') carregarUso();
 }
 
 function atualizarPreview() {
@@ -783,53 +881,105 @@ function escolherFoto(inp) {
 }
 function removerFoto() { fotoAtual = ''; atualizarPreview(); aviso('Foto removida. Clique em Guardar Alterações.'); }
 
-/* Pessoas */
-let PESSOAS = [];
+/* Pessoas: sugestões, pedidos e aceitação */
+let PESSOAS = [], SUGESTOES = [], PED_REC = [], PED_ENV = [], SQL_PEDIDOS_OK = true;
+
 async function carregarPessoas() {
-  const { data } = await db.rpc('listar_contatos');
-  PESSOAS = data || [];
+  const [c, s, pd] = await Promise.all([db.rpc('listar_contatos'), db.rpc('contato_sugestoes'), db.rpc('contato_pedidos')]);
+  PESSOAS = c.data || [];
+  SQL_PEDIDOS_OK = !(s.error || pd.error);
+  SUGESTOES = Array.isArray(s.data) ? s.data : [];
+  const ped = (pd.data && typeof pd.data === 'object') ? pd.data : {};
+  PED_REC = ped.recebidos || []; PED_ENV = ped.enviados || [];
   $('stat-pessoas').textContent = PESSOAS.length;
+  const b = $('badge-pessoas'); if (b) { b.hidden = !PED_REC.length; b.textContent = PED_REC.length > 99 ? '99+' : PED_REC.length; }
   renderPessoas();
 }
 
-function renderPessoas() {
-  const listBox = $('pessoas-list');
-
-  if (!PESSOAS.length) {
-    if (listBox) listBox.innerHTML = '<p class="mut" style="font-size:14px;">Nenhuma pessoa adicionada ainda.</p>';
-    return;
-  }
-
-  const htmlList = PESSOAS.map(p => {
-    const f = fotoOk(p.foto), nome = p.nome || p.usuario;
-    return `
-    <div class="pessoa-card">
+function cartaPessoa(p, acoes, extra) {
+  const f = fotoOk(p.foto), nome = p.nome || p.usuario || '?';
+  return `
+    <div class="pessoa-card${extra || ''}">
       <div class="pessoa-info-box">
         <div class="pessoa-avatar">${f ? `<img src="${esc(f)}" alt="">` : esc((nome[0] || '?').toUpperCase())}</div>
-        <div class="pessoa-info">
-          <b>${esc(nome)}</b>
-          <span>@${esc(p.usuario)}</span>
-        </div>
+        <div class="pessoa-info"><b>${esc(nome)}</b><span>@${esc(p.usuario)}</span></div>
       </div>
-      <div class="pessoa-acoes">
-        <button onclick="abrirChat('${esc(p.usuario)}')" style="color:var(--pri);">Conversar</button>
-        <button onclick="removerPessoa('${esc(p.usuario)}')" style="color:#ef4444;">Remover</button>
-      </div>
+      <div class="pessoa-acoes">${acoes}</div>
     </div>`;
+}
+
+function renderPessoas() {
+  const btn = (acao, u, txt, cls) => `<button type="button" class="btn-sm ${cls || ''}" data-acao="${acao}" data-u="${esc(u)}">${txt}</button>`;
+
+  $('box-recebidos').hidden = !PED_REC.length;
+  $('qtd-recebidos').textContent = PED_REC.length;
+  $('lista-recebidos').innerHTML = PED_REC.map(p => cartaPessoa(p, btn('recusar', p.usuario, 'Recusar', 'perigo') + btn('aceitar', p.usuario, 'Aceitar'), ' pedido')).join('');
+
+  const box = $('lista-sugestoes');
+  if (!SQL_PEDIDOS_OK) box.innerHTML = '<p class="pessoas-vazio-txt">As sugestões ainda não estão ativas: rode o arquivo <b>banco_de_dado_aceitacao.txt</b> no SQL Editor do Supabase.</p>';
+  else if (!SUGESTOES.length) box.innerHTML = '<p class="pessoas-vazio-txt">Não há mais ninguém para sugerir agora. Quando alguém criar conta, aparece aqui.</p>';
+  else box.innerHTML = SUGESTOES.map(p => {
+    let acao;
+    if (p.recebido) acao = btn('aceitar', p.usuario, 'Aceitar pedido');
+    else if (p.enviado) acao = btn('cancelar', p.usuario, 'Pedido enviado · cancelar', 'sec');
+    else acao = btn('pedir', p.usuario, '+ Adicionar');
+    return cartaPessoa(p, acao);
   }).join('');
 
-  if (listBox) listBox.innerHTML = htmlList;
+  $('box-enviados').hidden = !PED_ENV.length;
+  $('qtd-enviados').textContent = PED_ENV.length;
+  $('lista-enviados').innerHTML = PED_ENV.map(p => cartaPessoa(p, btn('cancelar', p.usuario, 'Cancelar pedido', 'sec'))).join('');
+
+  $('pessoas-list').innerHTML = !PESSOAS.length
+    ? '<p class="pessoas-vazio-txt">Nenhuma pessoa adicionada ainda.</p>'
+    : PESSOAS.map(p => cartaPessoa(p, `<button type="button" class="btn-sm sec" data-acao="conversar" data-u="${esc(p.usuario)}" style="color:var(--pri);">Conversar</button>` + btn('remover', p.usuario, 'Remover', 'perigo'))).join('');
+}
+
+const MSG_PEDIDO = {
+  ok: u => 'Pedido enviado para @' + u + '. A partilha começa quando a pessoa aceitar.',
+  aceito: u => '@' + u + ' já tinha pedido para você: agora vocês partilham!',
+  ja_contato: u => '@' + u + ' já está na sua lista.',
+  ja_pendente: u => 'Você já enviou um pedido para @' + u + '.',
+  nao_encontrado: u => 'Não encontrei @' + u + '.',
+  proprio: () => 'Esse é o seu próprio utilizador.',
+  sem_permissao: () => 'Sessão inválida. Entre de novo.'
+};
+
+async function solicitarPessoa(u) {
+  const { data, error } = await db.rpc('contato_solicitar', { p_usuario: u });
+  if (error) return aviso(/contato_solicitar/.test(error.message || '') ? 'Rode o banco_de_dado_aceitacao.txt no Supabase (função contato_solicitar).' : 'Erro: ' + error.message);
+  const f = MSG_PEDIDO[data]; aviso(f ? f(u) : 'Não foi possível enviar o pedido para @' + u);
+  await carregarPessoas();
 }
 
 async function adicionarPessoa() {
   const u = $('new-person-user').value.trim().replace(/^@/, '').toLowerCase();
   if (!u) return aviso('Preencha o utilizador.');
   $('btn-add-pessoa').disabled = true;
-  const { data, error } = await db.rpc('adicionar_contato', { p_usuario: u });
+  await solicitarPessoa(u);
   $('btn-add-pessoa').disabled = false;
+  $('new-person-user').value = '';
+}
+
+async function responderPedido(u, aceitar) {
+  const msg = aceitar
+    ? 'Quer realmente aceitar @' + u + '?\n\nVocês vão passar a se ver e a partilhar atualizações.'
+    : 'Recusar o pedido de @' + u + '?';
+  if (!confirm(msg)) return;
+  const { data, error } = await db.rpc('contato_responder', { p_usuario: u, p_aceitar: aceitar });
   if (error) return aviso('Erro: ' + error.message);
-  if (data === 'ok') { $('new-person-user').value = ''; carregarPessoas(); aviso('@' + u + ' adicionado!'); }
-  else aviso('Não foi possível adicionar @' + u);
+  if (data === 'ok') aviso('@' + u + ' aceito! Agora vocês partilham.');
+  else if (data === 'recusado') aviso('Pedido de @' + u + ' recusado.');
+  else if (data === 'nao_encontrado') aviso('Esse pedido não existe mais.');
+  else aviso('Não foi possível concluir (' + data + ').');
+  await carregarPessoas();
+}
+
+async function cancelarPedido(u) {
+  const { error } = await db.rpc('contato_cancelar', { p_usuario: u });
+  if (error) return aviso('Erro: ' + error.message);
+  aviso('Pedido para @' + u + ' cancelado.');
+  await carregarPessoas();
 }
 
 function abrirChat(u) { window.location.href = 'chat.html?u=' + encodeURIComponent(u); }
@@ -839,6 +989,19 @@ async function removerPessoa(u) {
   await db.rpc('remover_contato', { p_usuario: u });
   carregarPessoas();
 }
+
+$('sec-pessoas').addEventListener('click', e => {
+  const b = e.target.closest('[data-acao]'); if (!b) return;
+  const u = b.dataset.u;
+  ({
+    pedir: () => { b.disabled = true; solicitarPessoa(u); },
+    aceitar: () => responderPedido(u, true),
+    recusar: () => responderPedido(u, false),
+    cancelar: () => cancelarPedido(u),
+    conversar: () => abrirChat(u),
+    remover: () => removerPessoa(u)
+  }[b.dataset.acao] || (() => {}))();
+});
 
 /* Recuperação */
 async function statusRecuperacao() {
@@ -889,6 +1052,61 @@ async function sairApp() {
   window.location.href = 'index.html';
 }
 
+/* Armazenamento */
+const fmtMB = b => (b / (1024 * 1024)).toFixed(2) + ' MB';
+const fmtGB = b => (b / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+
+async function carregarUso() {
+  const { data, error } = await db.rpc('chat_uso');
+  if (error || !data) {
+    $('uso-container').innerHTML = '<p class="mut">Não foi possível carregar os dados de uso.</p>';
+    return;
+  }
+  const bTotal = data.banco_bytes || 0, bChat = data.chat_bytes || 0, bPdf = data.pdf_bytes || 0;
+  const limite = 5 * 1024 * 1024 * 1024;
+  const pct = Math.min(100, (bTotal / limite) * 100).toFixed(1);
+  $('uso-container').innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+      <span style="font-size: 14px; font-weight: 700; color: var(--mut); text-transform: uppercase;">Armazenamento Total (Banco de Dados)</span>
+      <b style="font-size: 16px;">${fmtGB(bTotal)} / 5.00 GB <span style="color:var(--mut); font-size:13px; font-weight:normal;">(${pct}%)</span></b>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+    <div class="stats-row">
+      <div class="stat-card"><span>Tamanho do Chat</span><b>${fmtMB(bChat)}</b></div>
+      <div class="stat-card"><span>Qtd. de Mensagens</span><b>${data.mensagens || 0}</b></div>
+      <div class="stat-card"><span>Qtd. de PDFs</span><b>${data.pdfs || 0} <small>(${fmtMB(bPdf)})</small></b></div>
+    </div>`;
+}
+
+async function limparFaaS() {
+  if (!confirm('Tem a certeza de que deseja apagar todas as FAAs, Pastas SAME e Provisórias concluídas que tenham mais de 90 dias? Esta ação não pode ser desfeita.')) return;
+  const { data, error } = await db.rpc('chamar_limpeza_manual', { p_dias: 90 });
+  if (error) return aviso('Erro na limpeza: ' + error.message);
+  aviso('Limpeza concluída! ' + ((data && data.apagadas) ? data.apagadas : 0) + ' registos antigos foram apagados.');
+  carregarUso();
+}
+
+async function limparChat() {
+  if (!confirm('Tem a certeza de que deseja apagar todas as mensagens e ficheiros PDF das SUAS conversas enviadas há mais de 30 dias? Isso apagará os ficheiros para si e para quem os recebeu.')) return;
+  const { data, error } = await db.rpc('chat_limpar', { p_modo: 'tudo', p_dias: 30 });
+  if (error) return aviso('Erro na limpeza do chat: ' + error.message);
+  aviso('Limpeza do chat concluída! ' + ((data && data.apagadas) ? data.apagadas : 0) + ' mensagens/PDFs apagados.');
+  carregarUso();
+}
+
+function limparCache() {
+  if (!confirm('Deseja limpar os ficheiros temporários do navegador? Isto não apaga mensagens nem relatórios do servidor, mas a página vai recarregar.')) return;
+  const manter = ['fluxo_tema', 'fluxo_accent', 'fluxo_fundo', 'fluxo_fonte'];
+  const guardados = [];
+  try {
+    Object.keys(localStorage).forEach(k => { if (manter.indexOf(k) !== -1 || k.startsWith('sb-')) guardados.push([k, localStorage.getItem(k)]); });
+    localStorage.clear(); sessionStorage.clear();
+    guardados.forEach(([k, v]) => localStorage.setItem(k, v));
+  } catch (e) {}
+  window.location.hash = 'armazenamento';
+  window.location.reload();
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   if (!db) return;
   const { data } = await db.auth.getSession();
@@ -901,7 +1119,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   await carregarPerfil();
 
   const abaPedida = (location.hash || '').replace('#', '');
-  if (['perfil', 'pessoas', 'recuperacao', 'aparencia'].indexOf(abaPedida) !== -1) mudarAba(abaPedida);
+  if (['perfil', 'pessoas', 'recuperacao', 'aparencia', 'armazenamento'].indexOf(abaPedida) !== -1) mudarAba(abaPedida);
 });
 </script>
 </body>

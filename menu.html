@@ -214,8 +214,8 @@
   .pessoas-vazio { padding: 10px; text-align: center; color: var(--mut); font-size: 12px; }
   .sidebar.recolhida .pessoas-vazio { display: none; }
 
-  .app-layout { margin-left: 240px; width: calc(100% - 240px); transition: margin-left 0.2s ease, width 0.2s ease; }
-  .sidebar.recolhida ~ .app-layout { margin-left: 76px; width: calc(100% - 76px); }
+  .app-layout { margin-left: 240px; transition: margin-left 0.2s ease; }
+  .sidebar.recolhida ~ .app-layout { margin-left: 76px; }
 
   /* CALENDÁRIO E GRÁFICO DO DASHBOARD */
   .dash-grid-extra { display: grid; grid-template-columns: minmax(260px, 1fr) minmax(260px, 1fr); gap: 16px; margin-bottom: 16px; }
@@ -225,10 +225,10 @@
   .cal-legenda { display: flex; gap: 12px; font-size: 11px; color: var(--mut); margin-bottom: 8px; flex-wrap: wrap; }
   .cal-legenda span { display: inline-flex; align-items: center; gap: 4px; }
   .cal-legenda i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; width: 100%; min-width: 0; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
   .cal-dsemana { font-size: 10px; color: var(--mut); text-align: center; font-weight: 700; text-transform: uppercase; }
-  .cal-dia { position: relative; aspect-ratio: 1; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 8px; color: var(--tx); }
-  .cal-dia.cal-branco { visibility: hidden; }
+  .cal-dia { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 12px; border-radius: 8px; color: var(--tx); }
+  .cal-dia.vazio { visibility: hidden; }
   .cal-dia.hoje { outline: 1.5px solid var(--pri); font-weight: 800; }
   .cal-pontos { position: absolute; bottom: 3px; display: flex; gap: 2px; }
   .cal-pontos i { width: 5px; height: 5px; border-radius: 50%; display: inline-block; }
@@ -283,6 +283,7 @@
   .st-amarela  { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,.22); }
   .st-vermelha { background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.22); }
   .st-azul     { background: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.22); }
+  .st-roxa { background: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,.22); }
   
   .rel-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
   .rel-tab { padding: 8px 18px; border-radius: 20px; border: 1px solid var(--bd); background: var(--bg); color: var(--mut); font: inherit; font-weight: 700; font-size: 13.5px; cursor: pointer; display:inline-flex; align-items:center;}
@@ -317,6 +318,7 @@
   .st-badge.amarela  { background: rgba(245,158,11,.14); border-color: rgba(245,158,11,.55); }
   .st-badge.vermelha { background: rgba(220,38,38,.12);  border-color: rgba(220,38,38,.55); }
   .st-badge.azul     { background: rgba(37,99,235,.12);  border-color: rgba(37,99,235,.55); }
+  .st-badge.roxa { background: rgba(220,38,38,.12); border-color: rgba(220,38,38,.55); }
   .st-menu { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); z-index: 20; min-width: 190px; background: var(--card); border: 1px solid var(--bd); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 6px; display: flex; flex-direction: column; gap: 2px; text-align: left; }
   .st-menu button { border: 0; background: none; color: var(--tx); font: inherit; font-size: 13px; font-weight: 600; text-align: left; padding: 8px 10px; border-radius: 6px; cursor: pointer; }
   .st-menu button:hover { background: var(--bg); color: var(--pri); }
@@ -332,6 +334,7 @@
   .pro-ok i { background: var(--pri); }
   .pro-alerta i { background: #f59e0b; }
   .pro-atrasado i { background: #dc2626; }
+  .pro-urgente i { background: #dc2626; }
   .pro-conc i { background: #2563eb; }
   
   .rel-det { margin: 12px 0 2px; padding: 14px; background: var(--bg); border: 1px solid var(--bd); border-radius: 10px; font-size: 13px; line-height: 1.6; }
@@ -408,8 +411,8 @@
     #folha { position: absolute; left: 0; top: 0; width: 100%; min-height: 0; padding: 0; border: none; box-shadow: none; zoom: 1 !important; }
   }
 
-  :root:not([data-theme="dark"]) { --trilho: #eef1f5; --alerta-bg: #fdecec; --alerta-tx: #b91c1c; --atraso-bg: #fff5f5; }
-  :root[data-theme="dark"] { --trilho: rgba(255,255,255,0.08); --alerta-bg: rgba(220,38,38,0.16); --alerta-tx: #fca5a5; --atraso-bg: rgba(220,38,38,0.14); }
+  :root:not([data-theme="dark"]) { --trilho: #eef1f5; --alerta-bg: #fdecec; --alerta-tx: #b91c1c; --atraso-bg: #fff5f5; --urg-bg: #fef2f2; --urg-tx: #b91c1c; }
+  :root[data-theme="dark"] { --trilho: rgba(255,255,255,0.08); --alerta-bg: rgba(220,38,38,0.16); --alerta-tx: #fca5a5; --atraso-bg: rgba(220,38,38,0.14); --urg-bg: rgba(220,38,38,0.18); --urg-tx: #fca5a5; }
 
   :root:not([data-theme="dark"]) body, :root[data-theme="light"] body { background: #f4f6fa !important; }
   :root:not([data-theme="dark"]) { --bg: #f4f6fa; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --bd: #e6eaf0; }
@@ -457,6 +460,7 @@
   #rel-busca { border-radius: 16px !important; padding: 16px 16px 16px 44px !important; background: var(--card) !important; }
   .rel-item { border-radius: 20px !important; padding: 16px !important; border: 1px solid var(--bd) !important; background: var(--card) !important; margin-bottom: 12px !important; box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.04); }
   .rel-item.atrasado-topo { border: 1px solid #f0a5a5 !important; background: var(--atraso-bg) !important; }
+  .rel-item.urgente-topo { border: 1px solid #dc2626 !important; background: var(--urg-bg) !important; }
   
   .rel-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto !important; grid-template-areas: "tit seta" "pro ven" "st msg" !important; gap: 12px 16px !important; align-items: center !important; }
   .rel-row .c-tit { grid-area: tit; min-width: 0; }
@@ -469,6 +473,8 @@
   
   .c-tit .tit { display: inline !important; font-size: 17px !important; font-weight: 800 !important; }
   .tag-atr { display: inline-block; margin-left: 8px; padding: 3px 10px; border-radius: 999px; background: var(--alerta-bg); color: var(--alerta-tx); font-size: 12px; font-weight: 700; vertical-align: middle; }
+  .tag-urg { background: #dc2626 !important; color: #fff !important; }
+  .tag-urg { display: inline-block; margin-left: 8px; padding: 3px 10px; border-radius: 999px; background: var(--urg-bg); color: var(--urg-tx); font-size: 12px; font-weight: 700; vertical-align: middle; }
   .c-tit .sub { font-size: 14px !important; color: var(--mut) !important; margin-top: 4px !important; }
   .c-tit .sub b { color: var(--tx); font-weight: 600; }
   .pro-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--mut); font-weight: 600; margin-bottom: 8px; }
@@ -479,6 +485,7 @@
   .c-ven svg { stroke: currentColor !important; width: 18px !important; height: 18px !important; }
   .st-badge { border-radius: 14px !important; padding: 10px 16px !important; background: var(--card) !important; border: 1px solid var(--bd) !important; font-size: 15px !important; font-weight: 700 !important; color: var(--tx); }
   .st-badge.amarela, .st-badge.vermelha, .st-badge.azul { background: var(--card) !important; border-color: var(--bd) !important; }
+  .st-badge.roxa { background: var(--card) !important; border-color: var(--bd) !important; }
   .ic-btn.seta { background: var(--trilho) !important; border-radius: 12px !important; width: 40px !important; height: 40px !important; border: 0 !important; }
   .ic-btn.seta svg { stroke: var(--mut) !important; }
   #rel-lista { margin-top: 4px !important; }
@@ -508,7 +515,7 @@
     .sidebar, .sidebar.recolhida { width: 280px; max-width: 86vw; height: 100vh; height: 100dvh; transform: translateX(-100%); transition: transform .25s ease; z-index: 120; }
     .sidebar.aberta-mobile { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,.35); }
     .sb-toggle svg, .sidebar.recolhida .sb-toggle svg { transform: rotate(180deg); }
-    .app-layout, .sidebar.recolhida ~ .app-layout { margin-left: 0; width: 100%; }
+    .app-layout, .sidebar.recolhida ~ .app-layout { margin-left: 0; }
     header { padding: 14px 14px 6px !important; gap: 10px !important; }
     .topo-titulo { flex: 1; min-width: 0; }
     .topo-titulo h1 { font-size: 24px !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -603,7 +610,7 @@
   .sp-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: transparent; color: var(--tx); padding: 10px 8px; border-radius: 12px; cursor: pointer; font: inherit; }
   .sp-item:hover { background: var(--bg); }
   .sp-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  .sp-dot.verm { background: #dc2626; } .sp-dot.amar { background: #f59e0b; } .sp-dot.azul { background: var(--pri); }
+  .sp-dot.verm { background: #dc2626; } .sp-dot.amar { background: #f59e0b; } .sp-dot.azul { background: var(--pri); } .sp-dot.rox { background: #dc2626; }
   .sp-tx { flex: 1; min-width: 0; }
   .sp-tx b { display: block; font-size: 14px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .sp-tx small { display: block; font-size: 12.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -652,7 +659,107 @@
     .esc-folha { max-width: none; max-height: 92vh; border-radius: 20px 20px 0 0; border-bottom: 0; }
     .esc-bloco { flex-basis: 180px; }
   }
-  </style>
+    /* cards de status: quatro alinhados + um grandão (Jurídico / Urgente) */
+  .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  .metric-card.grande { grid-column: 1 / -1; padding: 22px 26px !important; border-color: #dc2626 !important; background: var(--urg-bg) !important; }
+  .metric-card.grande span { font-size: 14px !important; color: var(--urg-tx) !important; }
+  .metric-card.grande b { font-size: 64px !important; line-height: 1; color: var(--urg-tx); }
+  .metric-card.grande small { font-size: 13px; font-weight: 600; color: var(--mut); }
+  @media (max-width: 720px) { .dash-metrics { grid-template-columns: 1fr 1fr !important; } .metric-card.grande b { font-size: 52px !important; } }
+  /* escala dentro do calendário semanal */
+  .cs-esc-tit { margin: 8px 0 2px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--mut); }
+  .cal-esc { display: block; border-radius: 8px; padding: 5px 8px; background: rgba(13,148,136,.13); font-size: 12px; line-height: 1.25; }
+  .cal-esc b { display: block; font-weight: 800; color: var(--tx); }
+  .cal-esc span { color: var(--mut); font-weight: 600; }
+  /* controle Jurídico / urgente (ao lado da data do pedido) */
+  .urg-box { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .urg-sw { position: relative; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px; border: 1px solid var(--bd); border-radius: 999px; background: var(--bg); color: var(--mut); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; cursor: pointer; white-space: nowrap; user-select: none; transition: all .15s; }
+  .urg-sw input { position: absolute; opacity: 0; width: 0; height: 0; padding: 0; margin: 0; border: 0; pointer-events: none; }
+  .urg-track { position: relative; width: 30px; height: 18px; border-radius: 999px; background: var(--bd); flex-shrink: 0; transition: background .15s; }
+  .urg-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+  .urg-sw:has(input:checked) { border-color: #dc2626; background: var(--urg-bg); color: var(--urg-tx); }
+  .urg-sw:has(input:checked) .urg-track { background: #dc2626; }
+  .urg-sw:has(input:checked) .urg-track::after { transform: translateX(12px); }
+  .urg-sw:has(input:focus-visible) { outline: 2px solid #dc2626; outline-offset: 2px; }
+  .urg-dias { display: inline-flex; border: 1px solid #dc2626; border-radius: 999px; overflow: hidden; }
+  .urg-dias[hidden] { display: none; }
+  .urg-dias button { border: 0; background: transparent; color: var(--urg-tx); font: inherit; font-size: 12px; font-weight: 700; padding: 6px 11px; cursor: pointer; }
+  .urg-dias button.on { background: #dc2626; color: #fff; }
+  /* caixa de observação */
+  .obs-box { margin-top: 12px; }
+  .obs-box label { display: block; font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--mut); }
+  .obs-box label small { margin-left: 6px; font-weight: 600; text-transform: none; }
+  #obs-faa { min-height: 72px; height: 72px; }
+  .obs-faa { break-inside: avoid; margin-top: 1.2em; padding-top: .5em; border-top: 1.5px solid #9ca3af; font-size: calc(var(--fs) * 1pt); }
+  .obs-faa b { display: block; font-weight: 800; }
+  .obs-faa span { display: block; margin-top: .25em; word-break: break-word; }
+  /* ===== Jurídico / urgente: vermelho com listras e pulso (atrasado = vermelho liso) ===== */
+  @keyframes urgPulse { 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.55); } 70% { box-shadow: 0 0 0 7px rgba(220,38,38,0); } 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); } }
+  .st-dot.st-roxa { animation: urgPulse 1.6s infinite; }
+  .pro-urgente i { background: repeating-linear-gradient(45deg, #dc2626 0 8px, #b91c1c 8px 16px) !important; }
+  .rel-item.urgente-topo { box-shadow: 0 0 0 1px rgba(220,38,38,.45); }
+  @media (prefers-reduced-motion: reduce) { .st-dot.st-roxa, .cd-bar.urg { animation: none !important; } }
+
+  /* ===== escala do dashboard: expandir para baixo ===== */
+  #escala-card.aberto .esc-grid { flex-wrap: wrap; overflow: visible; cursor: default; scroll-snap-type: none; }
+  #escala-card.aberto .esc-bloco { flex: 1 1 220px; }
+  #escala-card.aberto .esc-tarefa { display: block; -webkit-line-clamp: unset; overflow: visible; }
+  #escala-card.aberto .esc-seta { display: none; }
+
+  /* ===== calendário detalhado ===== */
+  #cal-det .card { margin-bottom: 16px; }
+  .cd-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .cd-opt { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--mut); }
+  .cd-opt input { width: auto; margin: 0; }
+  .cd-pessoas { margin: 4px 0 12px; }
+  .cd-pessoas .pill { padding: 6px 13px; font-size: 12.5px; }
+  .cd-pessoas .pill small { opacity: .75; margin-left: 4px; font-weight: 700; }
+  .cd-sub { margin: 4px 0 12px; font-size: 13px; color: var(--mut); }
+  .cd-leg i.q { border-radius: 3px; width: 14px; height: 8px; }
+  .cd-leg .l-amar { background: #f59e0b; } .cd-leg .l-verm { background: #dc2626; } .cd-leg .l-azul { background: #2563eb; }
+  .cd-leg .l-urg { background: repeating-linear-gradient(45deg, #dc2626 0 3px, #991b1b 3px 6px); }
+  .cd-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--bd); border-radius: 14px; background: var(--card); }
+  .cd-gantt { --cdw: 36px; --cd-lab: 190px; --n: 30; position: relative; min-width: calc(var(--cd-lab) + var(--n) * var(--cdw)); }
+  .cd-cab, .cd-row { display: grid; grid-template-columns: var(--cd-lab) repeat(var(--n), var(--cdw)); align-items: center; }
+  .cd-cab { border-bottom: 1px solid var(--bd); background: var(--bg); position: relative; z-index: 2; }
+  .cd-cab .cd-lab, .cd-row .cd-lab { position: sticky; left: 0; z-index: 3; background: var(--card); padding: 6px 12px; min-width: 0; border-right: 1px solid var(--bd); }
+  .cd-cab .cd-lab { background: var(--bg); font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--mut); letter-spacing: .05em; }
+  .cd-dia { text-align: center; font-size: 11px; line-height: 1.15; padding: 6px 0; color: var(--mut); font-weight: 700; }
+  .cd-dia b { display: block; font-size: 13px; color: var(--tx); }
+  .cd-dia.hoje b { background: var(--pri); color: #fff; border-radius: 999px; width: 24px; height: 24px; line-height: 24px; margin: 0 auto; }
+  .cd-fundo { position: absolute; top: 0; bottom: 0; left: var(--cd-lab); right: 0; display: grid; grid-template-columns: repeat(var(--n), var(--cdw)); z-index: 0; pointer-events: none; }
+  .cd-fundo i { border-left: 1px solid rgba(148,163,184,.14); } .cd-fundo i.fds { background: rgba(148,163,184,.08); } .cd-fundo i.hoje { background: rgba(var(--pri-rgb), .10); border-left-color: var(--pri); }
+  .cd-pess-tit { position: relative; z-index: 1; background: var(--bg); border-top: 1px solid var(--bd); border-bottom: 1px solid var(--bd); font-weight: 800; font-size: 13px; }
+  .cd-pess-in { position: sticky; left: 0; display: flex; align-items: center; gap: 8px; padding: 8px 12px; width: fit-content; max-width: 100vw; }
+  .cd-pess-in .esc-av { width: 24px; height: 24px; font-size: 11px; }
+  .cd-pess-in small { color: var(--mut); font-weight: 700; }
+  .cd-row { position: relative; z-index: 1; min-height: 44px; border-top: 1px solid rgba(148,163,184,.14); }
+  .cd-row .cd-lab b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cd-row .cd-lab small { display: block; font-size: 11.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cd-bar { grid-row: 1; height: 26px; margin: 0 2px; border: 0; border-radius: 13px; display: flex; align-items: center; gap: 6px; padding: 0 10px; font: inherit; font-size: 11.5px; font-weight: 800; color: #fff; cursor: pointer; overflow: hidden; white-space: nowrap; text-align: left; min-width: 0; transition: filter .12s, transform .12s; }
+  .cd-bar:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .cd-bar:focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
+  .cd-bar::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.95); flex-shrink: 0; }
+  .cd-bar.amarela { background: #f59e0b; color: #1f2937; } .cd-bar.amarela::before { background: #1f2937; }
+  .cd-bar.vermelha { background: #dc2626; }
+  .cd-bar.azul { background: #2563eb; }
+  .cd-bar.urg { background: repeating-linear-gradient(45deg, #dc2626 0 9px, #991b1b 9px 18px); animation: urgPulse 1.8s infinite; }
+  .cd-bar.corta-ini { border-top-left-radius: 4px; border-bottom-left-radius: 4px; } .cd-bar.corta-ini::before { display: none; }
+  .cd-bar.corta-fim { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
+  .cd-bar.conc { opacity: .8; }
+  .cd-vazio { padding: 28px 16px; text-align: center; color: var(--mut); }
+  .cd-esc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+  .cd-esc-grid .esc-bloco { flex: none; cursor: default; user-select: text; }
+  .cd-esc-grid .esc-bloco:hover { transform: none; box-shadow: none; }
+  .cd-esc-grid .em-lista li { font-size: 13.5px; padding: 8px 10px; }
+  @media (max-width: 760px) { .cd-gantt { --cdw: 32px; --cd-lab: 130px; } .cd-cab .cd-lab, .cd-row .cd-lab { padding: 6px 8px; } }
+
+  /* ===== rodapé do menu lateral: Perfil e Sair fixos embaixo ===== */
+  .sb-rodape { flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 10px 0; padding-bottom: env(safe-area-inset-bottom, 0px); border-top: 1px solid var(--bd); }
+  .sb-sair { color: var(--alerta-tx); }
+  .sb-sair:hover { background: var(--alerta-bg); color: var(--alerta-tx); }
+  .sidebar { overflow: hidden; }
+</style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
@@ -690,18 +797,34 @@
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h3M14 14h3"/></svg>
         <span class="sb-item-tx">Escala</span>
       </button>
+      <button type="button" class="sb-item" id="sb-cal" onclick="mudarAbaMenu('cal')" title="Calendário">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h6M11 18h6"/></svg>
+        <span class="sb-item-tx">Calendário</span>
+      </button>
     </nav>
 
     <div class="sb-pessoas">
       <div class="sb-grupo-cab">
         <span class="sb-grupo-tit">Pessoas</span>
-        <a href="chat.html?add=1" class="sb-add" title="Adicionar pessoa">
+        <a href="perfil.html#pessoas" class="sb-add" title="Adicionar pessoas">
           <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
         </a>
       </div>
       <div class="sb-pessoas-lista" id="sb-pessoas-lista">
         <p class="pessoas-vazio">A carregar...</p>
       </div>
+    </div>
+
+    <div class="sb-rodape">
+      <button type="button" class="sb-item" id="sb-perfil" onclick="window.location.href='perfil.html'" title="Perfil">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="sb-item-tx">Perfil</span>
+        <span class="sb-badge" id="sb-perfil-badge" hidden>0</span>
+      </button>
+      <button type="button" class="sb-item sb-sair" id="sb-sair" onclick="sair()" title="Sair da conta">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span class="sb-item-tx">Sair</span>
+      </button>
     </div>
   </aside>
   <div class="sb-overlay" id="sb-overlay" onclick="fecharDrawer()"></div>
@@ -746,14 +869,6 @@
             <div class="mc-av" id="mc-av">R</div>
             <div><b id="mc-nome">Sua conta</b><small id="mc-user">@</small></div>
           </div>
-          <a href="perfil.html" class="mc-item">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            Meu perfil
-          </a>
-          <button type="button" class="mc-item mc-sair" onclick="sair()">
-            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-            Sair da conta
-          </button>
         </div>
       </div>
     </header>
@@ -775,6 +890,14 @@
                 <span class="mut" style="font-size: 12px; font-weight: 700; text-transform: uppercase;">Pedido em:</span>
                 <input type="date" id="data-workspace" onchange="folha()" style="width: auto; margin: 0; padding: 4px; font-size: 14px; border: none; background: transparent; font-weight: 700; outline: none; color: var(--tx);" title="Data em que estas FAAs/Pastas foram pedidas">
               </div>
+              <div id="urg-box" class="urg-box">
+                <label class="urg-sw" title="Para casos jurídicos ou urgentes: prazo curto de 1 a 3 dias em vez de 20">
+                  <input type="checkbox" id="urg-chk" onchange="urgToggle()"><i class="urg-track"></i><span>Jurídico / urgente</span>
+                </label>
+                <div class="urg-dias" id="urg-dias" hidden>
+                  <button type="button" data-d="1" onclick="urgEscolher(1)">1 dia</button><button type="button" data-d="2" onclick="urgEscolher(2)">2 dias</button><button type="button" data-d="3" class="on" onclick="urgEscolher(3)">3 dias</button>
+                </div>
+              </div>
             </div>
 
             <!-- SELETOR DE TIPO (Visível apenas na aba SAME/Prov) -->
@@ -790,6 +913,10 @@
             <div class="row">
               <button class="ghost" onclick="exemplo()">Exemplo</button>
               <button class="ghost" onclick="zerar()">Limpar</button>
+            </div>
+            <div id="obs-box" class="obs-box">
+              <label for="obs-faa">Observação <small>aparece no documento, embaixo das datas</small></label>
+              <textarea id="obs-faa" maxlength="500" oninput="folha()" placeholder="Escreva o que quiser: número, data, aviso..."></textarea>
             </div>
             <div class="info-box">
               <b>Aviso:</b> Os dados são organizados em sequência automática. A data escolhida acima será salva na dashboard.
@@ -808,7 +935,7 @@
           <h2><svg class="ic-sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Pré-visualização do PDF</h2>
           
           <div class="row" style="margin:0 0 12px; justify-content: space-between;">
-            <div style="display:flex; gap:8px;">
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
               <button id="gerar" class="btn" onclick="pdf()" disabled><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Baixar PDF</button>
               <button id="imprimir" class="ghost" onclick="imprimirFolha()" disabled>Imprimir</button>
               <button id="btn-salvar-rel" class="btn" onclick="salvarRelatorio()" disabled title="Atalho: Ctrl+S">Salvar no dashboard</button>
@@ -840,11 +967,46 @@
         </section>
       </div>
 
+      <!-- CALENDÁRIO DETALHADO: FAAs (pedido → prazo) e escala, por pessoa -->
+      <div id="cal-det" style="display:none;width:100%">
+        <div class="card">
+          <div class="cd-topo">
+            <div class="cal-nav">
+              <button type="button" class="ic-btn" onclick="cdMover(-1)" aria-label="Mês anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+              <b id="cd-mes-ano">—</b>
+              <button type="button" class="ic-btn" onclick="cdMover(1)" aria-label="Próximo mês"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+            </div>
+            <div class="cal-ctrl">
+              <button type="button" class="mini-btn" onclick="cdHoje()">Hoje</button>
+              <label class="cd-opt"><input type="checkbox" id="cd-conc" onchange="renderCalDet()"> Mostrar concluídas</label>
+            </div>
+          </div>
+          <div class="pill-group cd-pessoas" id="cd-pessoas"></div>
+          <div class="cal-legenda cd-leg">
+            <span><i class="q l-amar"></i>No prazo / executando</span>
+            <span><i class="q l-verm"></i>Atrasada</span>
+            <span><i class="q l-urg"></i>Jurídico / urgente</span>
+            <span><i class="q l-azul"></i>Concluída (pedido → conclusão)</span>
+          </div>
+          <div class="cd-sub">Cada barra vai do <b>dia do pedido</b> até o <b>vencimento</b>. Toque na barra para abrir a FAA.</div>
+          <div class="cd-scroll" id="cd-linha"></div>
+        </div>
+
+        <div class="card" id="cd-escala">
+          <div class="esc-cab">
+            <div><h2 style="font-size:16px">Escala</h2><small class="mut" id="cd-esc-sub"></small></div>
+            <div class="esc-acoes"><a class="mini-btn" href="escala.html">Abrir escala (editar)</a></div>
+          </div>
+          <div class="cd-esc-grid" id="cd-esc-lista"></div>
+        </div>
+      </div>
+
       <!-- RELATÓRIO / DASHBOARD -->
       <div id="rel" style="width:100%">
         <div id="rel-alerta"></div>
         
         <div class="dash-metrics">
+          <div class="metric-card grande"><span><i class="st-dot st-roxa"></i>Jurídico / Urgente</span><b id="stat-urg">0</b><small>Prazo curto: 1 a 3 dias</small></div>
           <div class="metric-card"><span><i class="st-dot st-amarela"></i>Pendentes</span><b id="stat-pend">0</b></div>
           <div class="metric-card"><span><i class="st-dot st-amarela"></i>Executando</span><b id="stat-exec">0</b></div>
           <div class="metric-card"><span><i class="st-dot st-vermelha"></i>Atrasadas</span><b id="stat-atr">0</b></div>
@@ -865,6 +1027,7 @@
                   <button type="button" data-m="mes" onclick="calModo('mes')">Mês</button>
                   <button type="button" data-m="semana" onclick="calModo('semana')">Semana</button>
                 </div>
+                <button type="button" class="mini-btn pri" onclick="mudarAbaMenu('cal')" title="Calendário detalhado com os prazos e a escala">Ver mais</button>
               </div>
             </div>
             <div class="cal-legenda">
@@ -882,7 +1045,7 @@
             <div class="card" id="escala-card" style="margin-bottom:0" hidden>
               <div class="esc-cab">
                 <div><h2 style="font-size:16px">Escala de hoje</h2><small class="mut" id="escala-sub"></small></div>
-                <div class="esc-acoes"><button type="button" class="mini-btn" onclick="escalaRolar(-1)" aria-label="Rolar para a esquerda">‹</button><button type="button" class="mini-btn" onclick="escalaRolar(1)" aria-label="Rolar para a direita">›</button><a class="mini-btn" href="escala.html">Abrir escala</a></div>
+                <div class="esc-acoes"><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(-1)" aria-label="Rolar para a esquerda">‹</button><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(1)" aria-label="Rolar para a direita">›</button><button type="button" class="mini-btn" id="esc-expandir" onclick="escalaExpandir()" aria-expanded="false" title="Mostrar todas as pessoas, crescendo para baixo">Expandir ⌄</button><button type="button" class="mini-btn" onclick="mudarAbaMenu('cal'); setTimeout(function () { var e = $('cd-escala'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80)">Ver mais</button><a class="mini-btn" href="escala.html">Abrir escala</a></div>
               </div>
               <div class="esc-grid" id="escala-grid"></div>
             </div>
@@ -908,6 +1071,7 @@
               <button type="button" class="pill active" data-st="">Todos</button>
               <button type="button" class="pill" data-st="pendente">No Prazo</button>
               <button type="button" class="pill" data-st="atrasado">Atrasados</button>
+              <button type="button" class="pill" data-st="urgente">Jurídico / Urgente</button>
             </div>
           </div>
 
@@ -976,7 +1140,8 @@ const hoje = () => new Date().toLocaleDateString('pt-BR');
 const TITULOS_MENU = {
   dash: ['Dashboard', 'Fichas de atendimento (FAA)'],
   faa:  ['Fichas FAA', 'Nova ficha de atendimento'],
-  sameprov: ['Pastas SAME / Provisórias', 'Registo e conferência']
+  sameprov: ['Pastas SAME / Provisórias', 'Registo e conferência'],
+  cal: ['Calendário', 'FAAs, prazos e escala por pessoa']
 };
 
 const SESSAO_LIMITE_MS = 30 * 60 * 1000;
@@ -996,7 +1161,9 @@ async function verificarSessao() {
     if (localStorage.getItem('fluxo_expirar_inatividade') !== 'true') return;
     const ultima = SESSAO_ULTIMA || Number(localStorage.getItem('fluxo_ultima_atividade') || 0);
     if (ultima && Date.now() - ultima > SESSAO_LIMITE_MS) {
-      await encerrarSessao();
+      localStorage.removeItem('fluxo_ultima_atividade');
+      await db.auth.signOut();
+      window.location.href = 'index.html';
     }
   } catch (e) {}
 }
@@ -1046,6 +1213,8 @@ function mudarAbaMenu(aba) {
 
   if (aba === 'dash') {
     abrirRelatorio();
+  } else if (aba === 'cal') {
+    abrirCalendario();
   } else if (aba === 'sameprov') {
     // Ao clicar em same/prov, prepara a tela
     abaAtiva = $('tipo-entrada').value; // 'same' ou 'prov'
@@ -1106,25 +1275,10 @@ async function entrar(user) {
   atualizarConta(user); iniciarPresenca(); iniciarControleSessao(); await carregarPerfil(); await carregar(); mudarAbaMenu('dash'); carregarPessoas(); iniciarNotificacoes();
 }
 
-/* Sair: funciona mesmo sem internet. signOut() sozinho só limpa o aparelho se o servidor responder;
-   se a conexão falhar, a sessão continuava salva e o index.html jogava você de volta para o menu. */
-async function encerrarSessao() {
-  try { await Promise.race([db.auth.signOut(), new Promise(r => setTimeout(r, 2500))]); } catch (e) {}   // revoga no servidor (se der)
-  try { await db.auth.signOut({ scope: 'local' }); } catch (e) {}                                       // limpa aqui, sem depender da rede
-  try {
-    Object.keys(localStorage).forEach(k => { if (k.indexOf('sb-') === 0) localStorage.removeItem(k); });
-    ['fluxo_ultima_atividade', 'fluxo_expirar_inatividade'].forEach(k => localStorage.removeItem(k));
-    sessionStorage.clear();
-  } catch (e) {}
-  window.location.replace('index.html?logout=true');
-}
-db.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT') window.location.replace('index.html'); });
-window.addEventListener('pageshow', e => { if (e.persisted) db.auth.getSession().then(({ data }) => { if (!data.session) window.location.replace('index.html'); }); });
-
 async function sair() {
   clearTimeout(tSave); clearInterval(tPresenca);
-  try { if (pronto) await Promise.race([salvar(), new Promise(r => setTimeout(r, 3000))]); } catch (e) {}   // se o salvamento falhar, sai mesmo assim
-  await encerrarSessao();
+  if (pronto) await salvar();
+  await db.auth.signOut(); window.location.href = 'index.html';
 }
 
 function agendarSalvar() {
@@ -1159,17 +1313,23 @@ let REL = [];
 const dtBR = iso => iso.split('-').reverse().join('/');
 const isoHoje = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 
-async function logar(categoria, descricao, detalhe, dataIso, resp) {
+async function logar(categoria, descricao, detalhe, dataIso, resp, prazoUrg) {
   if (!db || !uid) return false;
   const isArqAuto = (categoria === 'same' || categoria === 'prov');
   const dadosInsert = { data: dataIso || isoHoje(), categoria, descricao, detalhe: detalhe || '', responsavel: resp || nomeUsuario(), status: isArqAuto ? 'concluido' : 'pendente' };
   if (isArqAuto) dadosInsert.concluido_em = new Date().toISOString();
+  if (prazoUrg >= 1 && prazoUrg <= 3) { dadosInsert.prazo_urgente = prazoUrg; dadosInsert.urgente_desde = dadosInsert.data; }
   const { error } = await db.from('relatorio').insert(dadosInsert);
   if (!error && $('rel').style.display !== 'none') carregarRel();
   return !error;
 }
 
 const PRAZO_DIAS = 20, ALERTA_DIAS = 10, ARQ_PAG = 50;
+// Jurídico / urgente: prazo curto (1 a 3 dias) guardado na coluna prazo_urgente; vazio = prazo normal
+const ehUrgente = r => Number(r.prazo_urgente) >= 1 && Number(r.prazo_urgente) <= 3;
+const prazoDe = r => ehUrgente(r) ? Number(r.prazo_urgente) : PRAZO_DIAS;
+// o prazo curto conta a partir do dia em que foi marcado como urgente (urgente_desde); senão, do dia do pedido
+const baseDe = r => (ehUrgente(r) && r.urgente_desde) ? r.urgente_desde : r.data;
 const parseIso = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
 const isoDe = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const somaDias = (iso, n) => { const d = parseIso(iso); d.setDate(d.getDate() + n); return isoDe(d); };
@@ -1179,17 +1339,21 @@ const ST = {
   pendente:   { rot: 'Pendente (no prazo)', curto: 'Pendente',   cor: 'amarela' },
   executando: { rot: 'Executando',          curto: 'Executando', cor: 'amarela' },
   atrasado:   { rot: 'Atrasado',            curto: 'Atrasado',   cor: 'vermelha' },
-  concluido:  { rot: 'Concluído',           curto: 'Concluído',  cor: 'azul' }
+  concluido:  { rot: 'Concluído',           curto: 'Concluído',  cor: 'azul' },
+  urgente:    { rot: 'Jurídico / Urgente',  curto: 'Urgente',    cor: 'roxa' }
 };
-const COLS_REL = 'id, user_id, data, categoria, responsavel, descricao, detalhe, status, executor, executor_id, iniciado_em, concluido_em';
+const COLS_REL_BASE = 'id, user_id, data, categoria, responsavel, descricao, detalhe, status, executor, executor_id, iniciado_em, concluido_em';
+const COLS_REL_URG = COLS_REL_BASE + ', prazo_urgente';
+let COLS_REL = COLS_REL_URG + ', urgente_desde';
 let ARQ = [], ARQ_TOTAL = 0, relAba = 'ativos', ABERTOS = new Set(), tBuscaArq, arqSeq = 0, alertaFechado = false, MENU_ID = null;
 
 function statusDe(r) {
   if (r.status === 'concluido') return 'concluido';
-  if (diasEntre(r.data, isoHoje()) > PRAZO_DIAS) return 'atrasado';
+  if (diasEntre(baseDe(r), isoHoje()) > prazoDe(r)) return 'atrasado';
+  if (ehUrgente(r)) return 'urgente';
   return r.status === 'executando' ? 'executando' : 'pendente';
 }
-const emAlerta = r => { if (r.status === 'concluido') return false; const d = diasEntre(r.data, isoHoje()); return d <= PRAZO_DIAS && (PRAZO_DIAS - d) <= ALERTA_DIAS; };
+const emAlerta = r => { if (r.status === 'concluido') return false; const d = diasEntre(baseDe(r), isoHoje()), P = prazoDe(r); return d <= P && (P - d) <= ALERTA_DIAS; };
 
 let ESC_LISTA = [], ESC_I = 0;
 const escItens = t => String(t || '').split(/[\n;,]+/).map(x => x.trim()).filter(Boolean).map(x => x.charAt(0).toUpperCase() + x.slice(1));
@@ -1200,9 +1364,9 @@ async function carregarEscalaHoje() {
   const { data, error } = await db.rpc('escala_hoje');
   if (error) { card.hidden = true; return; }   // SQL da escala ainda não rodou: não mostra o bloco
   const lista = Array.isArray(data) ? data : [];
-  ESC_LISTA = lista;
+  ESC_LISTA = lista; renderCalendarioDash(); if (calDetAberto()) renderCalDet();
   $('escala-sub').textContent = escDataHoje() + (lista.length ? ' · ' + lista.length + (lista.length === 1 ? ' pessoa' : ' pessoas') : '');
-  card.hidden = false;
+  card.hidden = false; escalaAplicarExpandido();
   if (!lista.length) { $('escala-grid').innerHTML = '<p class="mut" style="margin:0">Nenhuma escala montada ainda. <a href="escala.html" style="color:var(--pri);font-weight:700">Montar escala</a></p>'; return; }
   $('escala-grid').innerHTML = lista.map((x, i) => {
     const nome = x.nome || x.usuario, t = (x.tarefas || '').trim();
@@ -1275,24 +1439,31 @@ document.addEventListener('keydown', e => {
 });
 
 async function carregarRel() {
-  const { data, error } = await db.from('relatorio').select(COLS_REL).order('id', { ascending: false }).limit(500);
+  let { data, error } = await db.from('relatorio').select(COLS_REL).order('id', { ascending: false }).limit(500);
+  if (error && /prazo_urgente|urgente_desde/.test(error.message || '') && COLS_REL !== COLS_REL_BASE) {
+    // coluna ainda não criada no Supabase: segue sem ela (rode o sql-prazo-urgente.sql)
+    COLS_REL = (COLS_REL !== COLS_REL_URG && /urgente_desde/.test(error.message || '') && !/prazo_urgente/.test(error.message || '')) ? COLS_REL_URG : COLS_REL_BASE;
+    ({ data, error } = await db.from('relatorio').select(COLS_REL).order('id', { ascending: false }).limit(500));
+  }
   if (error) aviso('Erro ao carregar painel: ' + error.message);
-  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos();
+  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos(); if (calDetAberto()) renderCalDet();
 }
 function recarregarRel() { carregarRel(); if (relAba === 'arquivo') { if (arqCat) carregarArquivo(true); else contarArquivo(); } }
 const rerender = () => relAba === 'arquivo' ? renderArquivo() : renderAtivos();
 
 function atualizarAlerta() {
   const box = $('rel-alerta'); 
-  const aVencer = REL.filter(emAlerta).length;
+  const aVencer = REL.filter(r => emAlerta(r) && !ehUrgente(r)).length;
+  const urgentes = REL.filter(r => statusDe(r) === 'urgente').length;
   const atrasados = REL.filter(r => statusDe(r) === 'atrasado').length;
-  const totalAvisos = aVencer + atrasados;
+  const totalAvisos = aVencer + urgentes + atrasados;
   
   AVISOS_PRAZO = totalAvisos; atualizarBadgeSino();
 
-  if (alertaFechado || (!aVencer && !atrasados)) { box.innerHTML = ''; return; }
+  if (alertaFechado || (!aVencer && !atrasados && !urgentes)) { box.innerHTML = ''; return; }
   
   const partes = [];
+  if (urgentes) partes.push('<b style="display:inline">' + urgentes + '</b> jurídico(s) urgente(s)');
   if (aVencer) partes.push('<b style="display:inline">' + aVencer + '</b> a vencer em até ' + ALERTA_DIAS + ' dias');
   if (atrasados) partes.push('<b style="display:inline">' + atrasados + '</b> atrasado(s)');
   
@@ -1301,6 +1472,7 @@ function atualizarAlerta() {
     <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
     <div class="txt"><b>Atenção aos prazos</b>${partes.join(' · ')}</div>
     <div class="bt">
+      ${urgentes ? '<button type="button" class="mini-btn" data-al="urgente">Ver urgentes</button>' : ''}
       ${aVencer ? '<button type="button" class="mini-btn" data-al="alerta">Ver a vencer</button>' : ''}
       ${atrasados ? '<button type="button" class="mini-btn" data-al="atrasado">Ver atrasados</button>' : ''}
       <button type="button" class="mini-btn" data-al="fechar">✕</button>
@@ -1390,6 +1562,14 @@ function checarAtrasosNovos() {
   try { localStorage.setItem('fluxo_notif_atraso', JSON.stringify(atr.map(r => r.id).slice(-300))); } catch (e) {}
 }
 
+function checarUrgentesNovos() {
+  const todos = REL.filter(r => r.user_id !== uid && ehUrgente(r) && r.status !== 'concluido');
+  let vistos = []; try { vistos = JSON.parse(localStorage.getItem('fluxo_notif_urgente') || '[]'); } catch (e) {}
+  const set = new Set(vistos), novos = todos.filter(r => !set.has(r.id) && statusDe(r) === 'urgente');
+  if (novos.length) notificar(novos.length === 1 ? 'FAA jurídica urgente' : novos.length + ' FAAs jurídicas urgentes', novos.length === 1 ? novos[0].descricao : 'Abra o Fluxo para ver quais são', 'urgente', 'menu.html');
+  try { localStorage.setItem('fluxo_notif_urgente', JSON.stringify(todos.map(r => r.id).slice(-300))); } catch (e) {}
+}
+
 function iniciarNotificacoes() {
   try {
     db.channel('menu-chat-' + uid)
@@ -1409,7 +1589,7 @@ document.addEventListener('click', e => { const p = $('sino-painel'); if (p && !
 function renderSino() {
   const hoje = isoHoje();
   const atr = REL.filter(r => statusDe(r) === 'atrasado').sort((a, b) => a.data.localeCompare(b.data));
-  const venc = REL.filter(emAlerta).sort((a, b) => a.data.localeCompare(b.data));
+  const venc = REL.filter(r => emAlerta(r) && !ehUrgente(r)).sort((a, b) => a.data.localeCompare(b.data));
   const msgs = MSG_CHAT.filter(x => (x.nao_lidas || 0) > 0);
   const plural = (n, a, b) => n + ' ' + (n === 1 ? a : b);
   const sec = (tit, n, corpo) => '<div class="sp-sec"><div class="sp-tit">' + tit + ' <span>' + n + '</span></div>' + corpo + '</div>';
@@ -1420,13 +1600,19 @@ function renderSino() {
     return '<button type="button" class="sp-item" data-sino="chat" data-u="' + esc(x.usuario) + '"><span class="sp-dot azul"></span><span class="sp-tx"><b>' + esc(nome) + '</b><small>' + esc((x.ultima_texto || '').replace(/\s+/g, ' ')) + '</small></span><span class="sp-n">' + x.nao_lidas + '</span></button>';
   }).join(''));
 
+  const urg = REL.filter(r => statusDe(r) === 'urgente').sort((a, b) => somaDias(a.data, prazoDe(a)).localeCompare(somaDias(b.data, prazoDe(b))));
+  if (urg.length) h += sec('Jurídico / Urgente', urg.length, urg.slice(0, 6).map(r => {
+    const d = prazoDe(r) - diasEntre(baseDe(r), hoje);
+    return '<button type="button" class="sp-item" data-sino="reg" data-id="' + r.id + '"><span class="sp-dot rox"></span><span class="sp-tx"><b>' + esc(r.descricao) + '</b><small>' + (d <= 0 ? 'vence hoje' : 'vence em ' + plural(d, 'dia', 'dias')) + (r.responsavel ? ' · ' + esc(r.responsavel) : '') + '</small></span></button>';
+  }).join(''));
+
   if (atr.length) h += sec('Atrasadas', atr.length, atr.slice(0, 6).map(r => {
-    const d = diasEntre(r.data, hoje) - PRAZO_DIAS;
+    const d = diasEntre(baseDe(r), hoje) - prazoDe(r);
     return '<button type="button" class="sp-item" data-sino="reg" data-id="' + r.id + '"><span class="sp-dot verm"></span><span class="sp-tx"><b>' + esc(r.descricao) + '</b><small>' + plural(d, 'dia', 'dias') + ' de atraso' + (r.responsavel ? ' · ' + esc(r.responsavel) : '') + '</small></span></button>';
   }).join('') + (atr.length > 6 ? '<button type="button" class="sp-mais" data-sino="todas">Ver todas as ' + atr.length + ' atrasadas</button>' : ''));
 
   if (venc.length) h += sec('A vencer', venc.length, venc.slice(0, 4).map(r => {
-    const d = PRAZO_DIAS - diasEntre(r.data, hoje);
+    const d = prazoDe(r) - diasEntre(baseDe(r), hoje);
     return '<button type="button" class="sp-item" data-sino="reg" data-id="' + r.id + '"><span class="sp-dot amar"></span><span class="sp-tx"><b>' + esc(r.descricao) + '</b><small>' + (d <= 0 ? 'vence hoje' : 'vence em ' + plural(d, 'dia', 'dias')) + (r.responsavel ? ' · ' + esc(r.responsavel) : '') + '</small></span></button>';
   }).join(''));
 
@@ -1464,10 +1650,10 @@ function mostrarNotificacoesAlerta() {
 }
 
 function atualizarMetricasDashboard() {
-  atualizarAlerta(); checarAtrasosNovos();
-  const c = { pendente: 0, executando: 0, atrasado: 0, concluido: 0 };
+  atualizarAlerta(); checarAtrasosNovos(); checarUrgentesNovos();
+  const c = { pendente: 0, executando: 0, atrasado: 0, concluido: 0, urgente: 0 };
   REL.forEach(r => { c[statusDe(r)]++; });
-  $('stat-pend').textContent = c.pendente; $('stat-exec').textContent = c.executando; $('stat-atr').textContent = c.atrasado; $('stat-conc').textContent = c.concluido;
+  $('stat-pend').textContent = c.pendente; $('stat-exec').textContent = c.executando; $('stat-atr').textContent = c.atrasado; $('stat-conc').textContent = c.concluido; $('stat-urg').textContent = c.urgente;
   renderCalendarioDash(); renderGraficoDash();
 }
 
@@ -1508,7 +1694,7 @@ function renderCalendarioDash() {
   const ped = {}, ven = {};
   REL.filter(r => r.categoria === 'faa').forEach(r => {
     (ped[r.data] = ped[r.data] || []).push(r);
-    if (r.status !== 'concluido') { const v = somaDias(r.data, PRAZO_DIAS); (ven[v] = ven[v] || []).push(r); }
+    if (r.status !== 'concluido') { const v = somaDias(baseDe(r), prazoDe(r)); (ven[v] = ven[v] || []).push(r); }
   });
 
   $('cal-card').classList.toggle('semana', CAL_MODO === 'semana');
@@ -1526,7 +1712,8 @@ function renderCalendarioDash() {
       const d = new Date(ini.getFullYear(), ini.getMonth(), ini.getDate() + i), iso = isoDe(d);
       const chips = (ped[iso] || []).map(r => '<button type="button" class="cal-chip ped' + (r.status === 'concluido' ? ' conc' : '') + '" data-id="' + r.id + '" title="Pedido: ' + esc(r.descricao) + '"><i></i><span>' + esc(r.descricao) + '</span></button>').join('')
         + (ven[iso] || []).map(r => '<button type="button" class="cal-chip ven" data-id="' + r.id + '" title="Vence: ' + esc(r.descricao) + '"><i></i><span>Vence: ' + esc(r.descricao) + '</span></button>').join('');
-      h += '<div class="cs-dia' + (iso === hojeIso ? ' hoje' : '') + '"><div class="cs-cab"><span>' + DIA_NOME[i] + '</span><b>' + d.getDate() + '</b></div><div class="cs-lista">' + (chips || '<span class="cs-vazio">—</span>') + '</div></div>';
+      const escDia = (iso === hojeIso && ESC_LISTA.length) ? '<div class="cs-esc-tit">Escala</div>' + ESC_LISTA.map(x => { const nm = x.eu ? 'Você' : String(x.nome || x.usuario || '').trim().split(' ')[0], tf = escItens(x.tarefas).join(', '); return '<div class="cal-esc"><b>' + esc(nm) + '</b><span>' + (tf ? esc(tf) : 'Sem função hoje') + '</span></div>'; }).join('') : '';
+      h += '<div class="cs-dia' + (iso === hojeIso ? ' hoje' : '') + '"><div class="cs-cab"><span>' + DIA_NOME[i] + '</span><b>' + d.getDate() + '</b></div><div class="cs-lista">' + (chips || '<span class="cs-vazio">—</span>') + escDia + '</div></div>';
     }
     grid.innerHTML = h; return;
   }
@@ -1535,7 +1722,7 @@ function renderCalendarioDash() {
   grid.className = 'cal-grid';
   const primeiroDia = new Date(ano, mes, 1).getDay(), totalDias = new Date(ano, mes + 1, 0).getDate();
   let h = DIAS_SEMANA_PT.map(d => '<div class="cal-dsemana">' + d + '</div>').join('');
-  for (let i = 0; i < primeiroDia; i++) h += '<div class="cal-dia cal-branco"></div>';
+  for (let i = 0; i < primeiroDia; i++) h += '<div class="cal-dia vazio"></div>';
   for (let d = 1; d <= totalDias; d++) {
     const iso = ano + '-' + String(mes + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
     const pontos = (ped[iso] ? '<i class="pt-pedido"></i>' : '') + (ven[iso] ? '<i class="pt-vencimento"></i>' : '');
@@ -1548,6 +1735,112 @@ $('cal-grid').addEventListener('click', e => {
   const c = e.target.closest('[data-id]'); if (c) return abrirRegistroCal(Number(c.dataset.id));
   const d = e.target.closest('[data-iso]'); if (d) calIrSemana(d.dataset.iso);
 });
+
+
+/* ===== escala do dashboard: expandir / recolher ===== */
+function escalaAplicarExpandido() {
+  let on = false; try { on = localStorage.getItem('fluxo_esc_aberto') === '1'; } catch (e) {}
+  const c = $('escala-card'), b = $('esc-expandir'); if (!c || !b) return;
+  c.classList.toggle('aberto', on); b.textContent = on ? 'Recolher ⌃' : 'Expandir ⌄'; b.setAttribute('aria-expanded', on ? 'true' : 'false');
+}
+function escalaExpandir() {
+  const c = $('escala-card'); if (!c) return;
+  const on = !c.classList.contains('aberto');
+  try { localStorage.setItem('fluxo_esc_aberto', on ? '1' : '0'); } catch (e) {}
+  escalaAplicarExpandido();
+}
+
+/* ===== CALENDÁRIO DETALHADO: FAAs (pedido → vencimento) e escala, por pessoa ===== */
+let CD_REF = new Date(), CD_PESSOA = '';
+const calDetAberto = () => { const e = $('cal-det'); return !!e && e.style.display !== 'none'; };
+
+function abrirCalendario() {
+  T[abaAtiva] = $('txt').value;
+  $('wrap-main').style.display = 'none'; $('rel').style.display = 'none'; $('cal-det').style.display = 'block';
+  renderCalDet();      // desenha já com o que existe
+  carregarRel(); carregarEscalaHoje();   // e redesenha quando chegar o dado novo
+}
+function cdMover(n) { CD_REF = new Date(CD_REF.getFullYear(), CD_REF.getMonth() + n, 1); renderCalDet(); }
+function cdHoje() { CD_REF = new Date(); renderCalDet(); }
+async function cdAbrirFaa(id) { mudarAbaMenu('dash'); await carregarRel(); abrirRegistroCal(id); }
+
+const cdNorm = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[._]+/g, ' ');
+const cdPessoaDe = r => String(r.responsavel || '').trim() || 'Sem responsável';
+
+function cdPeriodo(r) {
+  // pedido → vencimento; concluída: pedido → dia em que foi concluída
+  const ini = baseDe(r), venc = somaDias(ini, prazoDe(r));
+  let fim = venc;
+  if (r.status === 'concluido' && r.concluido_em) { const c = isoDe(new Date(r.concluido_em)); fim = c < ini ? ini : c; }
+  else if (r.status !== 'concluido' && isoHoje() > venc) fim = isoHoje();   // atrasada: a barra segue até hoje
+  return { ini, fim, venc };
+}
+
+function renderCalDet() {
+  const linha = $('cd-linha'); if (!linha) return;
+  const ano = CD_REF.getFullYear(), mes = CD_REF.getMonth(), N = new Date(ano, mes + 1, 0).getDate();
+  const mIni = isoDe(new Date(ano, mes, 1)), mFim = isoDe(new Date(ano, mes, N)), hoje = isoHoje();
+  $('cd-mes-ano').textContent = MESES_PT[mes] + ' de ' + ano;
+  const mostrarConc = $('cd-conc').checked;
+
+  const faas = REL.filter(r => r.categoria === 'faa');
+  // chips de pessoas (contagem das FAAs que aparecem neste mês)
+  const noMes = faas.filter(r => { if (r.status === 'concluido' && !mostrarConc) return false; const p = cdPeriodo(r); return p.ini <= mFim && p.fim >= mIni; });
+  const cont = {}; noMes.forEach(r => { const k = cdPessoaDe(r); cont[k] = (cont[k] || 0) + 1; });
+  const nomes = Object.keys(cont).sort((a, b) => a.localeCompare(b, 'pt-BR'));
+  if (CD_PESSOA && !cont[CD_PESSOA]) CD_PESSOA = '';
+  $('cd-pessoas').innerHTML = '<button type="button" class="pill' + (CD_PESSOA ? '' : ' active') + '" data-p="">Todos<small>' + noMes.length + '</small></button>' +
+    nomes.map(n => '<button type="button" class="pill' + (CD_PESSOA === n ? ' active' : '') + '" data-p="' + esc(n) + '">' + esc(n.split(' ')[0]) + '<small>' + cont[n] + '</small></button>').join('');
+
+  // cabeçalho dos dias + fundo (fim de semana / hoje)
+  let cab = '<div class="cd-cab"><div class="cd-lab">FAA</div>', fundo = '<div class="cd-fundo" aria-hidden="true">';
+  for (let d = 1; d <= N; d++) {
+    const dt = new Date(ano, mes, d), iso = isoDe(dt), dow = dt.getDay();
+    cab += '<div class="cd-dia' + (iso === hoje ? ' hoje' : '') + '">' + DIA_NOME[dow].charAt(0) + '<b>' + d + '</b></div>';
+    fundo += '<i class="' + (iso === hoje ? 'hoje' : (dow === 0 || dow === 6 ? 'fds' : '')) + '"></i>';
+  }
+  cab += '</div>'; fundo += '</div>';
+
+  const visiveis = noMes.filter(r => !CD_PESSOA || cdPessoaDe(r) === CD_PESSOA);
+  let corpo = '';
+  if (!visiveis.length) {
+    corpo = '<div class="cd-vazio">Nenhuma FAA neste mês' + (CD_PESSOA ? ' para ' + esc(CD_PESSOA) : '') + '.</div>';
+  } else {
+    const grupos = {}; visiveis.forEach(r => { (grupos[cdPessoaDe(r)] = grupos[cdPessoaDe(r)] || []).push(r); });
+    Object.keys(grupos).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(nome => {
+      const lista = grupos[nome].sort((a, b) => cdPeriodo(a).ini.localeCompare(cdPeriodo(b).ini));
+      corpo += '<div class="cd-pess-tit"><div class="cd-pess-in"><span class="esc-av">' + esc(nome.charAt(0).toUpperCase()) + '</span>' + esc(nome) + ' <small>· ' + lista.length + (lista.length === 1 ? ' FAA' : ' FAAs') + '</small></div></div>';
+      lista.forEach(r => {
+        const p = cdPeriodo(r), sk = statusDe(r), cor = (ehUrgente(r) && r.status !== 'concluido') ? 'urg' : ((ST[sk] || {}).cor || 'amarela');
+        const cIni = p.ini < mIni, cFim = p.fim > mFim;
+        const s = cIni ? 1 : Number(p.ini.slice(8)), e = cFim ? N : Number(p.fim.slice(8));
+        const dica = (r.status === 'concluido' ? 'Concluída' : (sk === 'atrasado' ? 'Atrasada' : (ehUrgente(r) ? 'Jurídico / urgente' : 'No prazo'))) + ' · pedido ' + dtBR(p.ini) + (r.status === 'concluido' ? ' · concluída ' + dtBR(p.fim) : ' · vence ' + dtBR(p.venc));
+        const txt = (cIni ? '◂ ' : '') + dtBR(p.ini).slice(0, 5) + ' → ' + dtBR(r.status === 'concluido' ? p.fim : p.venc).slice(0, 5) + (sk === 'atrasado' ? ' · atrasada' : '') + (cFim ? ' ▸' : '');
+        corpo += '<div class="cd-row" style="--n:' + N + '"><div class="cd-lab" title="' + esc(r.descricao) + '"><b>' + esc(r.descricao) + '</b><small>' + esc(ST[sk] ? ST[sk].curto : '') + (r.executor ? ' · ' + esc(r.executor) : '') + '</small></div>' +
+          '<button type="button" class="cd-bar ' + cor + (cIni ? ' corta-ini' : '') + (cFim ? ' corta-fim' : '') + (r.status === 'concluido' ? ' conc' : '') + '" style="grid-column:' + (s + 1) + ' / ' + (e + 2) + '" onclick="cdAbrirFaa(' + r.id + ')" title="' + esc(r.descricao + ' — ' + dica) + '"><span>' + esc(txt) + '</span></button></div>';
+      });
+    });
+  }
+  linha.innerHTML = '<div class="cd-gantt" style="--n:' + N + '">' + fundo + cab + corpo + '</div>';
+  const th = linha.querySelector('.cd-dia.hoje');   // leva o "hoje" para a vista quando o mês é o atual
+  if (th && !linha._rolou) { linha.scrollLeft = Math.max(0, th.offsetLeft - linha.clientWidth / 2); linha._rolou = true; }
+
+  renderCalDetEscala();
+}
+
+function renderCalDetEscala() {
+  const box = $('cd-esc-lista'); if (!box) return;
+  $('cd-esc-sub').textContent = escDataHoje() + (ESC_LISTA.length ? ' · ' + ESC_LISTA.length + (ESC_LISTA.length === 1 ? ' pessoa' : ' pessoas') : '');
+  if (!ESC_LISTA.length) { box.innerHTML = '<p class="mut" style="margin:0">Nenhuma escala montada ainda. <a href="escala.html" style="color:var(--pri);font-weight:700">Montar escala</a></p>'; return; }
+  box.innerHTML = ESC_LISTA.map(x => {
+    const nome = x.nome || x.usuario, itens = escItens(x.tarefas);
+    const sub = (x.semana_nome || ('Semana ' + x.semana_numero)) + (x.minha_escala ? '' : ' · escala de ' + (x.dono_nome || x.dono_usuario));
+    return '<div class="esc-bloco' + (x.eu ? ' eu' : '') + '"><div class="esc-quem"><span class="esc-av">' + esc(nome.trim().charAt(0).toUpperCase()) + '</span><div style="min-width:0"><b>' + esc(x.eu ? nome + ' (você)' : nome) + '</b><small>' + esc(sub) + '</small></div>' + (x.convidado ? '<span class="esc-tag conv">convidado</span>' : '') + '</div>' +
+      (itens.length ? '<ul class="em-lista">' + itens.map((t, k) => '<li><i>' + (k + 1) + '</i><span>' + esc(t) + '</span></li>').join('') + '</ul>' : '<div class="esc-tarefa vazia">Sem função hoje</div>') + '</div>';
+  }).join('');
+}
+
+$('cd-pessoas').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; CD_PESSOA = b.dataset.p; renderCalDet(); });
 
 function renderGraficoDash() {
   const cont = $('grafico-barras'); if (!cont) return;
@@ -1576,6 +1869,14 @@ function renderGraficoDash() {
 const fotoOk = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
 let tPessoasMenu = null;
 
+async function carregarPedidosBadge() {
+  const el = $('sb-perfil-badge'); if (!el) return;
+  const { data, error } = await db.rpc('contato_pedidos_qtd');
+  const n = error ? 0 : (Number(data) || 0);
+  el.hidden = !n; el.textContent = n > 99 ? '99+' : n;
+  el.title = n ? n + (n === 1 ? ' pedido para aceitar' : ' pedidos para aceitar') : '';
+}
+
 async function carregarPessoas(silencioso) {
   const lista = $('sb-pessoas-lista'); if (!lista) return;
   if (!silencioso) lista.innerHTML = '<p class="pessoas-vazio">A carregar...</p>';
@@ -1596,6 +1897,7 @@ async function carregarPessoas(silencioso) {
     return '<button type="button" class="sb-pessoa" data-u="' + esc(x.usuario) + '" title="Conversar com ' + esc(nome) + '"><span class="pessoa-av">' + av + '</span><span class="pessoa-nome">' + esc(nome) + '</span>' + (n ? '<span class="sb-badge">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</button>';
   }).join('');
 
+  carregarPedidosBadge();
   if (!tPessoasMenu) tPessoasMenu = setInterval(() => carregarPessoas(true), 15000);
 }
 
@@ -1719,17 +2021,15 @@ function renderAtivos(resetPag) {
   const lista = REL.filter(r => {
     const sk = statusDe(r);
     if ((r.categoria === 'same' || r.categoria === 'prov') && r.status === 'concluido') return false;
-    if (fs && sk !== fs) return false;
+    if (fs && sk !== fs && !(fs === 'pendente' && sk === 'urgente')) return false;
 
     const textoCompleto = key(dtBR(r.data) + ' ' + r.data + ' ' + (r.responsavel || '') + ' ' + (r.executor || '') + ' ' + r.descricao + ' ' + (r.detalhe || ''));
     if (qGeral && !textoCompleto.includes(qGeral)) return false;
     return true;
   }).sort((x, y) => {
-    const sx = statusDe(x), sy = statusDe(y);
-    if (sx === 'atrasado' && sy !== 'atrasado') return -1;
-    if (sy === 'atrasado' && sx !== 'atrasado') return 1;
-    const ordem = { executando: 0, pendente: 1, concluido: 2 };
-    if (ordem[sx] !== ordem[sy]) return ordem[sx] - ordem[sy];
+    const rank = (r, s) => s === 'atrasado' ? (ehUrgente(r) ? 0 : 2) : s === 'urgente' ? 1 : ({ executando: 3, pendente: 4, concluido: 5 })[s];
+    const rx = rank(x, statusDe(x)), ry = rank(y, statusDe(y));
+    if (rx !== ry) return rx - ry;
     
     const dateDiff = y.data.localeCompare(x.data);
     if (dateDiff !== 0) return dateDiff;
@@ -1783,15 +2083,16 @@ function opcoesStatus(r) {
   if (r.status !== 'concluido' && (dono || meu || livre)) o.push(['concluir', 'Concluir']);
   if (r.status === 'executando' && (dono || meu)) o.push(['liberar', 'Liberar (voltar a Pendente)']);
   if (r.status === 'concluido' && (dono || meu || livre)) o.push(['reabrir', 'Reabrir']);
+  if (r.status !== 'concluido' && dono) o.push(ehUrgente(r) ? ['normal', 'Tirar do Jurídico (voltar a ' + PRAZO_DIAS + ' dias)'] : ['urgente', 'Jurídico / Urgente (3 dias)']);
   return o;
 }
 
 function itemRel(r) {
-  const sk = statusDe(r), st = ST[sk], dono = r.user_id === uid, hoje0 = isoHoje(), dias = diasEntre(r.data, hoje0), venc = somaDias(r.data, PRAZO_DIAS), conc = r.status === 'concluido', alerta = emAlerta(r);
-  const fim = conc && r.concluido_em ? diasEntre(r.data, isoDe(new Date(r.concluido_em))) : dias;
-  const usados = Math.max(0, fim), pct = Math.min(100, Math.round(usados / PRAZO_DIAS * 100));
-  const classeBarra = conc ? 'pro-conc' : sk === 'atrasado' ? 'pro-atrasado' : alerta ? 'pro-alerta' : 'pro-ok';
-  const restam = PRAZO_DIAS - dias;
+  const sk = statusDe(r), st = ST[sk], dono = r.user_id === uid, hoje0 = isoHoje(), dias = diasEntre(baseDe(r), hoje0), P = prazoDe(r), urg = ehUrgente(r), venc = somaDias(baseDe(r), P), conc = r.status === 'concluido', alerta = emAlerta(r);
+  const fim = conc && r.concluido_em ? diasEntre(baseDe(r), isoDe(new Date(r.concluido_em))) : dias;
+  const usados = Math.max(0, fim), pct = Math.min(100, Math.round(usados / P * 100));
+  const classeBarra = conc ? 'pro-conc' : sk === 'atrasado' ? 'pro-atrasado' : sk === 'urgente' ? 'pro-urgente' : alerta ? 'pro-alerta' : 'pro-ok';
+  const restam = P - dias;
   const dica = conc ? 'Concluído' : restam < 0 ? 'Atrasado há ' + (-restam) + ' dia(s)' : restam === 0 ? 'Vence hoje' : 'Faltam ' + restam + ' dia(s)';
   const aberto = ABERTOS.has(r.id), ops = opcoesStatus(r);
   const isAtrasadoTopo = sk === 'atrasado';
@@ -1802,15 +2103,15 @@ function itemRel(r) {
     </span>`;
 
   return `
-  <div class="rel-item ${isAtrasadoTopo ? 'atrasado-topo' : ''}">
+  <div class="rel-item ${isAtrasadoTopo ? 'atrasado-topo' : (sk === 'urgente' ? 'urgente-topo' : '')}">
     <div class="rel-row">
       <div class="c-tit">
-        <b class="tit">${esc(r.descricao)}</b>${sk === 'atrasado' ? '<span class="tag-atr">atrasada</span>' : ''}
+        <b class="tit">${esc(r.descricao)}</b>${sk === 'atrasado' ? '<span class="tag-atr">atrasada</span>' : ''}${urg && !conc ? '<span class="tag-urg">jurídico · ' + P + (P === 1 ? ' dia' : ' dias') + '</span>' : ''}
         <div class="sub">Pedido em <b>${dtBR(r.data)}</b>${r.executor ? ' · ' + esc(r.executor) : ''}</div>
       </div>
-      <div class="c-st" data-l="Status">${badge}</div><div class="c-msg">${conc ? 'Concluída' : (restam < 0 ? 'Fora do prazo' : 'No prazo')}</div>
+      <div class="c-st" data-l="Status">${badge}</div><div class="c-msg">${conc ? 'Concluída' : (restam < 0 ? 'Fora do prazo' : (urg ? 'Prazo curto' : 'No prazo'))}</div>
       <div class="c-ven ${sk === 'atrasado' ? 'venc' : ''}" data-l="Vencimento" title="${esc(dica)}">${IC.cal}<span>${dtBR(venc)}</span>${alerta ? IC.aviso : ''}</div>
-      <div class="c-pro" data-l="Progresso" title="${esc(dica)}"><div class="pro-top"><span class="pro-dica">${esc(dica)}</span><span>${usados}/${PRAZO_DIAS} dias</span></div><div class="pro-bar ${classeBarra}"><i style="width:${pct}%"></i></div></div>
+      <div class="c-pro" data-l="Progresso" title="${esc(dica)}"><div class="pro-top"><span class="pro-dica">${esc(dica)}</span><span>${usados}/${P} dias</span></div><div class="pro-bar ${classeBarra}"><i style="width:${pct}%"></i></div></div>
       <div class="c-seta">${dono ? `<button type="button" class="ic-btn del del-card" data-acao="apagar" data-id="${r.id}" title="Apagar" aria-label="Apagar">${IC.lixo}</button>` : ''}<button type="button" class="ic-btn seta ${aberto ? 'aberta' : ''}" data-acao="det" data-id="${r.id}" aria-label="Detalhes">${IC.seta}</button></div>
     </div>
     <div class="rel-det" ${aberto ? '' : 'hidden'}>
@@ -1830,9 +2131,18 @@ function itemRel(r) {
         <label class="ed-l" for="en-${r.id}">Nome / título</label><input id="en-${r.id}" value="${esc(r.descricao)}" maxlength="200">
         <label class="ed-l" for="ed-${r.id}">Conteúdo / detalhes</label><textarea id="ed-${r.id}" rows="5">${esc(r.detalhe || '')}</textarea>
         <label class="ed-l" for="dp-${r.id}">Data do pedido</label><input type="date" id="dp-${r.id}" value="${esc(r.data)}">
+        <label class="ed-l" for="eu-${r.id}">Prazo</label><select id="eu-${r.id}" class="rel-select">${[['', 'Normal (' + PRAZO_DIAS + ' dias)'], ['1', 'Jurídico / urgente — 1 dia'], ['2', 'Jurídico / urgente — 2 dias'], ['3', 'Jurídico / urgente — 3 dias']].map(([v, tx]) => '<option value="' + v + '"' + (String(r.prazo_urgente || '') === v ? ' selected' : '') + '>' + tx + '</option>').join('')}</select>
         <div class="row-data"><button type="button" class="mini-btn pri" data-acao="editar" data-id="${r.id}">Salvar correção</button><button type="button" class="mini-btn perigo" data-acao="apagar" data-id="${r.id}">Apagar registo</button></div></div>` : ''}
     </div>
   </div>`;
+}
+
+async function mudarUrgencia(id, dias) {
+  const novo = dias ? { prazo_urgente: dias, urgente_desde: isoHoje() } : { prazo_urgente: null, urgente_desde: null };
+  const { data, error } = await db.from('relatorio').update(novo).eq('id', id).select('id');
+  if (error) return aviso(/prazo_urgente|urgente_desde/.test(error.message || '') ? 'Rode o sql-prazo-urgente.sql no Supabase (colunas prazo_urgente e urgente_desde).' : 'Erro: ' + error.message);
+  if (!data || !data.length) return aviso('Só quem criou o registo pode mudar o prazo.');
+  aviso(dias ? 'Jurídico / Urgente: ' + dias + ' dias a partir de hoje.' : 'Voltou ao prazo normal.'); recarregarRel();
 }
 
 async function mudarStatus(id, novo) {
@@ -1846,7 +2156,9 @@ async function editarRegistro(id) {
   const desc = (($('en-' + id) || {}).value || '').trim(), det = ($('ed-' + id) || {}).value || '', dt = ($('dp-' + id) || {}).value;
   if (!desc) return aviso('O nome não pode ficar vazio.');
   if (!dt) return aviso('Escolha uma data.');
-  const { data, error } = await db.from('relatorio').update({ descricao: desc, detalhe: det, data: dt }).eq('id', id).select('id');
+  const novo = { descricao: desc, detalhe: det, data: dt }, selU = $('eu-' + id);
+  if (selU) { const atualU = String((REL.concat(ARQ).find(x => x.id === id) || {}).prazo_urgente || ''); if (atualU !== selU.value) { novo.prazo_urgente = selU.value ? Number(selU.value) : null; if (!selU.value) novo.urgente_desde = null; else if (!atualU) novo.urgente_desde = isoHoje(); } }
+  const { data, error } = await db.from('relatorio').update(novo).eq('id', id).select('id');
   if (error) return aviso('Erro ao salvar: ' + error.message);
   if (!data || !data.length) return aviso('Só quem criou o registo pode corrigir.');
   aviso('Registo corrigido.'); recarregarRel();
@@ -1860,6 +2172,8 @@ $('rel-lista').addEventListener('click', e => {
   else if (a === 'pegar') { MENU_ID = null; mudarStatus(id, 'executando'); }
   else if (a === 'concluir') { MENU_ID = null; mudarStatus(id, 'concluido'); }
   else if (a === 'liberar' || a === 'reabrir') { MENU_ID = null; mudarStatus(id, 'pendente'); }
+  else if (a === 'urgente') { MENU_ID = null; mudarUrgencia(id, 3); }
+  else if (a === 'normal') { MENU_ID = null; mudarUrgencia(id, 0); }
   else if (a === 'editar') editarRegistro(id);
   else if (a === 'pdf') pdfRegisto(id, 'ver');
   else if (a === 'baixar') pdfRegisto(id, 'baixar');
@@ -1872,7 +2186,7 @@ $('rel-alerta').addEventListener('click', e => {
   if (b.dataset.al === 'fechar') { alertaFechado = true; atualizarAlerta(); return; }
   abaRel('ativos'); 
   document.querySelectorAll('#filtros-st .pill').forEach(btn => btn.classList.remove('active'));
-  const btnSt = document.querySelector(`#filtros-st .pill[data-st="${b.dataset.al === 'alerta' ? 'pendente' : 'atrasado'}"]`);
+  const btnSt = document.querySelector(`#filtros-st .pill[data-st="${({ alerta: 'pendente', urgente: 'urgente' })[b.dataset.al] || 'atrasado'}"]`);
   if(btnSt) btnSt.classList.add('active');
   $('rel-busca').value = ''; renderAtivos();
 });
@@ -1889,6 +2203,11 @@ async function apagarRel(id) {
   if (!data || !data.length) return aviso('Não foi possível apagar (só quem criou o registo pode apagar).');
   ABERTOS.delete(id); aviso('Registo apagado.'); recarregarRel();
 }
+
+let URG_N = 3;
+function urgToggle() { const c = $('urg-chk'); if ($('urg-dias')) $('urg-dias').hidden = !(c && c.checked); }
+function urgEscolher(n) { URG_N = n; document.querySelectorAll('#urg-dias button').forEach(b => b.classList.toggle('on', Number(b.dataset.d) === n)); }
+function obsFaa() { const e = $('obs-faa'); return abaAtiva === 'faa' && e ? e.value.trim() : ''; }
 
 async function salvarRelatorio() {
   if (!uid) return; let desc, det;
@@ -1909,11 +2228,13 @@ async function salvarRelatorio() {
     if (P_FAA.length === 1) desc = `FAA: ${P_FAA[0].nome}`;
     else if (P_FAA.length <= 3) desc = `FAAs: ${P_FAA.map(p => p.nome.split(' ')[0]).join(', ')}`;
     else desc = `FAAs: ${P_FAA.length} pacientes`;
-    det = P_FAA.map(p => `${p.nome} — ${p.datas.map(fmtData).join(', ')}`).join('\n');
+    det = P_FAA.map(p => `${p.nome} — ${p.datas.map(fmtData).join(', ')}`).join('\n') + (obsFaa() ? '\n\nObservação: ' + obsFaa() : '');
   }
   
-  const ok = await logar(abaAtiva, desc, det, dataEscolhida); 
-  aviso(ok ? `Guardado no dashboard por ${nomeUsuario()}!` : 'Erro ao guardar no relatório.');
+  const chk = $('urg-chk'), urgDias = (abaAtiva === 'faa' && chk && chk.checked) ? URG_N : 0;
+  const ok = await logar(abaAtiva, desc, det, dataEscolhida, undefined, urgDias);
+  if (ok && urgDias) { chk.checked = false; urgToggle(); } 
+  aviso(ok ? (urgDias ? `Guardado como JURÍDICO / URGENTE (${urgDias} ${urgDias === 1 ? 'dia' : 'dias'})!` : `Guardado no dashboard por ${nomeUsuario()}!`) : (urgDias ? 'Erro ao guardar. Rode o sql-prazo-urgente.sql no Supabase (colunas prazo_urgente e urgente_desde).' : 'Erro ao guardar no relatório.'));
 }
 
 async function adicionarRel() {
@@ -1925,7 +2246,7 @@ async function adicionarRel() {
 
 function abrirRelatorio() {
   T[abaAtiva] = $('txt').value;
-  $('wrap-main').style.display = 'none'; $('rel').style.display = 'block';
+  $('wrap-main').style.display = 'none'; $('cal-det').style.display = 'none'; $('rel').style.display = 'block';
   $('rel-data').value = isoHoje(); $('rel-resp').value = nomeUsuario();
   carregarRel(); carregarEscalaHoje();
 }
@@ -1964,7 +2285,7 @@ function alterarTipoSameProv() {
 }
 
 function mudarAba(aba) {
-  $('rel').style.display = 'none'; $('wrap-main').style.display = 'grid';
+  $('rel').style.display = 'none'; $('cal-det').style.display = 'none'; $('wrap-main').style.display = 'grid';
   
   if (aba === 'sameprov') {
     $('seletor-same-prov').style.display = 'block';
@@ -2039,7 +2360,7 @@ function exemplo() {
   ler();
 }
 
-function zerar() { $('txt').value = ''; if (abaAtiva === 'faa') P_FAA = []; else if (abaAtiva === 'same') P_SAME = []; else P_PROV = []; render(); }
+function zerar() { $('txt').value = ''; if (abaAtiva === 'faa') { P_FAA = []; if ($('obs-faa')) $('obs-faa').value = ''; const uc = $('urg-chk'); if (uc && uc.checked) { uc.checked = false; urgToggle(); } } else if (abaAtiva === 'same') P_SAME = []; else P_PROV = []; render(); }
 function rp(i) { if (abaAtiva === 'faa') P_FAA.splice(i,1); else if (abaAtiva === 'same') P_SAME.splice(i,1); else P_PROV.splice(i,1); render(); }
 
 function conf() {
@@ -2076,7 +2397,7 @@ function desenharFolha() {
   
   if (abaAtiva === 'faa') {
     const ps = P_FAA.filter(p => p.nome.trim());
-    if (ps.length) h = '<div class="ft"><b>Lista de FAAs</b><span>' + dataEscolhida + '</span></div><div class="cols">' + ps.map(p => '<div class="blk"><div class="pn">' + esc(p.nome.trim()) + '</div><div class="g">' + p.datas.map(k => '<span><i></i>' + fmtData(k) + '</span>').join('') + '</div></div>').join('') + '</div>';
+    if (ps.length) h = '<div class="ft"><b>Lista de FAAs</b><span>' + dataEscolhida + '</span></div><div class="cols">' + ps.map(p => '<div class="blk"><div class="pn">' + esc(p.nome.trim()) + '</div><div class="g">' + p.datas.map(k => '<span><i></i>' + fmtData(k) + '</span>').join('') + '</div></div>').join('') + (obsFaa() ? '<div class="blk obs-faa"><b>Observação</b><span>' + esc(obsFaa()).replace(/\n/g, '<br>') + '</span></div>' : '') + '</div>';
   } else if (abaAtiva === 'same') {
     const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim());
     if (ps.length) h = '<div class="ft"><b>Lista de Pastas / SAME</b><span>' + dataEscolhida + '</span></div><div class="cols"><ul class="same-list">' + ps.map(p => '<li><i></i><span>' + [p.same ? '<b>' + esc(p.same) + '</b>' : '', esc(p.nome)].filter(Boolean).join(' - ') + '</span></li>').join('') + '</ul></div>';
@@ -2086,7 +2407,7 @@ function desenharFolha() {
   el.innerHTML = h || '<p class="vazio">Adicione os dados na entrada para visualizar</p>';
 }
 
-function estado() { const count = abaAtiva === 'faa' ? P_FAA.length : (abaAtiva === 'same' ? P_SAME.length : P_PROV.length); $('gerar').disabled = !count; $('imprimir').disabled = !count; $('btn-salvar-rel').disabled = !count; }
+function estado() { const count = abaAtiva === 'faa' ? P_FAA.length : (abaAtiva === 'same' ? P_SAME.length : P_PROV.length); $('gerar').disabled = !count; $('imprimir').disabled = !count; $('btn-salvar-rel').disabled = !count; ['urg-box', 'obs-box'].forEach(id => { const e = $(id); if (e) e.style.display = abaAtiva === 'faa' ? '' : 'none'; }); }
 function render() { conf(); folha(); estado(); fmtUI(); }
 
 function imprimirFolha() {
@@ -2102,7 +2423,7 @@ function pdfRegisto(id, acao) {
   const r = REL.find(x => x.id === id) || ARQ.find(x => x.id === id); if (!r) return aviso('Registo não encontrado.');
   if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
   const aba = acao === 'ver' ? window.open('', '_blank') : null;
-  const sk = statusDe(r), st = ST[sk], dias = diasEntre(r.data, isoHoje()), prazo = r.status === 'concluido' ? '' : dias > PRAZO_DIAS ? 'atrasado há ' + (dias - PRAZO_DIAS) + ' dia(s)' : dias === PRAZO_DIAS ? 'vence hoje' : 'faltam ' + (PRAZO_DIAS - dias) + ' dia(s)';
+  const sk = statusDe(r), st = ST[sk], PP = prazoDe(r), dias = diasEntre(baseDe(r), isoHoje()), prazo = r.status === 'concluido' ? '' : dias > PP ? 'atrasado há ' + (dias - PP) + ' dia(s)' : dias === PP ? 'vence hoje' : 'faltam ' + (PP - dias) + ' dia(s)';
   const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), W = 210, M = 18, LW = W - 2 * M; let y = 0;
 
   doc.setFillColor(13, 148, 136); doc.rect(0, 0, W, 14, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Fluxo - Documento', M, 9.2);
@@ -2110,10 +2431,10 @@ function pdfRegisto(id, acao) {
 
   y = 27; doc.setTextColor(15, 23, 42); doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
   const tit = doc.splitTextToSize(pdfTxt(r.descricao), LW); doc.text(tit, M, y); y += tit.length * 6.5 + 1;
-  const cores = { amarela: [245, 158, 11], vermelha: [220, 38, 38], azul: [37, 99, 235] };
+  const cores = { amarela: [245, 158, 11], vermelha: [220, 38, 38], azul: [37, 99, 235], roxa: [220, 38, 38] };
   doc.setFillColor(...cores[st.cor]); doc.circle(M + 2, y - 1.3, 2, 'F'); doc.setFontSize(11); doc.text(pdfTxt(st.rot + (prazo ? ' (' + prazo + ')' : '')), M + 7, y); y += 10;
 
-  const campos = [['Categoria', catNome[r.categoria] || r.categoria], ['Data do pedido', dtBR(r.data)], ['Prazo até', dtBR(somaDias(r.data, PRAZO_DIAS))], ['Responsável pelo registo', r.responsavel || '-'], ['Executor', r.executor || '-']];
+  const campos = [['Categoria', catNome[r.categoria] || r.categoria], ['Data do pedido', dtBR(r.data)], ['Prazo até', dtBR(somaDias(baseDe(r), PP))], ['Responsável pelo registo', r.responsavel || '-'], ['Executor', r.executor || '-']];
   doc.setFontSize(10);
   campos.forEach(([k, v]) => { doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(pdfTxt(k), M, y); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42); doc.text(pdfTxt(v), M + 58, y); doc.setDrawColor(226, 232, 240); doc.line(M, y + 2.2, W - M, y + 2.2); y += 8; });
 
@@ -2159,6 +2480,19 @@ async function pdf() {
         });
       });
     });
+    const obs = obsFaa();
+    if (obs) {
+      fonte('normal', pt);
+      const ol = obs.split(/\r?\n/).flatMap(l => doc.splitTextToSize(pdfTxt(l) || ' ', colW));
+      un.push({
+        h: (ol.length + 1) * lh + 6,
+        draw: (x, y) => {
+          doc.setTextColor(0); doc.setDrawColor(180); doc.setLineWidth(0.2); doc.line(x, y + 2, x + colW, y + 2);
+          fonte('bold', pt); doc.text('Observação', x, y + 2 + lh * 0.95);
+          fonte('normal', pt); ol.forEach((tx, i) => doc.text(tx, x, y + 2 + lh * 0.95 + (i + 1) * lh));
+        }
+      });
+    }
   } else if (abaAtiva === 'same') {
     const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim()); if (!ps.length) return; titulo = 'Lista de Pastas / SAME'; const x0 = bx + 2.5;
     ps.forEach(p => {
