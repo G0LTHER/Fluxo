@@ -427,6 +427,8 @@
   .topo-titulo small { display: block; font-size: 14px; color: var(--mut); margin-top: 4px; }
   .topo-acoes { display: flex; align-items: center; gap: 10px; position: relative; flex-shrink: 0; }
   .topo-sino { position: relative; width: 40px; height: 40px; border: 0; background: none; color: var(--tx); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .topo-sino.mudo svg { opacity: .45; }
+  .topo-sino.mudo::after { content: ''; position: absolute; left: 50%; top: 50%; width: 26px; height: 2px; border-radius: 2px; background: currentColor; transform: translate(-50%, -50%) rotate(-45deg); pointer-events: none; }
   .topo-sino svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; margin: 0; }
   .topo-badge { position: absolute; top: 0; right: -2px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: #dc2626; color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; }
   .topo-badge[hidden] { display: none; }
@@ -698,7 +700,7 @@
   .st-dot.st-roxa { animation: urgPulse 1.6s infinite; }
   .pro-urgente i { background: repeating-linear-gradient(45deg, #dc2626 0 8px, #b91c1c 8px 16px) !important; }
   .rel-item.urgente-topo { box-shadow: 0 0 0 1px rgba(220,38,38,.45); }
-  @media (prefers-reduced-motion: reduce) { .st-dot.st-roxa, .cd-bar.urg { animation: none !important; } }
+  @media (prefers-reduced-motion: reduce) { .st-dot.st-roxa { animation: none !important; } }
 
   /* ===== escala do dashboard: expandir para baixo ===== */
   #escala-card.aberto .esc-grid { flex-wrap: wrap; overflow: visible; cursor: default; scroll-snap-type: none; }
@@ -706,53 +708,6 @@
   #escala-card.aberto .esc-tarefa { display: block; -webkit-line-clamp: unset; overflow: visible; }
   #escala-card.aberto .esc-seta { display: none; }
 
-  /* ===== calendário detalhado ===== */
-  #cal-det .card { margin-bottom: 16px; }
-  .cd-topo { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
-  .cd-opt { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--mut); }
-  .cd-opt input { width: auto; margin: 0; }
-  .cd-pessoas { margin: 4px 0 12px; }
-  .cd-pessoas .pill { padding: 6px 13px; font-size: 12.5px; }
-  .cd-pessoas .pill small { opacity: .75; margin-left: 4px; font-weight: 700; }
-  .cd-sub { margin: 4px 0 12px; font-size: 13px; color: var(--mut); }
-  .cd-leg i.q { border-radius: 3px; width: 14px; height: 8px; }
-  .cd-leg .l-amar { background: #f59e0b; } .cd-leg .l-verm { background: #dc2626; } .cd-leg .l-azul { background: #2563eb; }
-  .cd-leg .l-urg { background: repeating-linear-gradient(45deg, #dc2626 0 3px, #991b1b 3px 6px); }
-  .cd-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--bd); border-radius: 14px; background: var(--card); }
-  .cd-gantt { --cdw: 36px; --cd-lab: 190px; --n: 30; position: relative; min-width: calc(var(--cd-lab) + var(--n) * var(--cdw)); }
-  .cd-cab, .cd-row { display: grid; grid-template-columns: var(--cd-lab) repeat(var(--n), var(--cdw)); align-items: center; }
-  .cd-cab { border-bottom: 1px solid var(--bd); background: var(--bg); position: relative; z-index: 2; }
-  .cd-cab .cd-lab, .cd-row .cd-lab { position: sticky; left: 0; z-index: 3; background: var(--card); padding: 6px 12px; min-width: 0; border-right: 1px solid var(--bd); }
-  .cd-cab .cd-lab { background: var(--bg); font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--mut); letter-spacing: .05em; }
-  .cd-dia { text-align: center; font-size: 11px; line-height: 1.15; padding: 6px 0; color: var(--mut); font-weight: 700; }
-  .cd-dia b { display: block; font-size: 13px; color: var(--tx); }
-  .cd-dia.hoje b { background: var(--pri); color: #fff; border-radius: 999px; width: 24px; height: 24px; line-height: 24px; margin: 0 auto; }
-  .cd-fundo { position: absolute; top: 0; bottom: 0; left: var(--cd-lab); right: 0; display: grid; grid-template-columns: repeat(var(--n), var(--cdw)); z-index: 0; pointer-events: none; }
-  .cd-fundo i { border-left: 1px solid rgba(148,163,184,.14); } .cd-fundo i.fds { background: rgba(148,163,184,.08); } .cd-fundo i.hoje { background: rgba(var(--pri-rgb), .10); border-left-color: var(--pri); }
-  .cd-pess-tit { position: relative; z-index: 1; background: var(--bg); border-top: 1px solid var(--bd); border-bottom: 1px solid var(--bd); font-weight: 800; font-size: 13px; }
-  .cd-pess-in { position: sticky; left: 0; display: flex; align-items: center; gap: 8px; padding: 8px 12px; width: fit-content; max-width: 100vw; }
-  .cd-pess-in .esc-av { width: 24px; height: 24px; font-size: 11px; }
-  .cd-pess-in small { color: var(--mut); font-weight: 700; }
-  .cd-row { position: relative; z-index: 1; min-height: 44px; border-top: 1px solid rgba(148,163,184,.14); }
-  .cd-row .cd-lab b { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cd-row .cd-lab small { display: block; font-size: 11.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .cd-bar { grid-row: 1; height: 26px; margin: 0 2px; border: 0; border-radius: 13px; display: flex; align-items: center; gap: 6px; padding: 0 10px; font: inherit; font-size: 11.5px; font-weight: 800; color: #fff; cursor: pointer; overflow: hidden; white-space: nowrap; text-align: left; min-width: 0; transition: filter .12s, transform .12s; }
-  .cd-bar:hover { filter: brightness(1.08); transform: translateY(-1px); }
-  .cd-bar:focus-visible { outline: 2px solid var(--tx); outline-offset: 2px; }
-  .cd-bar::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.95); flex-shrink: 0; }
-  .cd-bar.amarela { background: #f59e0b; color: #1f2937; } .cd-bar.amarela::before { background: #1f2937; }
-  .cd-bar.vermelha { background: #dc2626; }
-  .cd-bar.azul { background: #2563eb; }
-  .cd-bar.urg { background: repeating-linear-gradient(45deg, #dc2626 0 9px, #991b1b 9px 18px); animation: urgPulse 1.8s infinite; }
-  .cd-bar.corta-ini { border-top-left-radius: 4px; border-bottom-left-radius: 4px; } .cd-bar.corta-ini::before { display: none; }
-  .cd-bar.corta-fim { border-top-right-radius: 4px; border-bottom-right-radius: 4px; }
-  .cd-bar.conc { opacity: .8; }
-  .cd-vazio { padding: 28px 16px; text-align: center; color: var(--mut); }
-  .cd-esc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
-  .cd-esc-grid .esc-bloco { flex: none; cursor: default; user-select: text; }
-  .cd-esc-grid .esc-bloco:hover { transform: none; box-shadow: none; }
-  .cd-esc-grid .em-lista li { font-size: 13.5px; padding: 8px 10px; }
-  @media (max-width: 760px) { .cd-gantt { --cdw: 32px; --cd-lab: 130px; } .cd-cab .cd-lab, .cd-row .cd-lab { padding: 6px 8px; } }
 
   /* ===== rodapé do menu lateral: Perfil e Sair fixos embaixo ===== */
   .sb-rodape { flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 10px 0; padding-bottom: env(safe-area-inset-bottom, 0px); border-top: 1px solid var(--bd); }
@@ -797,7 +752,7 @@
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h3M14 14h3"/></svg>
         <span class="sb-item-tx">Escala</span>
       </button>
-      <button type="button" class="sb-item" id="sb-cal" onclick="mudarAbaMenu('cal')" title="Calendário">
+      <button type="button" class="sb-item" id="sb-cal" onclick="window.location.href='calendario.html'" title="Calendário">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h6M11 18h6"/></svg>
         <span class="sb-item-tx">Calendário</span>
       </button>
@@ -967,40 +922,6 @@
         </section>
       </div>
 
-      <!-- CALENDÁRIO DETALHADO: FAAs (pedido → prazo) e escala, por pessoa -->
-      <div id="cal-det" style="display:none;width:100%">
-        <div class="card">
-          <div class="cd-topo">
-            <div class="cal-nav">
-              <button type="button" class="ic-btn" onclick="cdMover(-1)" aria-label="Mês anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
-              <b id="cd-mes-ano">—</b>
-              <button type="button" class="ic-btn" onclick="cdMover(1)" aria-label="Próximo mês"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-            </div>
-            <div class="cal-ctrl">
-              <button type="button" class="mini-btn" onclick="cdHoje()">Hoje</button>
-              <label class="cd-opt"><input type="checkbox" id="cd-conc" onchange="renderCalDet()"> Mostrar concluídas</label>
-            </div>
-          </div>
-          <div class="pill-group cd-pessoas" id="cd-pessoas"></div>
-          <div class="cal-legenda cd-leg">
-            <span><i class="q l-amar"></i>No prazo / executando</span>
-            <span><i class="q l-verm"></i>Atrasada</span>
-            <span><i class="q l-urg"></i>Jurídico / urgente</span>
-            <span><i class="q l-azul"></i>Concluída (pedido → conclusão)</span>
-          </div>
-          <div class="cd-sub">Cada barra vai do <b>dia do pedido</b> até o <b>vencimento</b>. Toque na barra para abrir a FAA.</div>
-          <div class="cd-scroll" id="cd-linha"></div>
-        </div>
-
-        <div class="card" id="cd-escala">
-          <div class="esc-cab">
-            <div><h2 style="font-size:16px">Escala</h2><small class="mut" id="cd-esc-sub"></small></div>
-            <div class="esc-acoes"><a class="mini-btn" href="escala.html">Abrir escala (editar)</a></div>
-          </div>
-          <div class="cd-esc-grid" id="cd-esc-lista"></div>
-        </div>
-      </div>
-
       <!-- RELATÓRIO / DASHBOARD -->
       <div id="rel" style="width:100%">
         <div id="rel-alerta"></div>
@@ -1027,7 +948,7 @@
                   <button type="button" data-m="mes" onclick="calModo('mes')">Mês</button>
                   <button type="button" data-m="semana" onclick="calModo('semana')">Semana</button>
                 </div>
-                <button type="button" class="mini-btn pri" onclick="mudarAbaMenu('cal')" title="Calendário detalhado com os prazos e a escala">Ver mais</button>
+                <button type="button" class="mini-btn pri" onclick="window.location.href='calendario.html'" title="Abrir o calendário completo">Ver mais</button>
               </div>
             </div>
             <div class="cal-legenda">
@@ -1045,7 +966,7 @@
             <div class="card" id="escala-card" style="margin-bottom:0" hidden>
               <div class="esc-cab">
                 <div><h2 style="font-size:16px">Escala de hoje</h2><small class="mut" id="escala-sub"></small></div>
-                <div class="esc-acoes"><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(-1)" aria-label="Rolar para a esquerda">‹</button><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(1)" aria-label="Rolar para a direita">›</button><button type="button" class="mini-btn" id="esc-expandir" onclick="escalaExpandir()" aria-expanded="false" title="Mostrar todas as pessoas, crescendo para baixo">Expandir ⌄</button><button type="button" class="mini-btn" onclick="mudarAbaMenu('cal'); setTimeout(function () { var e = $('cd-escala'); if (e) e.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80)">Ver mais</button><a class="mini-btn" href="escala.html">Abrir escala</a></div>
+                <div class="esc-acoes"><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(-1)" aria-label="Rolar para a esquerda">‹</button><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(1)" aria-label="Rolar para a direita">›</button><button type="button" class="mini-btn" id="esc-expandir" onclick="escalaExpandir()" aria-expanded="false" title="Mostrar todas as pessoas, crescendo para baixo">Expandir ⌄</button><button type="button" class="mini-btn" onclick="window.location.href='calendario.html?v=hoje'" title="Ver a escala e o dia de hoje no calendário">Ver mais</button><a class="mini-btn" href="escala.html">Abrir escala</a></div>
               </div>
               <div class="esc-grid" id="escala-grid"></div>
             </div>
@@ -1140,8 +1061,7 @@ const hoje = () => new Date().toLocaleDateString('pt-BR');
 const TITULOS_MENU = {
   dash: ['Dashboard', 'Fichas de atendimento (FAA)'],
   faa:  ['Fichas FAA', 'Nova ficha de atendimento'],
-  sameprov: ['Pastas SAME / Provisórias', 'Registo e conferência'],
-  cal: ['Calendário', 'FAAs, prazos e escala por pessoa']
+  sameprov: ['Pastas SAME / Provisórias', 'Registo e conferência']
 };
 
 const SESSAO_LIMITE_MS = 30 * 60 * 1000;
@@ -1213,8 +1133,6 @@ function mudarAbaMenu(aba) {
 
   if (aba === 'dash') {
     abrirRelatorio();
-  } else if (aba === 'cal') {
-    abrirCalendario();
   } else if (aba === 'sameprov') {
     // Ao clicar em same/prov, prepara a tela
     abaAtiva = $('tipo-entrada').value; // 'same' ou 'prov'
@@ -1272,7 +1190,7 @@ function iniciarPresenca() {
 
 async function entrar(user) {
   uid = user.id; currentUser = tc(user.email.split('@')[0]);
-  atualizarConta(user); iniciarPresenca(); iniciarControleSessao(); await carregarPerfil(); await carregar(); mudarAbaMenu('dash'); carregarPessoas(); iniciarNotificacoes();
+  atualizarConta(user); iniciarPresenca(); iniciarControleSessao(); await carregarPerfil(); await carregar(); mudarAbaMenu('dash'); carregarPessoas(); iniciarNotificacoes(); abrirFaaDaUrl();
 }
 
 async function sair() {
@@ -1364,7 +1282,7 @@ async function carregarEscalaHoje() {
   const { data, error } = await db.rpc('escala_hoje');
   if (error) { card.hidden = true; return; }   // SQL da escala ainda não rodou: não mostra o bloco
   const lista = Array.isArray(data) ? data : [];
-  ESC_LISTA = lista; renderCalendarioDash(); if (calDetAberto()) renderCalDet();
+  ESC_LISTA = lista; renderCalendarioDash();
   $('escala-sub').textContent = escDataHoje() + (lista.length ? ' · ' + lista.length + (lista.length === 1 ? ' pessoa' : ' pessoas') : '');
   card.hidden = false; escalaAplicarExpandido();
   if (!lista.length) { $('escala-grid').innerHTML = '<p class="mut" style="margin:0">Nenhuma escala montada ainda. <a href="escala.html" style="color:var(--pri);font-weight:700">Montar escala</a></p>'; return; }
@@ -1446,7 +1364,7 @@ async function carregarRel() {
     ({ data, error } = await db.from('relatorio').select(COLS_REL).order('id', { ascending: false }).limit(500));
   }
   if (error) aviso('Erro ao carregar painel: ' + error.message);
-  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos(); if (calDetAberto()) renderCalDet();
+  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos();
 }
 function recarregarRel() { carregarRel(); if (relAba === 'arquivo') { if (arqCat) carregarArquivo(true); else contarArquivo(); } }
 const rerender = () => relAba === 'arquivo' ? renderArquivo() : renderAtivos();
@@ -1483,8 +1401,9 @@ function atualizarAlerta() {
 /* ===== SININHO: painel, som e notificações do sistema ===== */
 let AVISOS_PRAZO = 0, MSG_CHAT = [], NOMES_PESSOAS = {}, MSG_BASE = null, audioCtx = null;
 const TITULO_BASE = document.title;
-const cfgSom = () => { try { return localStorage.getItem('fluxo_notif_som') !== '0'; } catch (e) { return true; } };
-const cfgSis = () => { try { return localStorage.getItem('fluxo_notif_sis') === '1'; } catch (e) { return false; } };
+// Notificações sempre ligadas; a única opção do usuário é silenciar
+const cfgMudo = () => { try { return localStorage.getItem('fluxo_notif_mudo') === '1'; } catch (e) { return false; } };
+const cfgSom = () => !cfgMudo();
 const sisPermitido = () => ('Notification' in window) && Notification.permission === 'granted';
 const msgNaoLidas = () => MSG_CHAT.reduce((a, x) => a + (x.nao_lidas || 0), 0);
 
@@ -1518,29 +1437,59 @@ function tocarSom() {
   } catch (e) {}
 }
 
+function mostrarSistema(titulo, corpo, tag, url) {
+  const abrir = () => { try { window.focus(); } catch (e) {} if (url) window.location.href = url; };
+  const direto = () => { try { const n = new Notification(titulo, { body: corpo || '', tag: tag || undefined }); n.onclick = () => { n.close(); abrir(); }; } catch (e) {} };
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {   // celular/app instalado exige service worker
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.showNotification) reg.showNotification(titulo, { body: corpo || '', tag: tag || undefined, data: { url: url || null } }); else direto();
+      }).catch(direto);
+      return;
+    }
+  } catch (e) {}
+  direto();
+}
+
 function notificar(titulo, corpo, tag, url, forcar) {
+  if (cfgMudo() && !forcar) return;            // silenciado: o sino e o contador continuam atualizando
   tocarSom();
   const fora = document.hidden || !document.hasFocus();
   if (!fora && !forcar) aviso(titulo + (corpo ? ': ' + corpo : ''));
-  if ((fora || forcar) && cfgSis() && sisPermitido()) {
-    try {
-      const n = new Notification(titulo, { body: corpo || '', tag: tag || undefined });
-      n.onclick = () => { window.focus(); n.close(); if (url) window.location.href = url; };
-    } catch (e) {}
-  }
+  if ((fora || forcar) && sisPermitido()) mostrarSistema(titulo, corpo, tag, url);
+}
+
+// O navegador exige a permissão do usuário (não dá para pular). Pedimos sozinhos no primeiro toque/clique.
+// Se a pessoa recusar, os avisos dentro do site (som, mensagem na tela, sino) continuam funcionando.
+function pedirPermissaoAuto() {
+  if (!('Notification' in window) || Notification.permission !== 'default') return;
+  const evs = ['pointerdown', 'keydown', 'touchstart'];
+  const pedir = () => {
+    evs.forEach(ev => document.removeEventListener(ev, pedir, true));
+    destravarAudio();
+    try { const r = Notification.requestPermission(); if (r && r.then) r.then(() => renderSino()); } catch (e) {}
+  };
+  evs.forEach(ev => document.addEventListener(ev, pedir, true));
 }
 
 async function ativarSistema() {
-  if (!('Notification' in window)) { aviso('Este navegador não suporta notificações do sistema.'); renderSino(); return; }
-  if (Notification.permission === 'denied') { aviso('Notificações bloqueadas. Libere no cadeado ao lado do endereço do site.'); renderSino(); return; }
+  if (!('Notification' in window)) { aviso('Este navegador não suporta avisos do sistema.'); renderSino(); return; }
+  if (Notification.permission === 'denied') { aviso('Bloqueado no navegador. Libere no cadeado ao lado do endereço do site.'); renderSino(); return; }
   const p = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
-  try { localStorage.setItem('fluxo_notif_sis', p === 'granted' ? '1' : '0'); } catch (e) {}
   destravarAudio(); renderSino();
   if (p === 'granted') testarAviso();
 }
-function setSistema(on) { if (on) ativarSistema(); else { try { localStorage.setItem('fluxo_notif_sis', '0'); } catch (e) {} renderSino(); } }
-function setSom(on) { try { localStorage.setItem('fluxo_notif_som', on ? '1' : '0'); } catch (e) {} destravarAudio(); if (on) tocarSom(); }
-function testarAviso() { destravarAudio(); notificar('Fluxo', 'Teste de notificação — está funcionando!', 'teste', null, true); }
+
+function marcarSinoMudo() { const b = document.querySelector('.topo-sino'); if (b) { b.classList.toggle('mudo', cfgMudo()); b.title = cfgMudo() ? 'Notificações silenciadas' : 'Notificações'; } }
+function setMudo(on) {
+  try { localStorage.setItem('fluxo_notif_mudo', on ? '1' : '0'); } catch (e) {}
+  marcarSinoMudo(); destravarAudio(); renderSino();
+  aviso(on ? 'Notificações silenciadas.' : 'Notificações ativadas.');
+}
+function testarAviso() {
+  if (cfgMudo()) return aviso('Você silenciou as notificações. Desmarque "Silenciar" para testar.');
+  destravarAudio(); notificar('Fluxo', 'Teste de notificação — está funcionando!', 'teste', null, true);
+}
 
 function checarMensagensNovas(lista) {
   MSG_CHAT = lista || [];
@@ -1571,6 +1520,7 @@ function checarUrgentesNovos() {
 }
 
 function iniciarNotificacoes() {
+  marcarSinoMudo(); pedirPermissaoAuto();
   try {
     db.channel('menu-chat-' + uid)
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_mensagens', filter: 'para=eq.' + uid }, () => carregarPessoas(true))
@@ -1618,12 +1568,14 @@ function renderSino() {
 
   $('sp-corpo').innerHTML = h || '<p class="sp-vazio">Tudo em dia. Nenhum atraso e nenhuma mensagem nova. 🎉</p>';
 
-  const sisOn = cfgSis() && sisPermitido(), suporta = 'Notification' in window;
+  const suporta = 'Notification' in window, perm = suporta ? Notification.permission : 'indisponivel';
+  let nota = '';
+  if (!suporta) nota = '<small class="sp-nota">Este navegador/app não mostra avisos do sistema; os avisos dentro do site continuam funcionando.</small>';
+  else if (perm === 'denied') nota = '<small class="sp-nota">Avisos do sistema bloqueados no navegador (libere no cadeado ao lado do endereço). Dentro do site continua avisando.</small>';
+  else if (perm === 'default') nota = '<small class="sp-nota">Falta permitir no navegador: <button type="button" class="mini-btn" onclick="ativarSistema()">Permitir avisos do sistema</button></small>';
   $('sp-rodape').innerHTML =
-    '<label class="sp-opt"><input type="checkbox" ' + (cfgSom() ? 'checked' : '') + ' onchange="setSom(this.checked)"> Som</label>' +
-    '<label class="sp-opt"><input type="checkbox" ' + (sisOn ? 'checked' : '') + (suporta ? '' : ' disabled') + ' onchange="setSistema(this.checked)"> Avisos no Windows</label>' +
-    '<button type="button" class="mini-btn" onclick="testarAviso()">Testar</button>' +
-    (!suporta ? '<small class="sp-nota">Este navegador/app não suporta avisos do sistema.</small>' : (suporta && Notification.permission === 'denied' ? '<small class="sp-nota">Bloqueado no navegador: libere no cadeado ao lado do endereço.</small>' : ''));
+    '<label class="sp-opt"><input type="checkbox" ' + (cfgMudo() ? 'checked' : '') + ' onchange="setMudo(this.checked)"> Silenciar notificações</label>' +
+    '<button type="button" class="mini-btn" onclick="testarAviso()">Testar</button>' + nota;
 }
 
 $('sp-corpo').addEventListener('click', e => {
@@ -1750,97 +1702,11 @@ function escalaExpandir() {
   escalaAplicarExpandido();
 }
 
-/* ===== CALENDÁRIO DETALHADO: FAAs (pedido → vencimento) e escala, por pessoa ===== */
-let CD_REF = new Date(), CD_PESSOA = '';
-const calDetAberto = () => { const e = $('cal-det'); return !!e && e.style.display !== 'none'; };
-
-function abrirCalendario() {
-  T[abaAtiva] = $('txt').value;
-  $('wrap-main').style.display = 'none'; $('rel').style.display = 'none'; $('cal-det').style.display = 'block';
-  renderCalDet();      // desenha já com o que existe
-  carregarRel(); carregarEscalaHoje();   // e redesenha quando chegar o dado novo
+/* abre a FAA vinda do calendário (menu.html?faa=ID) */
+async function abrirFaaDaUrl() {
+  const id = Number(new URLSearchParams(location.search).get('faa')); if (!id) return;
+  await carregarRel(); abrirRegistroCal(id);
 }
-function cdMover(n) { CD_REF = new Date(CD_REF.getFullYear(), CD_REF.getMonth() + n, 1); renderCalDet(); }
-function cdHoje() { CD_REF = new Date(); renderCalDet(); }
-async function cdAbrirFaa(id) { mudarAbaMenu('dash'); await carregarRel(); abrirRegistroCal(id); }
-
-const cdNorm = s => String(s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[._]+/g, ' ');
-const cdPessoaDe = r => String(r.responsavel || '').trim() || 'Sem responsável';
-
-function cdPeriodo(r) {
-  // pedido → vencimento; concluída: pedido → dia em que foi concluída
-  const ini = baseDe(r), venc = somaDias(ini, prazoDe(r));
-  let fim = venc;
-  if (r.status === 'concluido' && r.concluido_em) { const c = isoDe(new Date(r.concluido_em)); fim = c < ini ? ini : c; }
-  else if (r.status !== 'concluido' && isoHoje() > venc) fim = isoHoje();   // atrasada: a barra segue até hoje
-  return { ini, fim, venc };
-}
-
-function renderCalDet() {
-  const linha = $('cd-linha'); if (!linha) return;
-  const ano = CD_REF.getFullYear(), mes = CD_REF.getMonth(), N = new Date(ano, mes + 1, 0).getDate();
-  const mIni = isoDe(new Date(ano, mes, 1)), mFim = isoDe(new Date(ano, mes, N)), hoje = isoHoje();
-  $('cd-mes-ano').textContent = MESES_PT[mes] + ' de ' + ano;
-  const mostrarConc = $('cd-conc').checked;
-
-  const faas = REL.filter(r => r.categoria === 'faa');
-  // chips de pessoas (contagem das FAAs que aparecem neste mês)
-  const noMes = faas.filter(r => { if (r.status === 'concluido' && !mostrarConc) return false; const p = cdPeriodo(r); return p.ini <= mFim && p.fim >= mIni; });
-  const cont = {}; noMes.forEach(r => { const k = cdPessoaDe(r); cont[k] = (cont[k] || 0) + 1; });
-  const nomes = Object.keys(cont).sort((a, b) => a.localeCompare(b, 'pt-BR'));
-  if (CD_PESSOA && !cont[CD_PESSOA]) CD_PESSOA = '';
-  $('cd-pessoas').innerHTML = '<button type="button" class="pill' + (CD_PESSOA ? '' : ' active') + '" data-p="">Todos<small>' + noMes.length + '</small></button>' +
-    nomes.map(n => '<button type="button" class="pill' + (CD_PESSOA === n ? ' active' : '') + '" data-p="' + esc(n) + '">' + esc(n.split(' ')[0]) + '<small>' + cont[n] + '</small></button>').join('');
-
-  // cabeçalho dos dias + fundo (fim de semana / hoje)
-  let cab = '<div class="cd-cab"><div class="cd-lab">FAA</div>', fundo = '<div class="cd-fundo" aria-hidden="true">';
-  for (let d = 1; d <= N; d++) {
-    const dt = new Date(ano, mes, d), iso = isoDe(dt), dow = dt.getDay();
-    cab += '<div class="cd-dia' + (iso === hoje ? ' hoje' : '') + '">' + DIA_NOME[dow].charAt(0) + '<b>' + d + '</b></div>';
-    fundo += '<i class="' + (iso === hoje ? 'hoje' : (dow === 0 || dow === 6 ? 'fds' : '')) + '"></i>';
-  }
-  cab += '</div>'; fundo += '</div>';
-
-  const visiveis = noMes.filter(r => !CD_PESSOA || cdPessoaDe(r) === CD_PESSOA);
-  let corpo = '';
-  if (!visiveis.length) {
-    corpo = '<div class="cd-vazio">Nenhuma FAA neste mês' + (CD_PESSOA ? ' para ' + esc(CD_PESSOA) : '') + '.</div>';
-  } else {
-    const grupos = {}; visiveis.forEach(r => { (grupos[cdPessoaDe(r)] = grupos[cdPessoaDe(r)] || []).push(r); });
-    Object.keys(grupos).sort((a, b) => a.localeCompare(b, 'pt-BR')).forEach(nome => {
-      const lista = grupos[nome].sort((a, b) => cdPeriodo(a).ini.localeCompare(cdPeriodo(b).ini));
-      corpo += '<div class="cd-pess-tit"><div class="cd-pess-in"><span class="esc-av">' + esc(nome.charAt(0).toUpperCase()) + '</span>' + esc(nome) + ' <small>· ' + lista.length + (lista.length === 1 ? ' FAA' : ' FAAs') + '</small></div></div>';
-      lista.forEach(r => {
-        const p = cdPeriodo(r), sk = statusDe(r), cor = (ehUrgente(r) && r.status !== 'concluido') ? 'urg' : ((ST[sk] || {}).cor || 'amarela');
-        const cIni = p.ini < mIni, cFim = p.fim > mFim;
-        const s = cIni ? 1 : Number(p.ini.slice(8)), e = cFim ? N : Number(p.fim.slice(8));
-        const dica = (r.status === 'concluido' ? 'Concluída' : (sk === 'atrasado' ? 'Atrasada' : (ehUrgente(r) ? 'Jurídico / urgente' : 'No prazo'))) + ' · pedido ' + dtBR(p.ini) + (r.status === 'concluido' ? ' · concluída ' + dtBR(p.fim) : ' · vence ' + dtBR(p.venc));
-        const txt = (cIni ? '◂ ' : '') + dtBR(p.ini).slice(0, 5) + ' → ' + dtBR(r.status === 'concluido' ? p.fim : p.venc).slice(0, 5) + (sk === 'atrasado' ? ' · atrasada' : '') + (cFim ? ' ▸' : '');
-        corpo += '<div class="cd-row" style="--n:' + N + '"><div class="cd-lab" title="' + esc(r.descricao) + '"><b>' + esc(r.descricao) + '</b><small>' + esc(ST[sk] ? ST[sk].curto : '') + (r.executor ? ' · ' + esc(r.executor) : '') + '</small></div>' +
-          '<button type="button" class="cd-bar ' + cor + (cIni ? ' corta-ini' : '') + (cFim ? ' corta-fim' : '') + (r.status === 'concluido' ? ' conc' : '') + '" style="grid-column:' + (s + 1) + ' / ' + (e + 2) + '" onclick="cdAbrirFaa(' + r.id + ')" title="' + esc(r.descricao + ' — ' + dica) + '"><span>' + esc(txt) + '</span></button></div>';
-      });
-    });
-  }
-  linha.innerHTML = '<div class="cd-gantt" style="--n:' + N + '">' + fundo + cab + corpo + '</div>';
-  const th = linha.querySelector('.cd-dia.hoje');   // leva o "hoje" para a vista quando o mês é o atual
-  if (th && !linha._rolou) { linha.scrollLeft = Math.max(0, th.offsetLeft - linha.clientWidth / 2); linha._rolou = true; }
-
-  renderCalDetEscala();
-}
-
-function renderCalDetEscala() {
-  const box = $('cd-esc-lista'); if (!box) return;
-  $('cd-esc-sub').textContent = escDataHoje() + (ESC_LISTA.length ? ' · ' + ESC_LISTA.length + (ESC_LISTA.length === 1 ? ' pessoa' : ' pessoas') : '');
-  if (!ESC_LISTA.length) { box.innerHTML = '<p class="mut" style="margin:0">Nenhuma escala montada ainda. <a href="escala.html" style="color:var(--pri);font-weight:700">Montar escala</a></p>'; return; }
-  box.innerHTML = ESC_LISTA.map(x => {
-    const nome = x.nome || x.usuario, itens = escItens(x.tarefas);
-    const sub = (x.semana_nome || ('Semana ' + x.semana_numero)) + (x.minha_escala ? '' : ' · escala de ' + (x.dono_nome || x.dono_usuario));
-    return '<div class="esc-bloco' + (x.eu ? ' eu' : '') + '"><div class="esc-quem"><span class="esc-av">' + esc(nome.trim().charAt(0).toUpperCase()) + '</span><div style="min-width:0"><b>' + esc(x.eu ? nome + ' (você)' : nome) + '</b><small>' + esc(sub) + '</small></div>' + (x.convidado ? '<span class="esc-tag conv">convidado</span>' : '') + '</div>' +
-      (itens.length ? '<ul class="em-lista">' + itens.map((t, k) => '<li><i>' + (k + 1) + '</i><span>' + esc(t) + '</span></li>').join('') + '</ul>' : '<div class="esc-tarefa vazia">Sem função hoje</div>') + '</div>';
-  }).join('');
-}
-
-$('cd-pessoas').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; CD_PESSOA = b.dataset.p; renderCalDet(); });
 
 function renderGraficoDash() {
   const cont = $('grafico-barras'); if (!cont) return;
@@ -2246,7 +2112,7 @@ async function adicionarRel() {
 
 function abrirRelatorio() {
   T[abaAtiva] = $('txt').value;
-  $('wrap-main').style.display = 'none'; $('cal-det').style.display = 'none'; $('rel').style.display = 'block';
+  $('wrap-main').style.display = 'none'; $('rel').style.display = 'block';
   $('rel-data').value = isoHoje(); $('rel-resp').value = nomeUsuario();
   carregarRel(); carregarEscalaHoje();
 }
@@ -2285,7 +2151,7 @@ function alterarTipoSameProv() {
 }
 
 function mudarAba(aba) {
-  $('rel').style.display = 'none'; $('cal-det').style.display = 'none'; $('wrap-main').style.display = 'grid';
+  $('rel').style.display = 'none'; $('wrap-main').style.display = 'grid';
   
   if (aba === 'sameprov') {
     $('seletor-same-prov').style.display = 'block';

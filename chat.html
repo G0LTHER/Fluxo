@@ -99,6 +99,28 @@
   .msg-add.erro { color: #dc2626; }
   .msg-add.ok { color: var(--pri); }
 
+
+  /* pedidos de amizade (aceitação) e sugestões */
+  .pedidos-box { padding: 10px 14px 6px; border-bottom: 1px solid var(--bd); background: var(--pri-light); }
+  .pedidos-tit { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--mut); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .ped-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; flex-wrap: wrap; }
+  .ped-item .p-info { flex: 1; min-width: 120px; }
+  .ped-item small { display: block; color: var(--mut); font-size: 12px; }
+  .ped-acoes { display: flex; gap: 6px; margin-left: auto; }
+  .mini { border: 0; border-radius: 10px; padding: 0 12px; min-height: 34px; font-weight: 700; font-size: 13px; cursor: pointer; background: var(--pri); color: #fff; white-space: nowrap; }
+  .mini:hover { background: var(--pri-hover); }
+  .mini:disabled { opacity: .55; cursor: not-allowed; }
+  .mini.sec { background: transparent; color: var(--tx); border: 1px solid var(--bd); }
+  .mini.sec:hover { background: var(--bg); }
+  .mini.perigo { background: transparent; color: #dc2626; border: 1px solid rgba(220,38,38,.5); }
+  .sug-box { border-bottom: 1px solid var(--bd); }
+  .sug-box summary { cursor: pointer; padding: 11px 14px; font-size: 13px; font-weight: 700; color: var(--pri); list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .sug-box summary::-webkit-details-marker { display: none; }
+  .sug-box summary::after { content: '\25BE'; color: var(--mut); }
+  .sug-box[open] summary::after { content: '\25B4'; }
+  .sug-lista { max-height: 260px; overflow-y: auto; padding: 0 14px 8px; }
+  .sug-nota { font-size: 12px; color: var(--mut); margin: 0 0 4px; }
+
   .lista { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; }
   .pessoa { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px; border: 0; background: transparent; border-radius: 14px; cursor: pointer; text-align: left; }
   .pessoa:hover { background: var(--bg); }
@@ -198,13 +220,23 @@
     <div class="aviso-espaco oculto" id="aviso-espaco"></div>
 
     <div class="add-box">
-      <label for="novo-usuario">Adicionar pessoa</label>
+      <label for="novo-usuario">Adicionar pessoa (ela precisa aceitar)</label>
       <div class="add-row">
         <input id="novo-usuario" placeholder="Utilizador (ex: maria.silva)" autocapitalize="none" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="send">
-        <button type="button" class="btn" id="btn-add" onclick="adicionarPessoa()">Adicionar</button>
+        <button type="button" class="btn" id="btn-add" onclick="adicionarPessoa()">Pedir</button>
       </div>
       <p class="msg-add" id="msg-add"></p>
     </div>
+
+    <div class="pedidos-box oculto" id="box-pedidos">
+      <div class="pedidos-tit">Pedidos para você aceitar <span class="badge" id="qtd-pedidos">0</span></div>
+      <div id="lista-pedidos"></div>
+    </div>
+
+    <details class="sug-box" id="box-sug">
+      <summary>Sugestões para adicionar</summary>
+      <div class="sug-lista" id="lista-sug"><p class="vazio-txt">A carregar...</p></div>
+    </details>
 
     <div class="lista" id="lista"><p class="vazio-txt">A carregar...</p></div>
   </section>
@@ -313,11 +345,12 @@ window.addEventListener('DOMContentLoaded', async () => {
   uid = data.session.user.id;
 
   await carregarLista();
+  carregarPedidos(true);
   carregarUso();
   const params = new URLSearchParams(location.search);
   const u = (params.get('u') || '').trim().toLowerCase();
   if (u) abrirConversa(u);
-  else if (params.get('add')) $('novo-usuario').focus();
+  else if (params.get('add')) { $('box-sug').open = true; $('novo-usuario').focus(); }
 
   ligarTempoReal();
   tPoll = setInterval(atualizarSilencioso, 6000);
@@ -336,7 +369,7 @@ async function carregarLista() {
 
 function renderLista() {
   const box = $('lista');
-  if (!PESSOAS.length) { box.innerHTML = '<p class="vazio-txt">Ninguém adicionado ainda.<br>Adicione pelo utilizador acima.</p>'; return; }
+  if (!PESSOAS.length) { box.innerHTML = '<p class="vazio-txt">Ninguém adicionado ainda.<br>Envie um pedido pelo utilizador ou veja as sugestões acima.</p>'; return; }
   const ord = PESSOAS.slice().sort((a, b) => {
     const ra = RESUMO[String(a.usuario).toLowerCase()], rb = RESUMO[String(b.usuario).toLowerCase()];
     const ta = ra && ra.ultima_em ? +new Date(ra.ultima_em) : 0, tb = rb && rb.ultima_em ? +new Date(rb.ultima_em) : 0;
@@ -358,19 +391,108 @@ $('lista').addEventListener('click', e => {
   const b = e.target.closest('.pessoa'); if (b) abrirConversa(b.dataset.u);
 });
 
-/* ---------- adicionar pessoa ---------- */
+/* ---------- adicionar pessoa: pedido + aceitação ---------- */
+let SUGESTOES = [], PED_REC = [], PED_ENV = [], SQL_PED_OK = true;
 function avisoAdd(t, tipo) { const el = $('msg-add'); el.textContent = t; el.className = 'msg-add ' + (tipo || ''); }
+
+const MSG_PEDIDO = {
+  ok: u => 'Pedido enviado para @' + u + '. Só funciona quando a pessoa aceitar.',
+  aceito: u => '@' + u + ' já tinha pedido para você: agora vocês podem conversar!',
+  ja_contato: u => '@' + u + ' já está na sua lista.',
+  ja_pendente: u => 'Você já enviou um pedido para @' + u + '.',
+  nao_encontrado: u => 'Não encontrei @' + u + '.',
+  proprio: () => 'Esse é o seu próprio utilizador.',
+  sem_permissao: () => 'Sessão inválida. Entre de novo.'
+};
+
+async function solicitarPessoa(u) {
+  const { data, error } = await db.rpc('contato_solicitar', { p_usuario: u });
+  if (error) {
+    avisoAdd(/contato_solicitar/.test(error.message || '') ? 'Rode o banco_de_dado_aceitacao.txt no Supabase para ativar os pedidos.' : 'Erro: ' + error.message, 'erro');
+    return false;
+  }
+  const f = MSG_PEDIDO[data];
+  avisoAdd(f ? f(u) : 'Não foi possível enviar o pedido para @' + u + '.', (data === 'ok' || data === 'aceito') ? 'ok' : 'erro');
+  await Promise.all([carregarLista(), carregarPedidos(true)]);
+  return data === 'ok' || data === 'aceito';
+}
+
 async function adicionarPessoa() {
   const u = $('novo-usuario').value.trim().replace(/^@/, '').toLowerCase();
   if (!u) return avisoAdd('Escreva o utilizador da pessoa.', 'erro');
   $('btn-add').disabled = true;
-  const { data, error } = await db.rpc('adicionar_contato', { p_usuario: u });
+  const ok = await solicitarPessoa(u);
   $('btn-add').disabled = false;
-  if (error) return avisoAdd('Erro: ' + error.message, 'erro');
-  if (data === 'ok') { $('novo-usuario').value = ''; avisoAdd('@' + u + ' adicionado!', 'ok'); await carregarLista(); }
-  else avisoAdd('Não foi possível adicionar @' + u + '. Confira o utilizador.', 'erro');
+  if (ok) $('novo-usuario').value = '';
 }
 $('novo-usuario').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); adicionarPessoa(); } });
+
+async function carregarPedidos(comSugestoes) {
+  const jobs = [db.rpc('contato_pedidos')];
+  if (comSugestoes || $('box-sug').open) jobs.push(db.rpc('contato_sugestoes'));
+  const [pd, sg] = await Promise.all(jobs);
+  SQL_PED_OK = !pd.error;
+  const ped = (pd.data && typeof pd.data === 'object') ? pd.data : {};
+  PED_REC = ped.recebidos || []; PED_ENV = ped.enviados || [];
+  if (sg) { if (sg.error) SQL_PED_OK = false; else SUGESTOES = Array.isArray(sg.data) ? sg.data : []; }
+  renderPedidos();
+}
+
+function cartaoPessoa(p, acoes) {
+  const nome = p.nome || p.usuario;
+  return '<div class="ped-item"><span class="av sm">' + avatar(p) + '</span><span class="p-info"><span class="p-nome">' + esc(nome) + '</span><small>@' + esc(p.usuario) + '</small></span><span class="ped-acoes">' + acoes + '</span></div>';
+}
+const btnAcao = (acao, u, txt, cls) => '<button type="button" class="mini ' + (cls || '') + '" data-acao="' + acao + '" data-u="' + esc(u) + '">' + txt + '</button>';
+
+function renderPedidos() {
+  $('box-pedidos').classList.toggle('oculto', !PED_REC.length);
+  $('qtd-pedidos').textContent = PED_REC.length;
+  $('lista-pedidos').innerHTML = PED_REC.map(p => cartaoPessoa(p, btnAcao('recusar', p.usuario, 'Recusar', 'perigo') + btnAcao('aceitar', p.usuario, 'Aceitar'))).join('');
+
+  const box = $('lista-sug');
+  if (!SQL_PED_OK) { box.innerHTML = '<p class="vazio-txt">Os pedidos ainda não estão ativos: rode o <b>banco_de_dado_aceitacao.txt</b> no SQL Editor do Supabase.</p>'; return; }
+  if (!SUGESTOES.length) { box.innerHTML = '<p class="vazio-txt">Ninguém para sugerir agora.</p>'; return; }
+  box.innerHTML = '<p class="sug-nota">A pessoa precisa aceitar o seu pedido antes de vocês conversarem.</p>' + SUGESTOES.map(p => {
+    let acao;
+    if (p.recebido) acao = btnAcao('aceitar', p.usuario, 'Aceitar');
+    else if (p.enviado) acao = btnAcao('cancelar', p.usuario, 'Enviado · cancelar', 'sec');
+    else acao = btnAcao('pedir', p.usuario, '+ Pedir');
+    return cartaoPessoa(p, acao);
+  }).join('');
+}
+
+async function responderPedido(u, aceitar) {
+  const msg = aceitar ? 'Quer realmente aceitar @' + u + '?\n\nVocês vão passar a conversar e a partilhar atualizações.' : 'Recusar o pedido de @' + u + '?';
+  if (!confirm(msg)) return;
+  const { data, error } = await db.rpc('contato_responder', { p_usuario: u, p_aceitar: aceitar });
+  if (error) return avisoAdd('Erro: ' + error.message, 'erro');
+  if (data === 'ok') avisoAdd('@' + u + ' aceito! Agora vocês podem conversar.', 'ok');
+  else if (data === 'recusado') avisoAdd('Pedido de @' + u + ' recusado.', 'ok');
+  else if (data === 'nao_encontrado') avisoAdd('Esse pedido não existe mais.', 'erro');
+  else avisoAdd('Não foi possível concluir (' + data + ').', 'erro');
+  await Promise.all([carregarLista(), carregarPedidos(true)]);
+}
+
+async function cancelarPedido(u) {
+  const { error } = await db.rpc('contato_cancelar', { p_usuario: u });
+  if (error) return avisoAdd('Erro: ' + error.message, 'erro');
+  avisoAdd('Pedido para @' + u + ' cancelado.', 'ok');
+  await carregarPedidos(true);
+}
+
+function cliquePedido(e) {
+  const b = e.target.closest('[data-acao]'); if (!b) return;
+  const u = b.dataset.u;
+  ({
+    pedir: () => { b.disabled = true; solicitarPessoa(u); },
+    aceitar: () => responderPedido(u, true),
+    recusar: () => responderPedido(u, false),
+    cancelar: () => cancelarPedido(u)
+  }[b.dataset.acao] || (() => {}))();
+}
+$('box-pedidos').addEventListener('click', cliquePedido);
+$('box-sug').addEventListener('click', cliquePedido);
+$('box-sug').addEventListener('toggle', () => { if ($('box-sug').open) carregarPedidos(true); });
 
 /* ---------- conversa ---------- */
 function pessoaDe(u) { return PESSOAS.find(p => String(p.usuario).toLowerCase() === u) || null; }
@@ -440,6 +562,7 @@ async function carregarResumo() {
 async function atualizarSilencioso() {
   if (document.visibilityState !== 'visible' || !uid) return;
   await carregarResumo();
+  carregarPedidos(false);
   if (atual) carregarConversa(false);
   if (Date.now() - ultimoUso > 60000) carregarUso();
 }

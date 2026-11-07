@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Fluxo - Calendário</title>
+  <meta name="theme-color" content="#0d9488">
+  <link rel="manifest" href="manifest.json">
+
+  <script>
+  (function () {
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    var ACENTOS = /^(teal|blue|purple|red|orange|pink|green)$/;
+    var FUNDOS = /^(padrao|eclipse|ocean|scarlet|amethyst|volcano)$/;
+    function ler(k, pad) { try { return localStorage.getItem(k) || pad; } catch (e) { return pad; } }
+    function modo() { var m = ler('fluxo_tema', 'auto'); return (m === 'light' || m === 'dark') ? m : 'auto'; }
+    function accent() { var a = ler('fluxo_accent', 'teal'); return ACENTOS.test(a) ? a : 'teal'; }
+    function fonte() { var f = ler('fluxo_fonte', ''); return (f === 'preto' || f === 'branco') ? f : ''; }
+    function fundo() { var b = ler('fluxo_fundo', 'padrao'); return FUNDOS.test(b) ? b : 'padrao'; }
+    function aplicar() {
+      var m = modo(), t = m === 'auto' ? (mq && mq.matches ? 'dark' : 'light') : m;
+      var ac = accent(), fo = fonte(), bg = fundo();
+      var h = document.documentElement;
+      h.setAttribute('data-theme', t);
+      h.setAttribute('data-accent', ac);
+      if (t === 'dark') h.setAttribute('data-bg', bg); else h.removeAttribute('data-bg');
+      if (fo) h.setAttribute('data-fonte', fo); else h.removeAttribute('data-fonte');
+    }
+    aplicar();
+    document.addEventListener('DOMContentLoaded', aplicar);
+    window.addEventListener('storage', function (e) { if (e.key && /^fluxo_(tema|accent|fonte|fundo)$/.test(e.key)) aplicar(); });
+    if (mq && mq.addEventListener) mq.addEventListener('change', aplicar);
+  })();
+  </script>
+
+  <style>
+  :root[data-theme="light"] { --bg: #f4f6fa; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --bd: #e6eaf0; --shadow: 0 4px 12px -1px rgba(0,0,0,0.08); }
+  :root[data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --tx: #f8fafc; --mut: #9ca3af; --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; --bd: #334155; --shadow: 0 4px 12px -1px rgba(0,0,0,0.4); }
+  :root[data-theme="dark"][data-bg="eclipse"] { --bg: #000000; --card: #111111; --bd: #222222; }
+  :root[data-theme="dark"][data-bg="ocean"] { --bg: #020617; --card: #0f172a; --bd: #1e293b; }
+  :root[data-theme="dark"][data-bg="scarlet"] { --bg: #2a0808; --card: #3f0c0c; --bd: #5c1414; }
+  :root[data-theme="dark"][data-bg="amethyst"] { --bg: #1e0a2d; --card: #2d1045; --bd: #4a1d6e; }
+  :root[data-theme="dark"][data-bg="volcano"] { --bg: #2a1104; --card: #3f1a06; --bd: #5c260a; }
+  :root[data-theme="light"][data-accent="blue"] { --pri: #2563eb; --pri-hover: #1f54c8; --pri-light: #e9effd; }
+  :root[data-theme="dark"][data-accent="blue"] { --pri: #5585ef; --pri-hover: #2563eb; --pri-light: #132349; }
+  :root[data-theme="light"][data-accent="purple"] { --pri: #7c3aed; --pri-hover: #6931c9; --pri-light: #f2ebfd; }
+  :root[data-theme="dark"][data-accent="purple"] { --pri: #9965f1; --pri-hover: #7c3aed; --pri-light: #201d49; }
+  :root[data-theme="light"][data-accent="red"] { --pri: #dc2626; --pri-hover: #bb2020; --pri-light: #fce9e9; }
+  :root[data-theme="dark"][data-accent="red"] { --pri: #e45656; --pri-hover: #dc2626; --pri-light: #301929; }
+  :root[data-theme="light"][data-accent="orange"] { --pri: #ea580c; --pri-hover: #c74b0a; --pri-light: #fdeee7; }
+  :root[data-theme="dark"][data-accent="orange"] { --pri: #ef7d41; --pri-hover: #ea580c; --pri-light: #322125; }
+  :root[data-theme="light"][data-accent="pink"] { --pri: #db2777; --pri-hover: #ba2165; --pri-light: #fbe9f1; }
+  :root[data-theme="dark"][data-accent="pink"] { --pri: #e35795; --pri-hover: #db2777; --pri-light: #301a36; }
+  :root[data-theme="light"][data-accent="green"] { --pri: #16a34a; --pri-hover: #138b3f; --pri-light: #e8f6ed; }
+  :root[data-theme="dark"][data-accent="green"] { --pri: #49b772; --pri-hover: #16a34a; --pri-light: #102d2f; }
+  :root[data-theme="light"][data-fonte="preto"] { --tx: #000000; }
+  :root[data-theme="dark"][data-fonte="branco"] { --tx: #ffffff; }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--tx); overflow: hidden; font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding-top: env(safe-area-inset-top, 0px); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  [hidden] { display: none !important; }
+
+  .app { height: calc(100dvh - env(safe-area-inset-top, 0px)); display: flex; }
+  .side { width: 264px; flex-shrink: 0; background: var(--card); border-right: 1px solid var(--bd); display: flex; flex-direction: column; overflow-y: auto; padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px)); gap: 14px; }
+  .side-top { display: flex; align-items: center; gap: 8px; }
+  .side-top b { font-size: 17px; font-weight: 800; flex: 1; }
+  .ic { width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; color: var(--mut); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+  .ic:hover { background: var(--bg); color: var(--tx); }
+  .ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .criar { border: 0; background: var(--pri); color: #fff; font-weight: 800; font-size: 14px; border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow); text-align: left; }
+  .criar:hover { background: var(--pri-hover); }
+
+  .mini-cab { display: flex; align-items: center; justify-content: space-between; font-weight: 700; margin-bottom: 4px; }
+  .mini-cab .ic { width: 30px; height: 30px; }
+  .mini-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 11.5px; }
+  .mini-g .dw { color: var(--mut); font-weight: 700; padding: 3px 0; }
+  .mini-g button { border: 0; background: none; border-radius: 50%; aspect-ratio: 1; padding: 0; font-size: 11.5px; font-weight: 600; }
+  .mini-g button:hover { background: var(--bg); }
+  .mini-g button.fora { color: var(--mut); opacity: .55; }
+  .mini-g button.sel { background: var(--pri-light); color: var(--pri); }
+  .mini-g button.hoje { background: var(--pri); color: #fff; }
+
+  .grupo h4 { margin: 0 0 6px; font-size: 13px; font-weight: 800; }
+  .grupo small { color: var(--mut); font-size: 12px; display: block; margin-top: 4px; }
+  .grupo a { color: var(--pri); font-weight: 700; }
+  .ck { display: flex; align-items: center; gap: 9px; padding: 5px 2px; cursor: pointer; font-size: 13.5px; user-select: none; }
+  .ck input { width: 17px; height: 17px; margin: 0; accent-color: var(--ck, var(--pri)); flex-shrink: 0; }
+  .ck.sub { padding-left: 26px; font-size: 12.5px; color: var(--mut); }
+  .ck .av { width: 20px; height: 20px; border-radius: 50%; background: var(--ck, var(--pri)); color: #fff; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .ck .av img { width: 100%; height: 100%; object-fit: cover; }
+  .ck span.n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .side-fim { margin-top: auto; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--bd); padding-top: 10px; }
+  .side-fim a { color: var(--tx); text-decoration: none; padding: 8px 6px; border-radius: 8px; font-weight: 600; font-size: 13.5px; }
+  .side-fim a:hover { background: var(--bg); }
+
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .barra { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--bd); background: var(--card); flex-wrap: wrap; }
+  .barra h1 { margin: 0 6px; font-size: 20px; font-weight: 800; flex: 1; min-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .barra h1::first-letter { text-transform: uppercase; }
+  .btn-o { border: 1px solid var(--bd); background: transparent; border-radius: 10px; padding: 8px 14px; font-weight: 700; font-size: 13.5px; }
+  .btn-o:hover { background: var(--bg); }
+  .abas { display: inline-flex; border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; }
+  .abas button { border: 0; background: transparent; padding: 8px 14px; font-weight: 700; font-size: 13.5px; }
+  .abas button + button { border-left: 1px solid var(--bd); }
+  .abas button.on { background: var(--pri); color: #fff; }
+  #btn-menu { display: none; }
+
+  .vista { flex: 1; overflow: auto; padding: 0; background: var(--card); -webkit-overflow-scrolling: touch; }
+  .aviso { margin: 10px 14px 0; padding: 10px 12px; border-radius: 12px; font-size: 13px; background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  :root[data-theme="dark"] .aviso { background: #3a2a07; color: #fde68a; border-color: #78561a; }
+
+  /* grade do mês / semana */
+  .cab-sem { display: grid; grid-template-columns: repeat(7, 1fr); position: sticky; top: 0; z-index: 4; background: var(--card); border-bottom: 1px solid var(--bd); }
+  .cab-sem div { text-align: center; padding: 8px 0; font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--mut); text-transform: uppercase; }
+  .sem { position: relative; border-top: 1px solid var(--bd); }
+  .dias { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .dia { border-left: 1px solid var(--bd); min-height: calc(40px + var(--ln, 0) * 24px); padding: 4px 0 0; text-align: center; cursor: default; }
+  .dia:first-child { border-left: 0; }
+  .dia.fora .dnum { color: var(--mut); }
+  .dia.sel { background: var(--pri-light); }
+  .vista.semana .dia { min-height: max(56vh, calc(40px + var(--ln, 0) * 24px)); }
+  .dnum { border: 0; background: none; min-width: 26px; height: 26px; border-radius: 13px; font-weight: 700; font-size: 12.5px; padding: 0 6px; }
+  .dnum:hover { background: var(--bg); }
+  .dia.hoje .dnum { background: var(--pri); color: #fff; }
+  .barras { position: absolute; top: 34px; left: 0; right: 0; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 22px; row-gap: 2px; pointer-events: none; }
+  .chip { pointer-events: auto; margin: 0 2px; border: 0; border-radius: 5px; padding: 0 7px; font-size: 12px; font-weight: 700; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; display: block; min-width: 0; height: 22px; line-height: 22px; }
+  .chip:hover { filter: brightness(1.1); }
+  .chip.ci { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  .chip.cf { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+  .chip.conc { opacity: .72; }
+  .c-amarela { background: #f59e0b; color: #1f2937; } .c-vermelha { background: #dc2626; } .c-azul { background: #2563eb; }
+  .c-urg { background: repeating-linear-gradient(45deg, #dc2626 0 9px, #991b1b 9px 18px); }
+  .c-fer { background: #3f8f5b; } .c-esc { background: var(--pri-light); color: var(--pri); box-shadow: inset 0 0 0 1px var(--pri); }
+  .e-azul { background: #3b82f6; } .e-verde { background: #16a34a; } .e-roxo { background: #8b5cf6; } .e-laranja { background: #ea580c; } .e-rosa { background: #db2777; } .e-cinza { background: #64748b; }
+  .mais { pointer-events: auto; border: 0; background: none; color: var(--mut); font-weight: 700; font-size: 11.5px; text-align: left; padding: 0 8px; height: 22px; }
+  .mais:hover { color: var(--tx); text-decoration: underline; }
+
+  /* aba Hoje */
+  .hoje-v { max-width: 760px; margin: 0 auto; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
+  .h-card { background: var(--bg); border: 1px solid var(--bd); border-radius: 16px; padding: 14px 16px; }
+  .h-card h3 { margin: 0 0 10px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .h-card h3 .btn-o { padding: 5px 10px; font-size: 12.5px; }
+  .h-item { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; text-align: left; padding: 9px 4px; border-top: 1px solid var(--bd); border-radius: 0; }
+  .h-item:first-of-type { border-top: 0; }
+  button.h-item:hover { background: var(--card); }
+  .h-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .h-tx { flex: 1; min-width: 0; }
+  .h-tx b { display: block; font-size: 14px; overflow-wrap: anywhere; }
+  .h-tx small { color: var(--mut); font-size: 12.5px; }
+  .h-vazio { margin: 0; color: var(--mut); font-size: 13.5px; }
+  .h-esc { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+  .h-pes { background: var(--card); border: 1px solid var(--bd); border-radius: 12px; padding: 10px 12px; }
+  .h-pes.eu { border-color: var(--pri); background: var(--pri-light); }
+  .h-pes b { display: block; }
+  .h-pes small { color: var(--mut); font-size: 12px; }
+  .h-pes ol { margin: 8px 0 0; padding-left: 20px; font-size: 13.5px; }
+  .h-pes i { color: var(--mut); font-size: 13px; }
+
+  /* modal */
+  .fundo-m { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 18px; width: 100%; max-width: 460px; max-height: 92dvh; overflow-y: auto; padding: 18px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+  .modal h3 { margin: 0 0 12px; font-size: 18px; }
+  .modal label { display: block; font-size: 12px; font-weight: 800; color: var(--mut); text-transform: uppercase; letter-spacing: .03em; margin: 10px 0 4px; }
+  .modal input[type=text], .modal input[type=date], .modal input[type=time], .modal textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--tx); font: inherit; font-size: 15px; }
+  .modal textarea { resize: vertical; }
+  .lin { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal .chk { display: flex; align-items: flex-start; gap: 8px; text-transform: none; letter-spacing: 0; font-size: 13.5px; font-weight: 600; color: var(--tx); cursor: pointer; margin-top: 14px; }
+  .modal .chk input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--pri); }
+  .cores { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cores button { width: 28px; height: 28px; border-radius: 50%; border: 3px solid transparent; padding: 0; }
+  .cores button.on { border-color: var(--tx); }
+  .m-acoes { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+  .m-acoes .grow { margin-right: auto; }
+  .btn-p { border: 0; background: var(--pri); color: #fff; border-radius: 10px; padding: 9px 16px; font-weight: 800; }
+  .btn-p:hover { background: var(--pri-hover); }
+  .btn-p:disabled { opacity: .55; }
+  .btn-pe { border: 1px solid rgba(220,38,38,.5); background: transparent; color: #dc2626; border-radius: 10px; padding: 9px 14px; font-weight: 800; }
+  .m-msg { margin: 10px 0 0; font-size: 13px; color: #dc2626; min-height: 16px; }
+  .m-info p { margin: 4px 0; font-size: 14px; } .m-info small { color: var(--mut); }
+  .pill-st { display: inline-block; padding: 3px 10px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 800; }
+
+  #toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--tx); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; z-index: 60; max-width: 90vw; }
+
+  @media (max-width: 860px) {
+    .side { position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: 280px; transform: translateX(-102%); transition: transform .2s; box-shadow: var(--shadow); padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+    .side.aberto { transform: none; }
+    #btn-menu { display: inline-flex; }
+    .barra h1 { font-size: 17px; order: 5; flex-basis: 100%; margin: 0; }
+    .chip { font-size: 11px; padding: 0 5px; }
+    .dnum { font-size: 12px; min-width: 24px; height: 24px; }
+    .lin { grid-template-columns: 1fr; }
+  }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="side-top">
+      <button type="button" class="ic" onclick="location.href='menu.html'" title="Voltar ao menu" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <b>Calendário</b>
+    </div>
+    <button type="button" class="criar" id="btn-criar">+ Criar evento</button>
+
+    <div>
+      <div class="mini-cab"><span id="mini-tit"></span><span><button type="button" class="ic" id="mini-ant" aria-label="Mês anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="ic" id="mini-prox" aria-label="Próximo mês"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></span></div>
+      <div class="mini-g" id="mini-g"></div>
+    </div>
+
+    <div class="grupo">
+      <h4>Minhas agendas</h4>
+      <label class="ck" style="--ck:#f59e0b"><input type="checkbox" data-c="faa"><span class="n">FAAs e prazos</span></label>
+      <label class="ck sub"><input type="checkbox" data-c="conc"><span class="n">Mostrar concluídas</span></label>
+      <label class="ck" style="--ck:var(--pri)"><input type="checkbox" data-c="esc"><span class="n">Escala</span></label>
+      <label class="ck" style="--ck:#3b82f6"><input type="checkbox" data-c="ev"><span class="n">Eventos</span></label>
+      <label class="ck" style="--ck:#3f8f5b"><input type="checkbox" data-c="fer"><span class="n">Feriados no Brasil</span></label>
+    </div>
+
+    <div class="grupo">
+      <h4>Outras agendas</h4>
+      <div id="outras"></div>
+    </div>
+
+    <div class="side-fim">
+      <a href="escala.html">Editar a escala</a>
+      <a href="perfil.html#pessoas">Adicionar pessoas</a>
+      <a href="menu.html">Voltar ao menu</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="barra">
+      <button type="button" class="ic" id="btn-menu" aria-label="Abrir barra lateral"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+      <button type="button" class="btn-o" id="btn-hoje">Hoje</button>
+      <button type="button" class="ic" id="btn-ant" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button type="button" class="ic" id="btn-prox" aria-label="Próximo"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <h1 id="titulo">—</h1>
+      <div class="abas" id="abas">
+        <button type="button" data-v="mes">Mês</button>
+        <button type="button" data-v="semana">Semana</button>
+        <button type="button" data-v="hoje">Hoje</button>
+      </div>
+    </header>
+    <div id="aviso-sql" class="aviso" hidden></div>
+    <div class="vista" id="vista"></div>
+  </main>
+</div>
+<div id="modal-box"></div>
+<div id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const fotoOk = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
+
+/* ---------- datas ---------- */
+const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const MES_CURTO = ['jan.','fev.','mar.','abr.','mai.','jun.','jul.','ago.','set.','out.','nov.','dez.'];
+const DIAS_LONGO = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+const DIAS_CAB = ['DOM.','SEG.','TER.','QUA.','QUI.','SEX.','SÁB.'];
+const isoDe = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const isoHoje = () => isoDe(new Date());
+const parseIso = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
+const somaDias = (iso, n) => { const d = parseIso(iso); d.setDate(d.getDate() + n); return isoDe(d); };
+const diasEntre = (a, b) => Math.round((parseIso(b) - parseIso(a)) / 86400000);
+const dtBR = iso => iso.split('-').reverse().join('/');
+const inicioSemana = iso => somaDias(iso, -parseIso(iso).getDay());
+
+/* ---------- regras das FAAs (as mesmas do menu) ---------- */
+const PRAZO_DIAS = 20;
+const ehUrgente = r => Number(r.prazo_urgente) >= 1 && Number(r.prazo_urgente) <= 3;
+const prazoDe = r => ehUrgente(r) ? Number(r.prazo_urgente) : PRAZO_DIAS;
+const baseDe = r => (ehUrgente(r) && r.urgente_desde) ? r.urgente_desde : r.data;
+function statusDe(r) {
+  if (r.status === 'concluido') return 'concluido';
+  if (diasEntre(baseDe(r), isoHoje()) > prazoDe(r)) return 'atrasado';
+  if (ehUrgente(r)) return 'urgente';
+  return r.status === 'executando' ? 'executando' : 'pendente';
+}
+const ST_ROT = { pendente: 'Pendente (no prazo)', executando: 'Executando', atrasado: 'Atrasada', concluido: 'Concluída', urgente: 'Jurídico / Urgente' };
+const COR_ST = { pendente: '#f59e0b', executando: '#f59e0b', atrasado: '#dc2626', concluido: '#2563eb', urgente: '#dc2626' };
+const COLS_BASE = 'id, user_id, data, categoria, responsavel, descricao, detalhe, status, executor, executor_id, iniciado_em, concluido_em';
+let COLS = COLS_BASE + ', prazo_urgente, urgente_desde';
+
+function periodo(r) {
+  const ini = baseDe(r), venc = somaDias(ini, prazoDe(r));
+  let fim = venc;
+  if (r.status === 'concluido' && r.concluido_em) { const c = isoDe(new Date(r.concluido_em)); fim = c < ini ? ini : c; }
+  else if (r.status !== 'concluido' && isoHoje() > venc) fim = isoHoje();   // atrasada: segue até hoje
+  return { ini, fim, venc };
+}
+
+/* ---------- feriados nacionais (fixos + móveis) ---------- */
+const FER_CACHE = {};
+function pascoa(y) {
+  const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+  const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const mes = Math.floor((h + l - 7 * m + 114) / 31), dia = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(y, mes - 1, dia);
+}
+function feriadosDe(y) {
+  if (FER_CACHE[y]) return FER_CACHE[y];
+  const m = {}, fx = [['01-01', 'Confraternização Universal'], ['04-21', 'Tiradentes'], ['05-01', 'Dia do Trabalho'], ['09-07', 'Independência do Brasil'], ['10-12', 'Nossa Senhora Aparecida'], ['11-02', 'Finados'], ['11-15', 'Proclamação da República'], ['11-20', 'Dia da Consciência Negra'], ['12-25', 'Natal']];
+  fx.forEach(([md, n]) => { m[y + '-' + md] = n; });
+  const p = isoDe(pascoa(y));
+  m[somaDias(p, -47)] = 'Carnaval'; m[somaDias(p, -2)] = 'Sexta-feira Santa'; m[p] = 'Páscoa'; m[somaDias(p, 60)] = 'Corpus Christi';
+  return (FER_CACHE[y] = m);
+}
+const feriadoDe = iso => feriadosDe(Number(iso.slice(0, 4)))[iso] || '';
+
+/* ---------- estado ---------- */
+let uid = null, EU = {}, PESSOAS = [], REL = [], EVT = [], ESC = [], SQL_CAL_OK = true, ITENS = {}, evJanela = '';
+const CFG_PAD = { faa: true, conc: false, esc: true, ev: true, fer: true, off: {} };
+let CFG = (() => { try { return Object.assign({}, CFG_PAD, JSON.parse(localStorage.getItem('fluxo_cal_cfg') || '{}')); } catch (e) { return Object.assign({}, CFG_PAD); } })();
+const salvarCfg = () => { try { localStorage.setItem('fluxo_cal_cfg', JSON.stringify(CFG)); } catch (e) {} };
+const S = { vista: 'mes', ref: isoHoje(), sel: isoHoje(), mini: isoHoje() };
+{ const q = new URLSearchParams(location.search).get('v'); if (q === 'hoje' || q === 'semana' || q === 'mes') S.vista = q; }
+
+const CORES_PESSOA = ['#8b5cf6', '#ea580c', '#db2777', '#0ea5e9', '#16a34a', '#ca8a04', '#64748b', '#e11d48'];
+const corPessoa = id => { const i = PESSOAS.filter(p => !p.eu).findIndex(p => p.user_id === id); return CORES_PESSOA[(i < 0 ? 0 : i) % CORES_PESSOA.length]; };
+const pessoaPorId = id => PESSOAS.find(p => p.user_id === id) || null;
+const primeiroNome = p => String((p && (p.nome || p.usuario)) || '').trim().split(/\s+/)[0] || '';
+function donoNome(r) {
+  if (r.user_id === uid) return 'Você';
+  const p = pessoaPorId(r.user_id); if (p) return p.nome || p.usuario;
+  return r.responsavel || 'Outra pessoa';
+}
+const donoVisivel = id => id === uid || CFG.off[id] !== true;
+
+function toast(t) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { el.hidden = true; }, 3200); }
+
+/* ---------- janela visível ---------- */
+function janela() {
+  if (S.vista === 'hoje') return { ini: S.sel, fim: S.sel };
+  if (S.vista === 'semana') { const i = inicioSemana(S.ref); return { ini: i, fim: somaDias(i, 6) }; }
+  const d = parseIso(S.ref), p = isoDe(new Date(d.getFullYear(), d.getMonth(), 1)), u = isoDe(new Date(d.getFullYear(), d.getMonth() + 1, 0));
+  return { ini: inicioSemana(p), fim: somaDias(inicioSemana(u), 6) };
+}
+
+/* ---------- itens (FAAs, escala, eventos, feriados) ---------- */
+function montarItens(ini, fim) {
+  const lista = []; ITENS = {}; let n = 0;
+  const add = it => { it.key = 'i' + (n++); ITENS[it.key] = it; lista.push(it); };
+  const hoje = isoHoje();
+
+  if (CFG.fer) {
+    for (let d = ini; d <= fim; d = somaDias(d, 1)) { const f = feriadoDe(d); if (f) add({ tipo: 'fer', ini: d, fim: d, titulo: f, cls: 'c-fer', ord: 0 }); }
+  }
+  if (CFG.esc && ESC.length && hoje >= ini && hoje <= fim) {
+    add({ tipo: 'esc', ini: hoje, fim: hoje, titulo: 'Escala · ' + ESC.length + (ESC.length === 1 ? ' pessoa' : ' pessoas'), cls: 'c-esc', ord: 1 });
+  }
+  if (CFG.faa) {
+    REL.forEach(r => {
+      if (r.categoria !== 'faa' || !donoVisivel(r.user_id)) return;
+      const sk = statusDe(r); if (sk === 'concluido' && !CFG.conc) return;
+      const p = periodo(r); if (p.ini > fim || p.fim < ini) return;
+      const cls = sk === 'concluido' ? 'c-azul conc' : (ehUrgente(r) ? 'c-urg' : (sk === 'atrasado' ? 'c-vermelha' : 'c-amarela'));
+      add({ tipo: 'faa', r, sk, p, ini: p.ini, fim: p.fim, titulo: (r.user_id === uid ? '' : primeiroNome({ nome: donoNome(r) }) + ' · ') + r.descricao, cls, ord: 3 });
+    });
+  }
+  if (CFG.ev) {
+    EVT.forEach(e => {
+      if (!e.meu && !donoVisivel(e.dono_id)) return;
+      if (e.inicio > fim || e.fim < ini) return;
+      const dono = e.meu ? null : pessoaPorId(e.dono_id);
+      add({ tipo: 'ev', e, ini: e.inicio, fim: e.fim, titulo: (e.hora_ini ? e.hora_ini + ' ' : '') + (dono ? primeiroNome(dono) + ': ' : '') + e.titulo, cls: 'e-' + e.cor, ord: 2 });
+    });
+  }
+  return lista;
+}
+
+/* ---------- grade (mês/semana) ---------- */
+function semanaHTML(d0, itens, maxLanes, refMes) {
+  const dias = Array.from({ length: 7 }, (_, i) => somaDias(d0, i)), d6 = dias[6];
+  const segs = itens.filter(it => it.ini <= d6 && it.fim >= d0).map(it => ({ it, c0: Math.max(0, diasEntre(d0, it.ini)), c1: Math.min(6, diasEntre(d0, it.fim)), ci: it.ini < d0, cf: it.fim > d6 }));
+  segs.sort((a, b) => a.c0 - b.c0 || (b.c1 - b.c0) - (a.c1 - a.c0) || a.it.ord - b.it.ord || a.it.ini.localeCompare(b.it.ini));
+  const busy = [], oculto = Array(7).fill(0); let usadas = 0;
+  segs.forEach(s => {
+    let l = 0; while (busy[l] && busy[l].slice(s.c0, s.c1 + 1).some(Boolean)) l++;
+    busy[l] = busy[l] || Array(7).fill(false); for (let c = s.c0; c <= s.c1; c++) busy[l][c] = true; s.l = l;
+    if (l < maxLanes) usadas = Math.max(usadas, l + 1); else for (let c = s.c0; c <= s.c1; c++) oculto[c]++;
+  });
+  const temMais = oculto.some(Boolean), linhas = usadas + (temMais ? 1 : 0), hoje = isoHoje();
+  let h = '<div class="sem"><div class="dias" style="--ln:' + linhas + '">';
+  dias.forEach(d => {
+    const dt = parseIso(d), rot = dt.getDate() === 1 ? dt.getDate() + ' ' + MES_CURTO[dt.getMonth()] : dt.getDate();
+    h += '<div class="dia' + (refMes != null && dt.getMonth() !== refMes ? ' fora' : '') + (d === hoje ? ' hoje' : '') + (d === S.sel ? ' sel' : '') + '" data-d="' + d + '"><button type="button" class="dnum" data-d="' + d + '" title="Ver o dia">' + rot + '</button></div>';
+  });
+  h += '</div><div class="barras">';
+  segs.filter(s => s.l < maxLanes).forEach(s => {
+    h += '<button type="button" class="chip ' + s.it.cls + (s.ci ? ' ci' : '') + (s.cf ? ' cf' : '') + '" style="grid-row:' + (s.l + 1) + ';grid-column:' + (s.c0 + 1) + '/' + (s.c1 + 2) + '" data-k="' + s.it.key + '" title="' + esc(s.it.titulo) + '">' + esc(s.it.titulo) + '</button>';
+  });
+  oculto.forEach((n, c) => { if (n) h += '<button type="button" class="mais" style="grid-row:' + (usadas + 1) + ';grid-column:' + (c + 1) + '" data-d="' + dias[c] + '">+' + n + ' mais</button>'; });
+  return h + '</div></div>';
+}
+
+function renderGrade() {
+  const w = janela(), itens = montarItens(w.ini, w.fim), mobile = window.innerWidth <= 860;
+  let h = '<div class="cab-sem">' + DIAS_CAB.map(n => '<div>' + n + '</div>').join('') + '</div>';
+  if (S.vista === 'semana') h += semanaHTML(w.ini, itens, 99, null);
+  else {
+    const refMes = parseIso(S.ref).getMonth(), max = mobile ? 3 : 4;
+    for (let d = w.ini; d <= w.fim; d = somaDias(d, 7)) h += semanaHTML(d, itens, max, refMes);
+  }
+  $('vista').className = 'vista ' + S.vista; $('vista').innerHTML = h;
+}
+
+/* ---------- aba Hoje (dia) ---------- */
+function renderDia() {
+  const d = S.sel, hoje = isoHoje(), dt = parseIso(d), ehHoje = d === hoje;
+  const w = { ini: d, fim: d }, itens = montarItens(w.ini, w.fim);
+  const fer = feriadoDe(d);
+  let h = '<div class="hoje-v">';
+  h += '<div style="font-size:13px;color:var(--mut);font-weight:700">' + (ehHoje ? 'HOJE' : (d < hoje ? 'DIA PASSADO' : 'DIA FUTURO')) + '</div>';
+  if (fer) h += '<div class="h-card"><div class="h-item"><span class="h-dot" style="background:#3f8f5b"></span><div class="h-tx"><b>' + esc(fer) + '</b><small>Feriado nacional</small></div></div></div>';
+
+  if (CFG.esc) {
+    h += '<div class="h-card"><h3>Escala<a class="btn-o" href="escala.html" style="text-decoration:none;color:inherit">Editar escala</a></h3>';
+    if (!ehHoje) h += '<p class="h-vazio">Por enquanto a escala só aparece aqui para o dia de hoje.</p>';
+    else if (!ESC.length) h += '<p class="h-vazio">Nenhuma escala montada para hoje.</p>';
+    else h += '<div class="h-esc">' + ESC.map(x => {
+      const nome = x.nome || x.usuario, it = String(x.tarefas || '').split(/[\n;,]+/).map(t => t.trim()).filter(Boolean).map(t => t.charAt(0).toUpperCase() + t.slice(1));
+      return '<div class="h-pes' + (x.eu ? ' eu' : '') + '"><b>' + esc(x.eu ? nome + ' (você)' : nome) + '</b><small>' + esc(x.semana_nome || ('Semana ' + x.semana_numero)) + (x.convidado ? ' · convidado' : '') + '</small>' +
+        (it.length ? '<ol>' + it.map(t => '<li>' + esc(t) + '</li>').join('') + '</ol>' : '<div style="margin-top:8px"><i>Sem função hoje</i></div>') + '</div>';
+    }).join('') + '</div>';
+    h += '</div>';
+  }
+
+  if (CFG.faa) {
+    const fa = itens.filter(i => i.tipo === 'faa').sort((a, b) => ({ atrasado: 0, urgente: 1, executando: 2, pendente: 3, concluido: 4 }[a.sk] - { atrasado: 0, urgente: 1, executando: 2, pendente: 3, concluido: 4 }[b.sk]) || a.p.venc.localeCompare(b.p.venc));
+    h += '<div class="h-card"><h3>FAAs com prazo neste dia <span style="font-weight:600;color:var(--mut);font-size:12.5px">' + fa.length + '</span></h3>';
+    h += fa.length ? fa.map(i => {
+      const rest = diasEntre(d, i.p.venc), txt = i.sk === 'concluido' ? 'Concluída' : (rest < 0 ? 'venceu há ' + (-rest) + (rest === -1 ? ' dia' : ' dias') : rest === 0 ? 'vence neste dia' : 'vence em ' + rest + (rest === 1 ? ' dia' : ' dias'));
+      return '<button type="button" class="h-item" data-k="' + i.key + '"><span class="h-dot" style="background:' + COR_ST[i.sk] + '"></span><span class="h-tx"><b>' + esc(i.r.descricao) + '</b><small>' + esc(donoNome(i.r)) + ' · pedida ' + dtBR(i.p.ini) + ' · ' + txt + '</small></span></button>';
+    }).join('') : '<p class="h-vazio">Nenhuma FAA neste dia.</p>';
+    h += '</div>';
+  }
+
+  if (CFG.ev) {
+    const ev = itens.filter(i => i.tipo === 'ev').sort((a, b) => String(a.e.hora_ini || '').localeCompare(String(b.e.hora_ini || '')));
+    h += '<div class="h-card"><h3>Eventos<button type="button" class="btn-o" id="btn-ev-dia">+ Evento neste dia</button></h3>';
+    h += ev.length ? ev.map(i => {
+      const e = i.e, dono = e.meu ? 'Você' : (pessoaPorId(e.dono_id) ? (pessoaPorId(e.dono_id).nome || pessoaPorId(e.dono_id).usuario) : 'Alguém');
+      return '<button type="button" class="h-item" data-k="' + i.key + '"><span class="h-dot ' + 'e-' + e.cor + '"></span><span class="h-tx"><b>' + esc(e.titulo) + '</b><small>' + (e.hora_ini ? e.hora_ini + (e.hora_fim ? '–' + e.hora_fim : '') + ' · ' : '') + esc(dono) + (e.inicio !== e.fim ? ' · ' + dtBR(e.inicio) + ' a ' + dtBR(e.fim) : '') + '</small></span></button>';
+    }).join('') : '<p class="h-vazio">Nenhum evento neste dia.</p>';
+    h += '</div>';
+  }
+  $('vista').className = 'vista hoje'; $('vista').innerHTML = h + '</div>';
+}
+
+/* ---------- barra lateral ---------- */
+function renderMini() {
+  const d = parseIso(S.mini), ano = d.getFullYear(), mes = d.getMonth(), hoje = isoHoje();
+  $('mini-tit').textContent = MESES[mes].charAt(0).toUpperCase() + MESES[mes].slice(1) + ' de ' + ano;
+  const p = isoDe(new Date(ano, mes, 1)), i0 = inicioSemana(p);
+  let h = 'DSTQQSS'.split('').map(c => '<div class="dw">' + c + '</div>').join('');
+  for (let k = 0; k < 42; k++) {
+    const iso = somaDias(i0, k), dt = parseIso(iso);
+    h += '<button type="button" data-d="' + iso + '" class="' + (dt.getMonth() !== mes ? 'fora ' : '') + (iso === hoje ? 'hoje ' : '') + (iso === S.sel && iso !== hoje ? 'sel' : '') + '">' + dt.getDate() + '</button>';
+  }
+  $('mini-g').innerHTML = h;
+}
+
+function renderLateral() {
+  document.querySelectorAll('#side [data-c]').forEach(i => { i.checked = !!CFG[i.dataset.c]; });
+  const outras = PESSOAS.filter(p => !p.eu);
+  let h = '';
+  if (!SQL_CAL_OK) h = '<small>As agendas das pessoas ainda não estão ativas.</small>';
+  else if (!outras.length) h = '<small>Ninguém aceitou ainda. <a href="perfil.html#pessoas">Adicionar pessoas</a></small>';
+  else h = outras.map(p => {
+    const f = fotoOk(p.foto), n = p.nome || p.usuario;
+    return '<label class="ck" style="--ck:' + corPessoa(p.user_id) + '"><input type="checkbox" data-p="' + esc(p.user_id) + '"' + (CFG.off[p.user_id] === true ? '' : ' checked') + '><span class="av">' + (f ? '<img src="' + esc(f) + '" alt="">' : esc(n.trim().charAt(0).toUpperCase())) + '</span><span class="n">' + esc(n) + '</span></label>';
+  }).join('') + '<small>Mostra as FAAs e os eventos partilhados de cada pessoa.</small>';
+  $('outras').innerHTML = h;
+}
+
+function titulo() {
+  const d = parseIso(S.ref);
+  if (S.vista === 'mes') return MESES[d.getMonth()] + ' de ' + d.getFullYear();
+  if (S.vista === 'semana') { const a = parseIso(inicioSemana(S.ref)), b = parseIso(somaDias(inicioSemana(S.ref), 6)); return a.getMonth() === b.getMonth() ? a.getDate() + ' – ' + b.getDate() + ' de ' + MESES[b.getMonth()] + ' de ' + b.getFullYear() : a.getDate() + ' ' + MES_CURTO[a.getMonth()] + ' – ' + b.getDate() + ' ' + MES_CURTO[b.getMonth()] + ' ' + b.getFullYear(); }
+  const s = parseIso(S.sel); return DIAS_LONGO[s.getDay()] + ', ' + s.getDate() + ' de ' + MESES[s.getMonth()] + ' de ' + s.getFullYear();
+}
+
+function render() {
+  $('titulo').textContent = titulo();
+  document.querySelectorAll('#abas button').forEach(b => b.classList.toggle('on', b.dataset.v === S.vista));
+  if (S.vista === 'hoje') renderDia(); else renderGrade();
+  renderMini(); renderLateral();
+  const w = janela(), chave = w.ini + '|' + w.fim;
+  if (chave !== evJanela) carregarEventos().then(() => { if (evJanela === chave) render2(); });
+}
+function render2() { if (S.vista === 'hoje') renderDia(); else renderGrade(); renderLateral(); }
+
+/* ---------- dados ---------- */
+async function carregarRel() {
+  let { data, error } = await db.from('relatorio').select(COLS).order('id', { ascending: false }).limit(500);
+  if (error && /prazo_urgente|urgente_desde/.test(error.message || '')) { COLS = COLS_BASE; ({ data, error } = await db.from('relatorio').select(COLS).order('id', { ascending: false }).limit(500)); }
+  if (!error) REL = data || [];
+}
+async function carregarEscala() {
+  const { data, error } = await db.rpc('escala_hoje');
+  ESC = (!error && Array.isArray(data)) ? data : [];
+}
+async function carregarPessoas() {
+  const { data, error } = await db.rpc('cal_pessoas');
+  if (error) { SQL_CAL_OK = false; PESSOAS = []; return; }
+  PESSOAS = Array.isArray(data) ? data : [];
+  const eu = PESSOAS.find(p => p.eu); if (eu) EU = eu;
+}
+async function carregarEventos() {
+  const w = janela(); evJanela = w.ini + '|' + w.fim;
+  const { data, error } = await db.rpc('cal_eventos', { p_ini: w.ini, p_fim: w.fim });
+  if (error) { SQL_CAL_OK = false; EVT = []; }
+  else { SQL_CAL_OK = true; EVT = Array.isArray(data) ? data : []; }
+  const av = $('aviso-sql'); av.hidden = SQL_CAL_OK;
+  if (!SQL_CAL_OK) av.innerHTML = 'Para ativar o calendário geral partilhado e as agendas das pessoas, rode o arquivo <b>banco_de_dado_calendario.txt</b> no SQL Editor do Supabase. As FAAs, a escala e os feriados já funcionam.';
+}
+async function recarregarTudo() {
+  await Promise.all([carregarRel(), carregarEscala(), carregarPessoas()]);
+  await carregarEventos();
+  render2(); renderMini();
+}
+
+/* ---------- navegação ---------- */
+function mover(n) {
+  if (S.vista === 'mes') { const d = parseIso(S.ref); S.ref = isoDe(new Date(d.getFullYear(), d.getMonth() + n, 1)); }
+  else if (S.vista === 'semana') S.ref = somaDias(S.ref, 7 * n);
+  else { S.sel = somaDias(S.sel, n); S.ref = S.sel; }
+  S.mini = S.ref; render();
+}
+function irPara(iso, vista) { S.ref = iso; S.sel = iso; S.mini = iso; if (vista) S.vista = vista; render(); }
+$('btn-hoje').onclick = () => irPara(isoHoje());
+$('btn-ant').onclick = () => mover(-1);
+$('btn-prox').onclick = () => mover(1);
+$('abas').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; S.vista = b.dataset.v; if (S.vista !== 'mes') S.ref = S.sel; render(); };
+$('mini-ant').onclick = () => { const d = parseIso(S.mini); S.mini = isoDe(new Date(d.getFullYear(), d.getMonth() - 1, 1)); renderMini(); };
+$('mini-prox').onclick = () => { const d = parseIso(S.mini); S.mini = isoDe(new Date(d.getFullYear(), d.getMonth() + 1, 1)); renderMini(); };
+$('mini-g').onclick = e => { const b = e.target.closest('[data-d]'); if (!b) return; irPara(b.dataset.d); fecharSide(); };
+$('btn-menu').onclick = () => $('side').classList.add('aberto');
+const fecharSide = () => $('side').classList.remove('aberto');
+document.addEventListener('click', e => { if ($('side').classList.contains('aberto') && !e.target.closest('#side') && !e.target.closest('#btn-menu')) fecharSide(); });
+
+$('side').addEventListener('change', e => {
+  const c = e.target.dataset.c, p = e.target.dataset.p;
+  if (c) CFG[c] = e.target.checked;
+  if (p) { if (e.target.checked) delete CFG.off[p]; else CFG.off[p] = true; }
+  salvarCfg(); render2();
+});
+
+$('vista').addEventListener('click', e => {
+  const k = e.target.closest('[data-k]');
+  if (k) return abrirItem(ITENS[k.dataset.k]);
+  const d = e.target.closest('[data-d]');
+  if (d) {
+    if (d.classList.contains('dnum') || d.classList.contains('mais')) return irPara(d.dataset.d, 'hoje');
+    S.sel = d.dataset.d; document.querySelectorAll('.dia.sel').forEach(x => x.classList.remove('sel')); d.classList.add('sel'); renderMini();
+  }
+  if (e.target.id === 'btn-ev-dia') abrirForm(null, S.sel);
+});
+$('btn-criar').onclick = () => { abrirForm(null, S.sel); fecharSide(); };
+
+/* ---------- modais ---------- */
+function abrirModal(html) {
+  $('modal-box').innerHTML = '<div class="fundo-m" id="fundo-m"><div class="modal" role="dialog" aria-modal="true">' + html + '</div></div>';
+  $('fundo-m').addEventListener('mousedown', e => { if (e.target.id === 'fundo-m') fecharModal(); });
+}
+function fecharModal() { $('modal-box').innerHTML = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
+
+function abrirItem(it) {
+  if (!it) return;
+  if (it.tipo === 'esc') return irPara(isoHoje(), 'hoje');
+  if (it.tipo === 'fer') return;
+  if (it.tipo === 'ev') return it.e.meu ? abrirForm(it.e) : abrirEvento(it.e);
+  const r = it.r, p = it.p, rest = diasEntre(isoHoje(), p.venc);
+  const txt = it.sk === 'concluido' ? 'Concluída' + (r.concluido_em ? ' em ' + dtBR(isoDe(new Date(r.concluido_em))) : '') : (rest < 0 ? 'venceu há ' + (-rest) + (rest === -1 ? ' dia' : ' dias') : rest === 0 ? 'vence hoje' : 'vence em ' + rest + (rest === 1 ? ' dia' : ' dias'));
+  abrirModal('<h3>' + esc(r.descricao) + '</h3><div class="m-info"><p><span class="pill-st" style="background:' + COR_ST[it.sk] + '">' + esc(ST_ROT[it.sk]) + '</span></p>' +
+    '<p><b>Pessoa:</b> ' + esc(donoNome(r)) + '</p>' + (r.responsavel && r.user_id === uid ? '<p><b>Responsável:</b> ' + esc(r.responsavel) + '</p>' : '') +
+    (r.executor ? '<p><b>Executando:</b> ' + esc(r.executor) + '</p>' : '') +
+    '<p><b>Pedida em:</b> ' + dtBR(p.ini) + '</p><p><b>Prazo (vencimento):</b> ' + dtBR(p.venc) + ' <small>· ' + txt + '</small></p>' +
+    (r.detalhe ? '<p><b>Detalhe:</b> ' + esc(r.detalhe) + '</p>' : '') + '</div>' +
+    '<div class="m-acoes"><button type="button" class="btn-o" onclick="fecharModal()">Fechar</button><a class="btn-p" style="text-decoration:none" href="menu.html?faa=' + encodeURIComponent(r.id) + '">Abrir no painel</a></div>');
+}
+
+function abrirEvento(e) {
+  const p = pessoaPorId(e.dono_id), quem = p ? (p.nome || p.usuario) : 'Alguém';
+  abrirModal('<h3>' + esc(e.titulo) + '</h3><div class="m-info"><p><span class="pill-st e-' + e.cor + '">Partilhado por ' + esc(quem) + '</span></p>' +
+    '<p><b>Quando:</b> ' + dtBR(e.inicio) + (e.fim !== e.inicio ? ' a ' + dtBR(e.fim) : '') + (e.hora_ini ? ' · ' + e.hora_ini + (e.hora_fim ? '–' + e.hora_fim : '') : '') + '</p>' +
+    (e.descricao ? '<p>' + esc(e.descricao).replace(/\n/g, '<br>') + '</p>' : '') + '</div>' +
+    '<div class="m-acoes"><button type="button" class="btn-o" onclick="fecharModal()">Fechar</button></div>');
+}
+
+let EV_COR = 'azul';
+function abrirForm(e, dia) {
+  const novo = !e, ini = novo ? (dia || isoHoje()) : e.inicio;
+  EV_COR = novo ? 'azul' : e.cor;
+  abrirModal('<h3>' + (novo ? 'Novo evento' : 'Editar evento') + '</h3>' +
+    '<label for="ev-titulo">Título</label><input type="text" id="ev-titulo" maxlength="120" placeholder="Ex.: Reunião, folga, consulta..." value="' + esc(novo ? '' : e.titulo) + '">' +
+    '<div class="lin"><div><label for="ev-ini">Início</label><input type="date" id="ev-ini" value="' + ini + '"></div><div><label for="ev-fim">Fim</label><input type="date" id="ev-fim" value="' + (novo ? ini : e.fim) + '"></div></div>' +
+    '<div class="lin"><div><label for="ev-hi">Hora início (opcional)</label><input type="time" id="ev-hi" value="' + (novo ? '' : (e.hora_ini || '')) + '"></div><div><label for="ev-hf">Hora fim (opcional)</label><input type="time" id="ev-hf" value="' + (novo ? '' : (e.hora_fim || '')) + '"></div></div>' +
+    '<label>Cor</label><div class="cores" id="ev-cores">' + ['azul', 'verde', 'roxo', 'laranja', 'rosa', 'cinza'].map(c => '<button type="button" class="e-' + c + (c === EV_COR ? ' on' : '') + '" data-c="' + c + '" aria-label="' + c + '"></button>').join('') + '</div>' +
+    '<label for="ev-desc">Descrição</label><textarea id="ev-desc" rows="3" maxlength="2000">' + esc(novo ? '' : (e.descricao || '')) + '</textarea>' +
+    '<label class="chk"><input type="checkbox" id="ev-part"' + (novo || e.partilhado ? ' checked' : '') + '><span>Partilhar com as minhas pessoas (quem aceitou o seu pedido vê este evento)</span></label>' +
+    '<p class="m-msg" id="ev-msg"></p>' +
+    '<div class="m-acoes">' + (novo ? '' : '<button type="button" class="btn-pe grow" id="ev-apagar">Apagar</button>') + '<button type="button" class="btn-o" onclick="fecharModal()">Cancelar</button><button type="button" class="btn-p" id="ev-salvar">Salvar</button></div>');
+  $('ev-cores').onclick = x => { const b = x.target.closest('[data-c]'); if (!b) return; EV_COR = b.dataset.c; document.querySelectorAll('#ev-cores button').forEach(y => y.classList.toggle('on', y === b)); };
+  $('ev-ini').onchange = () => { if ($('ev-fim').value < $('ev-ini').value) $('ev-fim').value = $('ev-ini').value; };
+  $('ev-salvar').onclick = () => salvarEvento(novo ? null : e.id);
+  if (!novo) $('ev-apagar').onclick = () => apagarEvento(e.id);
+  setTimeout(() => $('ev-titulo').focus(), 30);
+}
+
+const ERROS_EV = { titulo: 'Escreva um título (até 120 letras).', datas: 'Confira as datas: o fim não pode ser antes do início (máx. 1 ano).', hora: 'Hora inválida.', descricao: 'Descrição muito longa.', limite: 'Limite de eventos atingido.', nao_encontrado: 'Esse evento não existe mais.', sem_permissao: 'Sessão inválida. Entre de novo.' };
+async function salvarEvento(id) {
+  const msg = $('ev-msg'), t = $('ev-titulo').value.trim(), ini = $('ev-ini').value, fim = $('ev-fim').value || ini;
+  if (!t) { msg.textContent = ERROS_EV.titulo; return; }
+  if (!ini || fim < ini) { msg.textContent = ERROS_EV.datas; return; }
+  $('ev-salvar').disabled = true;
+  const { data, error } = await db.rpc('cal_evento_salvar', { p_id: id, p_titulo: t, p_descricao: $('ev-desc').value, p_inicio: ini, p_fim: fim, p_hora_ini: $('ev-hi').value, p_hora_fim: $('ev-hf').value, p_cor: EV_COR, p_partilhado: $('ev-part').checked });
+  $('ev-salvar').disabled = false;
+  if (error) { msg.textContent = /cal_evento_salvar/.test(error.message || '') ? 'Rode o banco_de_dado_calendario.txt no Supabase para salvar eventos.' : 'Erro: ' + error.message; return; }
+  if (data && data.erro) { msg.textContent = ERROS_EV[data.erro] || 'Não foi possível salvar.'; return; }
+  fecharModal(); toast(id ? 'Evento atualizado.' : 'Evento criado.');
+  await carregarEventos(); render2();
+}
+async function apagarEvento(id) {
+  if (!confirm('Apagar este evento? Ele some também para quem via a partilha.')) return;
+  const { data, error } = await db.rpc('cal_evento_apagar', { p_id: id });
+  if (error) { $('ev-msg').textContent = 'Erro: ' + error.message; return; }
+  if (data !== 'ok') { $('ev-msg').textContent = ERROS_EV[data] || 'Não foi possível apagar.'; return; }
+  fecharModal(); toast('Evento apagado.'); await carregarEventos(); render2();
+}
+
+/* ---------- início ---------- */
+window.addEventListener('DOMContentLoaded', async () => {
+  const { data } = await db.auth.getSession();
+  if (!data.session) { window.location.href = 'index.html'; return; }
+  uid = data.session.user.id;
+  render();
+  await recarregarTudo();
+  setInterval(() => { if (document.visibilityState === 'visible' && !$('modal-box').innerHTML) recarregarTudo(); }, 60000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !$('modal-box').innerHTML) recarregarTudo(); });
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(render2, 150); });
+});
+</script>
+</body>
+</html>
