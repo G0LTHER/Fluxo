@@ -62,96 +62,132 @@
   button { font: inherit; color: inherit; cursor: pointer; }
   [hidden] { display: none !important; }
 
-  .app { height: calc(100dvh - env(safe-area-inset-top, 0px)); display: flex; }
-  .side { width: 264px; flex-shrink: 0; background: var(--card); border-right: 1px solid var(--bd); display: flex; flex-direction: column; overflow-y: auto; padding: 12px 14px calc(14px + env(safe-area-inset-bottom, 0px)); gap: 14px; }
+  .app { height: calc(100dvh - env(safe-area-inset-top, 0px)); display: flex; gap: 14px; padding: 14px; }
+  .side { width: 276px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
   .side-top { display: flex; align-items: center; gap: 8px; }
-  .side-top b { font-size: 17px; font-weight: 800; flex: 1; }
-  .ic { width: 38px; height: 38px; border: 0; border-radius: 10px; background: transparent; color: var(--mut); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
-  .ic:hover { background: var(--bg); color: var(--tx); }
+  .side-top b { font-size: 18px; font-weight: 800; flex: 1; }
+  .ic { width: 38px; height: 38px; border: 0; border-radius: 12px; background: var(--card); color: var(--mut); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; border: 1px solid var(--bd); }
+  .ic:hover { color: var(--tx); }
   .ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .criar { border: 0; background: var(--pri); color: #fff; font-weight: 800; font-size: 14px; border-radius: 14px; padding: 12px 16px; box-shadow: var(--shadow); text-align: left; }
-  .criar:hover { background: var(--pri-hover); }
 
-  .mini-cab { display: flex; align-items: center; justify-content: space-between; font-weight: 700; margin-bottom: 4px; }
-  .mini-cab .ic { width: 30px; height: 30px; }
-  .mini-g { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; font-size: 11.5px; }
-  .mini-g .dw { color: var(--mut); font-weight: 700; padding: 3px 0; }
-  .mini-g button { border: 0; background: none; border-radius: 50%; aspect-ratio: 1; padding: 0; font-size: 11.5px; font-weight: 600; }
-  .mini-g button:hover { background: var(--bg); }
-  .mini-g button.fora { color: var(--mut); opacity: .55; }
-  .mini-g button.sel { background: var(--pri-light); color: var(--pri); }
-  .mini-g button.hoje { background: var(--pri); color: #fff; }
+  .hoje-card { border: 0; text-align: left; color: #fff; background: linear-gradient(145deg, var(--pri) 0%, var(--pri-hover) 100%); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .hc-data { display: flex; align-items: center; gap: 12px; }
+  .hc-dia { font-size: 46px; font-weight: 800; line-height: 1; }
+  .hc-data b { display: block; font-size: 15px; text-transform: capitalize; }
+  .hc-data small { opacity: .88; font-size: 12.5px; }
+  .hc-stats { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; }
+  .hc-stats span { display: flex; align-items: center; gap: 8px; }
+  .hc-stats i { width: 9px; height: 9px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+  .hc-stats .r i { background: #fecaca; box-shadow: 0 0 0 3px rgba(254,202,202,.35); }
+  .hc-ver { font-size: 12px; font-weight: 800; opacity: .9; }
 
-  .grupo h4 { margin: 0 0 6px; font-size: 13px; font-weight: 800; }
-  .grupo small { color: var(--mut); font-size: 12px; display: block; margin-top: 4px; }
-  .grupo a { color: var(--pri); font-weight: 700; }
-  .ck { display: flex; align-items: center; gap: 9px; padding: 5px 2px; cursor: pointer; font-size: 13.5px; user-select: none; }
-  .ck input { width: 17px; height: 17px; margin: 0; accent-color: var(--ck, var(--pri)); flex-shrink: 0; }
-  .ck.sub { padding-left: 26px; font-size: 12.5px; color: var(--mut); }
-  .ck .av { width: 20px; height: 20px; border-radius: 50%; background: var(--ck, var(--pri)); color: #fff; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
-  .ck .av img { width: 100%; height: 100%; object-fit: cover; }
-  .ck span.n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .side-fim { margin-top: auto; display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--bd); padding-top: 10px; }
-  .side-fim a { color: var(--tx); text-decoration: none; padding: 8px 6px; border-radius: 8px; font-weight: 600; font-size: 13.5px; }
-  .side-fim a:hover { background: var(--bg); }
+  .grupo { background: var(--card); border: 1px solid var(--bd); border-radius: 20px; padding: 14px; }
+  .grupo h4 { margin: 0 0 10px; font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--mut); }
+  .grupo small { color: var(--mut); font-size: 12px; display: block; margin-top: 8px; }
+  .grupo small a { color: var(--pri); font-weight: 700; }
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cam, .pes { --cc: #64748b; display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--bd); background: transparent; font-size: 12.5px; font-weight: 700; color: var(--mut); }
+  .cam i { width: 9px; height: 9px; border-radius: 50%; background: var(--cc); opacity: .4; }
+  .cam.on, .pes.on { color: var(--tx); border-color: var(--cc); background: color-mix(in srgb, var(--cc) 14%, transparent); }
+  .cam.on i { opacity: 1; }
+  .pes { padding: 4px 11px 4px 4px; }
+  .pes .av { width: 24px; height: 24px; border-radius: 50%; background: var(--cc); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; overflow: hidden; opacity: .4; flex-shrink: 0; }
+  .pes.on .av { opacity: 1; }
+  .pes .av img { width: 100%; height: 100%; object-fit: cover; }
+  .side-fim { margin-top: auto; display: flex; flex-direction: column; gap: 2px; padding: 4px 4px 0; }
+  .side-fim a { color: var(--mut); text-decoration: none; padding: 7px 8px; border-radius: 10px; font-weight: 700; font-size: 13px; }
+  .side-fim a:hover { background: var(--card); color: var(--tx); }
 
-  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .barra { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--bd); background: var(--card); flex-wrap: wrap; }
-  .barra h1 { margin: 0 6px; font-size: 20px; font-weight: 800; flex: 1; min-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+  .barra { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tit-bloco { flex: 1; min-width: 160px; }
+  .barra h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .barra h1::first-letter { text-transform: uppercase; }
+  .tit-bloco small { color: var(--mut); font-size: 12.5px; font-weight: 600; }
+  .nav-pill, .abas { display: inline-flex; background: var(--card); border: 1px solid var(--bd); border-radius: 999px; padding: 3px; gap: 2px; }
+  .nav-pill button, .abas button { border: 0; background: none; border-radius: 999px; height: 34px; min-width: 34px; padding: 0 14px; font-weight: 700; font-size: 13.5px; }
+  .nav-pill button:hover { background: var(--bg); }
+  .nav-pill svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+  .abas button { padding: 0 16px; color: var(--mut); }
+  .abas button.on { background: var(--pri); color: #fff; }
+  .data-pill { border: 1px solid var(--bd); background: var(--card); color: var(--tx); border-radius: 999px; padding: 7px 12px; font: inherit; font-size: 13px; font-weight: 600; height: 42px; }
+  .btn-novo { border: 0; background: var(--pri); color: #fff; border-radius: 999px; padding: 0 18px; height: 42px; font-weight: 800; box-shadow: var(--shadow); }
+  .btn-novo:hover { background: var(--pri-hover); }
   .btn-o { border: 1px solid var(--bd); background: transparent; border-radius: 10px; padding: 8px 14px; font-weight: 700; font-size: 13.5px; }
   .btn-o:hover { background: var(--bg); }
-  .abas { display: inline-flex; border: 1px solid var(--bd); border-radius: 10px; overflow: hidden; }
-  .abas button { border: 0; background: transparent; padding: 8px 14px; font-weight: 700; font-size: 13.5px; }
-  .abas button + button { border-left: 1px solid var(--bd); }
-  .abas button.on { background: var(--pri); color: #fff; }
   #btn-menu { display: none; }
 
-  .vista { flex: 1; overflow: auto; padding: 0; background: var(--card); -webkit-overflow-scrolling: touch; }
-  .aviso { margin: 10px 14px 0; padding: 10px 12px; border-radius: 12px; font-size: 13px; background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  .aviso { padding: 10px 12px; border-radius: 14px; font-size: 13px; background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
   :root[data-theme="dark"] .aviso { background: #3a2a07; color: #fde68a; border-color: #78561a; }
+  .vista { flex: 1; overflow: auto; background: var(--card); border: 1px solid var(--bd); border-radius: 22px; padding: 12px; box-shadow: var(--shadow); -webkit-overflow-scrolling: touch; }
 
-  /* grade do mês / semana */
-  .cab-sem { display: grid; grid-template-columns: repeat(7, 1fr); position: sticky; top: 0; z-index: 4; background: var(--card); border-bottom: 1px solid var(--bd); }
-  .cab-sem div { text-align: center; padding: 8px 0; font-size: 11px; font-weight: 800; letter-spacing: .04em; color: var(--mut); text-transform: uppercase; }
-  .sem { position: relative; border-top: 1px solid var(--bd); }
-  .dias { display: grid; grid-template-columns: repeat(7, 1fr); }
-  .dia { border-left: 1px solid var(--bd); min-height: calc(40px + var(--ln, 0) * 24px); padding: 4px 0 0; text-align: center; cursor: default; }
-  .dia:first-child { border-left: 0; }
-  .dia.fora .dnum { color: var(--mut); }
-  .dia.sel { background: var(--pri-light); }
-  .vista.semana .dia { min-height: max(56vh, calc(40px + var(--ln, 0) * 24px)); }
-  .dnum { border: 0; background: none; min-width: 26px; height: 26px; border-radius: 13px; font-weight: 700; font-size: 12.5px; padding: 0 6px; }
-  .dnum:hover { background: var(--bg); }
-  .dia.hoje .dnum { background: var(--pri); color: #fff; }
-  .barras { position: absolute; top: 34px; left: 0; right: 0; display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 22px; row-gap: 2px; pointer-events: none; }
-  .chip { pointer-events: auto; margin: 0 2px; border: 0; border-radius: 5px; padding: 0 7px; font-size: 12px; font-weight: 700; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #fff; display: block; min-width: 0; height: 22px; line-height: 22px; }
-  .chip:hover { filter: brightness(1.1); }
-  .chip.ci { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  /* mês: dias em cartões */
+  .cab-sem { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; position: sticky; top: -12px; z-index: 4; background: var(--card); padding: 0 0 6px; }
+  .cab-sem div { text-align: left; padding: 2px 8px; font-size: 11px; font-weight: 800; letter-spacing: .07em; color: var(--mut); }
+  .sem { position: relative; margin-bottom: 6px; }
+  .dias { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .dia { background: var(--bg); border-radius: 14px; border: 2px solid transparent; min-height: calc(46px + var(--ln, 0) * 26px); padding: 6px 8px; text-align: left; }
+  .dia.fora { opacity: .45; }
+  .dia.sel { border-color: color-mix(in srgb, var(--pri) 45%, transparent); }
+  .dia.hoje { border-color: var(--pri); background: color-mix(in srgb, var(--pri) 9%, var(--bg)); }
+  .dnum { border: 0; background: none; padding: 0; height: 26px; min-width: 26px; border-radius: 13px; font-weight: 800; font-size: 13px; text-align: left; }
+  .dnum:hover { text-decoration: underline; }
+  .dia.hoje .dnum { background: var(--pri); color: #fff; text-align: center; padding: 0 7px; text-decoration: none; }
+  .barras { position: absolute; top: 38px; left: 0; right: 0; display: grid; grid-template-columns: repeat(7, 1fr); column-gap: 6px; grid-auto-rows: 22px; row-gap: 4px; pointer-events: none; }
+
+  /* etiquetas "suaves" (cor fica na lateral) */
+  .chip { --cc: #64748b; pointer-events: auto; margin: 0 5px; border: 0; border-left: 4px solid var(--cc); border-radius: 8px; padding: 0 8px; font-size: 12px; font-weight: 700; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tx); background-color: color-mix(in srgb, var(--cc) 20%, var(--card)); display: block; min-width: 0; height: 22px; line-height: 22px; }
+  .chip:hover { background-color: color-mix(in srgb, var(--cc) 32%, var(--card)); }
+  .chip.ci { margin-left: 0; border-left-width: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
   .chip.cf { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
-  .chip.conc { opacity: .72; }
-  .c-amarela { background: #f59e0b; color: #1f2937; } .c-vermelha { background: #dc2626; } .c-azul { background: #2563eb; }
-  .c-urg { background: repeating-linear-gradient(45deg, #dc2626 0 9px, #991b1b 9px 18px); }
-  .c-fer { background: #3f8f5b; } .c-esc { background: var(--pri-light); color: var(--pri); box-shadow: inset 0 0 0 1px var(--pri); }
-  .e-azul { background: #3b82f6; } .e-verde { background: #16a34a; } .e-roxo { background: #8b5cf6; } .e-laranja { background: #ea580c; } .e-rosa { background: #db2777; } .e-cinza { background: #64748b; }
-  .mais { pointer-events: auto; border: 0; background: none; color: var(--mut); font-weight: 700; font-size: 11.5px; text-align: left; padding: 0 8px; height: 22px; }
+  .chip.conc { opacity: .6; text-decoration: line-through; }
+  .c-amarela { --cc: #f59e0b; } .c-vermelha { --cc: #dc2626; } .c-azul { --cc: #2563eb; }
+  .c-urg { --cc: #dc2626; background-image: repeating-linear-gradient(45deg, rgba(220,38,38,.30) 0 8px, rgba(220,38,38,.12) 8px 16px); }
+  .c-fer { --cc: #3f8f5b; } .c-esc { --cc: var(--pri); }
+  .e-azul { --cc: #3b82f6; } .e-verde { --cc: #16a34a; } .e-roxo { --cc: #8b5cf6; } .e-laranja { --cc: #ea580c; } .e-rosa { --cc: #db2777; } .e-cinza { --cc: #64748b; }
+  .mais { pointer-events: auto; border: 0; background: none; color: var(--mut); font-weight: 700; font-size: 11.5px; text-align: left; padding: 0 10px; height: 22px; }
   .mais:hover { color: var(--tx); text-decoration: underline; }
 
+  /* visão Pessoas: uma faixa por pessoa */
+  .pv { min-width: calc(176px + 14 * 62px); }
+  .pv-cab, .lane { display: grid; grid-template-columns: 176px 1fr; }
+  .pv-cab { position: sticky; top: -12px; z-index: 5; background: var(--card); padding-bottom: 2px; }
+  .pv-dias, .lane-fundo, .lane-barras { display: grid; grid-template-columns: repeat(14, 1fr); }
+  .p-dia { text-align: center; padding: 2px 0 6px; font-size: 10.5px; font-weight: 800; letter-spacing: .05em; color: var(--mut); cursor: pointer; text-transform: uppercase; }
+  .p-dia b { display: block; font-size: 15px; letter-spacing: 0; color: var(--tx); margin-top: 1px; }
+  .p-dia.hoje b { background: var(--pri); color: #fff; border-radius: 999px; width: 28px; height: 28px; line-height: 28px; margin: 1px auto 0; }
+  .p-dia.fer::after { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: #3f8f5b; margin: 2px auto 0; }
+  .lane { margin-top: 8px; background: var(--bg); border-radius: 16px; overflow: hidden; --cc: var(--pri); }
+  .lane-nome { position: sticky; left: 0; z-index: 3; background: var(--bg); padding: 12px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .lane-nome .av { width: 36px; height: 36px; border-radius: 50%; background: var(--cc); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; overflow: hidden; flex-shrink: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cc) 28%, transparent); }
+  .lane-nome .av img { width: 100%; height: 100%; object-fit: cover; }
+  .lane-nome b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lane-nome small { color: var(--mut); font-size: 12px; }
+  .lane-area { position: relative; min-height: 62px; }
+  .lane-fundo { position: absolute; inset: 0; }
+  .lane-fundo i { border-left: 1px solid color-mix(in srgb, var(--bd) 70%, transparent); }
+  .lane-fundo i.fds { background: color-mix(in srgb, var(--mut) 8%, transparent); }
+  .lane-fundo i.fer { background: color-mix(in srgb, #3f8f5b 13%, transparent); }
+  .lane-fundo i.hoje { background: color-mix(in srgb, var(--pri) 13%, transparent); border-left-color: var(--pri); }
+  .lane-barras { position: relative; grid-auto-rows: 24px; row-gap: 4px; padding: 8px 0; }
+  .lane-barras .chip { height: 24px; line-height: 24px; }
+  .pv-vazio { margin: 0; padding: 18px 12px; color: var(--mut); }
+
   /* aba Hoje */
-  .hoje-v { max-width: 760px; margin: 0 auto; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 16px; }
-  .h-card { background: var(--bg); border: 1px solid var(--bd); border-radius: 16px; padding: 14px 16px; }
+  .hoje-v { max-width: 760px; margin: 0 auto; padding: 6px 4px 30px; display: flex; flex-direction: column; gap: 14px; }
+  .h-card { background: var(--bg); border: 1px solid var(--bd); border-radius: 18px; padding: 14px 16px; }
   .h-card h3 { margin: 0 0 10px; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .h-card h3 .btn-o { padding: 5px 10px; font-size: 12.5px; }
   .h-item { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: transparent; text-align: left; padding: 9px 4px; border-top: 1px solid var(--bd); border-radius: 0; }
   .h-item:first-of-type { border-top: 0; }
   button.h-item:hover { background: var(--card); }
-  .h-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+  .h-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; background: var(--cc, #94a3b8); }
   .h-tx { flex: 1; min-width: 0; }
   .h-tx b { display: block; font-size: 14px; overflow-wrap: anywhere; }
   .h-tx small { color: var(--mut); font-size: 12.5px; }
   .h-vazio { margin: 0; color: var(--mut); font-size: 13.5px; }
   .h-esc { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
-  .h-pes { background: var(--card); border: 1px solid var(--bd); border-radius: 12px; padding: 10px 12px; }
+  .h-pes { background: var(--card); border: 1px solid var(--bd); border-radius: 14px; padding: 10px 12px; }
   .h-pes.eu { border-color: var(--pri); background: var(--pri-light); }
   .h-pes b { display: block; }
   .h-pes small { color: var(--mut); font-size: 12px; }
@@ -160,36 +196,38 @@
 
   /* modal */
   .fundo-m { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 50; display: flex; align-items: center; justify-content: center; padding: 16px; }
-  .modal { background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 18px; width: 100%; max-width: 460px; max-height: 92dvh; overflow-y: auto; padding: 18px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+  .modal { background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 22px; width: 100%; max-width: 460px; max-height: 92dvh; overflow-y: auto; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
   .modal h3 { margin: 0 0 12px; font-size: 18px; }
   .modal label { display: block; font-size: 12px; font-weight: 800; color: var(--mut); text-transform: uppercase; letter-spacing: .03em; margin: 10px 0 4px; }
-  .modal input[type=text], .modal input[type=date], .modal input[type=time], .modal textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--tx); font: inherit; font-size: 15px; }
+  .modal input[type=text], .modal input[type=date], .modal input[type=time], .modal textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); color: var(--tx); font: inherit; font-size: 15px; }
   .modal textarea { resize: vertical; }
   .lin { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .modal .chk { display: flex; align-items: flex-start; gap: 8px; text-transform: none; letter-spacing: 0; font-size: 13.5px; font-weight: 600; color: var(--tx); cursor: pointer; margin-top: 14px; }
   .modal .chk input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--pri); }
   .cores { display: flex; gap: 8px; flex-wrap: wrap; }
-  .cores button { width: 28px; height: 28px; border-radius: 50%; border: 3px solid transparent; padding: 0; }
+  .cores button { width: 28px; height: 28px; border-radius: 50%; border: 3px solid transparent; padding: 0; background: var(--cc); }
   .cores button.on { border-color: var(--tx); }
   .m-acoes { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
   .m-acoes .grow { margin-right: auto; }
-  .btn-p { border: 0; background: var(--pri); color: #fff; border-radius: 10px; padding: 9px 16px; font-weight: 800; }
+  .btn-p { border: 0; background: var(--pri); color: #fff; border-radius: 12px; padding: 9px 16px; font-weight: 800; }
   .btn-p:hover { background: var(--pri-hover); }
   .btn-p:disabled { opacity: .55; }
-  .btn-pe { border: 1px solid rgba(220,38,38,.5); background: transparent; color: #dc2626; border-radius: 10px; padding: 9px 14px; font-weight: 800; }
+  .btn-pe { border: 1px solid rgba(220,38,38,.5); background: transparent; color: #dc2626; border-radius: 12px; padding: 9px 14px; font-weight: 800; }
   .m-msg { margin: 10px 0 0; font-size: 13px; color: #dc2626; min-height: 16px; }
   .m-info p { margin: 4px 0; font-size: 14px; } .m-info small { color: var(--mut); }
-  .pill-st { display: inline-block; padding: 3px 10px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 800; }
+  .pill-st { display: inline-block; padding: 3px 10px; border-radius: 999px; color: #fff; font-size: 12px; font-weight: 800; background: var(--cc, #64748b); }
 
   #toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); background: var(--tx); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; z-index: 60; max-width: 90vw; }
 
   @media (max-width: 860px) {
-    .side { position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: 280px; transform: translateX(-102%); transition: transform .2s; box-shadow: var(--shadow); padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+    .app { padding: 10px; gap: 0; }
+    .side { position: fixed; z-index: 40; top: 0; bottom: 0; left: 0; width: 290px; transform: translateX(-104%); transition: transform .2s; background: var(--bg); padding: calc(12px + env(safe-area-inset-top, 0px)) 12px calc(12px + env(safe-area-inset-bottom, 0px)); box-shadow: var(--shadow); }
     .side.aberto { transform: none; }
     #btn-menu { display: inline-flex; }
-    .barra h1 { font-size: 17px; order: 5; flex-basis: 100%; margin: 0; }
+    .barra h1 { font-size: 21px; }
+    .tit-bloco { order: 1; flex-basis: calc(100% - 52px); }
     .chip { font-size: 11px; padding: 0 5px; }
-    .dnum { font-size: 12px; min-width: 24px; height: 24px; }
+    .dia { padding: 5px 4px; }
     .lin { grid-template-columns: 1fr; }
   }
   </style>
@@ -201,25 +239,21 @@
       <button type="button" class="ic" onclick="location.href='menu.html'" title="Voltar ao menu" aria-label="Voltar ao menu"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
       <b>Calendário</b>
     </div>
-    <button type="button" class="criar" id="btn-criar">+ Criar evento</button>
 
-    <div>
-      <div class="mini-cab"><span id="mini-tit"></span><span><button type="button" class="ic" id="mini-ant" aria-label="Mês anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" class="ic" id="mini-prox" aria-label="Próximo mês"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></span></div>
-      <div class="mini-g" id="mini-g"></div>
+    <button type="button" class="hoje-card" id="hoje-card" title="Ver o dia de hoje">
+      <div class="hc-data"><span class="hc-dia" id="hc-dia">—</span><span><b id="hc-sem">—</b><small id="hc-mes"></small></span></div>
+      <div class="hc-stats" id="hc-stats"></div>
+      <span class="hc-ver">Ver o dia de hoje →</span>
+    </button>
+
+    <div class="grupo">
+      <h4>Camadas</h4>
+      <div class="pills" id="camadas"></div>
     </div>
 
     <div class="grupo">
-      <h4>Minhas agendas</h4>
-      <label class="ck" style="--ck:#f59e0b"><input type="checkbox" data-c="faa"><span class="n">FAAs e prazos</span></label>
-      <label class="ck sub"><input type="checkbox" data-c="conc"><span class="n">Mostrar concluídas</span></label>
-      <label class="ck" style="--ck:var(--pri)"><input type="checkbox" data-c="esc"><span class="n">Escala</span></label>
-      <label class="ck" style="--ck:#3b82f6"><input type="checkbox" data-c="ev"><span class="n">Eventos</span></label>
-      <label class="ck" style="--ck:#3f8f5b"><input type="checkbox" data-c="fer"><span class="n">Feriados no Brasil</span></label>
-    </div>
-
-    <div class="grupo">
-      <h4>Outras agendas</h4>
-      <div id="outras"></div>
+      <h4>Pessoas</h4>
+      <div class="pills" id="outras"></div>
     </div>
 
     <div class="side-fim">
@@ -232,15 +266,19 @@
   <main class="main">
     <header class="barra">
       <button type="button" class="ic" id="btn-menu" aria-label="Abrir barra lateral"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-      <button type="button" class="btn-o" id="btn-hoje">Hoje</button>
-      <button type="button" class="ic" id="btn-ant" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
-      <button type="button" class="ic" id="btn-prox" aria-label="Próximo"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-      <h1 id="titulo">—</h1>
+      <div class="tit-bloco"><h1 id="titulo">—</h1><small id="sub-titulo"></small></div>
+      <div class="nav-pill">
+        <button type="button" id="btn-ant" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <button type="button" id="btn-hoje">Hoje</button>
+        <button type="button" id="btn-prox" aria-label="Próximo"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div>
       <div class="abas" id="abas">
         <button type="button" data-v="mes">Mês</button>
-        <button type="button" data-v="semana">Semana</button>
+        <button type="button" data-v="pessoas">Pessoas</button>
         <button type="button" data-v="hoje">Hoje</button>
       </div>
+      <input type="date" class="data-pill" id="ir-data" aria-label="Ir para uma data" title="Ir para uma data">
+      <button type="button" class="btn-novo" id="btn-criar">+ Novo evento</button>
     </header>
     <div id="aviso-sql" class="aviso" hidden></div>
     <div class="vista" id="vista"></div>
@@ -320,7 +358,7 @@ const CFG_PAD = { faa: true, conc: false, esc: true, ev: true, fer: true, off: {
 let CFG = (() => { try { return Object.assign({}, CFG_PAD, JSON.parse(localStorage.getItem('fluxo_cal_cfg') || '{}')); } catch (e) { return Object.assign({}, CFG_PAD); } })();
 const salvarCfg = () => { try { localStorage.setItem('fluxo_cal_cfg', JSON.stringify(CFG)); } catch (e) {} };
 const S = { vista: 'mes', ref: isoHoje(), sel: isoHoje(), mini: isoHoje() };
-{ const q = new URLSearchParams(location.search).get('v'); if (q === 'hoje' || q === 'semana' || q === 'mes') S.vista = q; }
+{ const q = new URLSearchParams(location.search).get('v'); if (q === 'hoje' || q === 'pessoas' || q === 'mes') S.vista = q; else if (q === 'semana') S.vista = 'pessoas'; }
 
 const CORES_PESSOA = ['#8b5cf6', '#ea580c', '#db2777', '#0ea5e9', '#16a34a', '#ca8a04', '#64748b', '#e11d48'];
 const corPessoa = id => { const i = PESSOAS.filter(p => !p.eu).findIndex(p => p.user_id === id); return CORES_PESSOA[(i < 0 ? 0 : i) % CORES_PESSOA.length]; };
@@ -336,9 +374,10 @@ const donoVisivel = id => id === uid || CFG.off[id] !== true;
 function toast(t) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { el.hidden = true; }, 3200); }
 
 /* ---------- janela visível ---------- */
+const NDIAS_P = 14;
 function janela() {
   if (S.vista === 'hoje') return { ini: S.sel, fim: S.sel };
-  if (S.vista === 'semana') { const i = inicioSemana(S.ref); return { ini: i, fim: somaDias(i, 6) }; }
+  if (S.vista === 'pessoas') { const i = inicioSemana(S.ref); return { ini: i, fim: somaDias(i, NDIAS_P - 1) }; }
   const d = parseIso(S.ref), p = isoDe(new Date(d.getFullYear(), d.getMonth(), 1)), u = isoDe(new Date(d.getFullYear(), d.getMonth() + 1, 0));
   return { ini: inicioSemana(p), fim: somaDias(inicioSemana(u), 6) };
 }
@@ -400,15 +439,58 @@ function semanaHTML(d0, itens, maxLanes, refMes) {
   return h + '</div></div>';
 }
 
-function renderGrade() {
-  const w = janela(), itens = montarItens(w.ini, w.fim), mobile = window.innerWidth <= 860;
+function renderMes() {
+  const w = janela(), itens = montarItens(w.ini, w.fim), mobile = window.innerWidth <= 860, refMes = parseIso(S.ref).getMonth(), max = mobile ? 3 : 4;
   let h = '<div class="cab-sem">' + DIAS_CAB.map(n => '<div>' + n + '</div>').join('') + '</div>';
-  if (S.vista === 'semana') h += semanaHTML(w.ini, itens, 99, null);
-  else {
-    const refMes = parseIso(S.ref).getMonth(), max = mobile ? 3 : 4;
-    for (let d = w.ini; d <= w.fim; d = somaDias(d, 7)) h += semanaHTML(d, itens, max, refMes);
-  }
-  $('vista').className = 'vista ' + S.vista; $('vista').innerHTML = h;
+  for (let d = w.ini; d <= w.fim; d = somaDias(d, 7)) h += semanaHTML(d, itens, max, refMes);
+  $('vista').className = 'vista mes'; $('vista').innerHTML = h;
+}
+
+function lanear(lista, d0, n) {
+  const ult = somaDias(d0, n - 1);
+  const segs = lista.filter(it => it.ini <= ult && it.fim >= d0).map(it => ({ it, c0: Math.max(0, diasEntre(d0, it.ini)), c1: Math.min(n - 1, diasEntre(d0, it.fim)), ci: it.ini < d0, cf: it.fim > ult }));
+  segs.sort((a, b) => a.c0 - b.c0 || (b.c1 - b.c0) - (a.c1 - a.c0) || a.it.ord - b.it.ord);
+  const busy = [];
+  segs.forEach(s => { let l = 0; while (busy[l] && busy[l].slice(s.c0, s.c1 + 1).some(Boolean)) l++; busy[l] = busy[l] || Array(n).fill(false); for (let c = s.c0; c <= s.c1; c++) busy[l][c] = true; s.l = l; });
+  return segs;
+}
+
+function renderPessoas() {
+  const w = janela(), itens = montarItens(w.ini, w.fim), hoje = isoHoje();
+  const dias = Array.from({ length: NDIAS_P }, (_, i) => somaDias(w.ini, i));
+  const eu = PESSOAS.find(p => p.eu) || { user_id: uid, nome: EU.nome || 'Você', usuario: EU.usuario || '', eu: true };
+  const linhas = [{ id: eu.user_id || uid, p: eu }];
+  PESSOAS.filter(p => !p.eu && donoVisivel(p.user_id)).forEach(p => linhas.push({ id: p.user_id, p }));
+  const conhecidos = new Set(linhas.map(l => l.id));
+  const donoDe = it => it.tipo === 'faa' ? it.r.user_id : (it.tipo === 'ev' ? it.e.dono_id : null);
+  const itensPessoa = itens.filter(it => it.tipo === 'faa' || it.tipo === 'ev');
+  if (itensPessoa.some(it => !conhecidos.has(donoDe(it)))) linhas.push({ id: '_outros', p: { nome: 'Outros', usuario: '' }, outros: true });
+
+  const escDe = l => l.outros ? null : ESC.find(x => l.p.eu ? x.eu : (x.usuario && l.p.usuario && String(x.usuario).toLowerCase() === String(l.p.usuario).toLowerCase()));
+  const fundoCls = d => { const dow = parseIso(d).getDay(); return (d === hoje ? 'hoje' : (CFG.fer && feriadoDe(d) ? 'fer' : (dow === 0 || dow === 6 ? 'fds' : ''))); };
+  let n = 0;
+
+  let h = '<div class="pv"><div class="pv-cab"><div class="lane-nome" style="padding:6px 12px"><small style="font-weight:800;letter-spacing:.07em">PESSOAS</small></div><div class="pv-dias">' +
+    dias.map(d => { const dt = parseIso(d), fer = CFG.fer ? feriadoDe(d) : ''; return '<div class="p-dia' + (d === hoje ? ' hoje' : '') + (fer ? ' fer' : '') + '" data-d="' + d + '" title="' + esc(fer || 'Ver o dia') + '">' + DIAS_CAB[dt.getDay()].slice(0, 3) + '<b>' + dt.getDate() + '</b></div>'; }).join('') + '</div></div>';
+
+  linhas.forEach(l => {
+    const lista = itensPessoa.filter(it => l.outros ? !conhecidos.has(donoDe(it)) : donoDe(it) === l.id);
+    const e1 = CFG.esc ? escDe(l) : null;
+    if (e1 && hoje >= w.ini && hoje <= w.fim) {
+      const t = String(e1.tarefas || '').split(/[\n;,]+/).map(x => x.trim()).filter(Boolean);
+      const it = { key: 'p' + (n++), tipo: 'esc', ini: hoje, fim: hoje, titulo: 'Escala · ' + (t[0] || 'sem função') + (t.length > 1 ? ' +' + (t.length - 1) : ''), cls: 'c-esc', ord: 1 };
+      ITENS[it.key] = it; lista.push(it);
+    }
+    const segs = lanear(lista, w.ini, NDIAS_P);
+    const nf = lista.filter(i => i.tipo === 'faa').length, ne = lista.filter(i => i.tipo === 'ev').length;
+    const cor = l.p.eu ? 'var(--pri)' : (l.outros ? '#64748b' : corPessoa(l.id)), nome = l.p.eu ? 'Você' : (l.p.nome || l.p.usuario || 'Pessoa'), f = fotoOk(l.p.foto);
+    h += '<div class="lane" style="--cc:' + cor + '"><div class="lane-nome"><span class="av">' + (f ? '<img src="' + esc(f) + '" alt="">' : esc(nome.trim().charAt(0).toUpperCase())) + '</span><span style="min-width:0"><b>' + esc(nome) + '</b><small>' + nf + (nf === 1 ? ' FAA' : ' FAAs') + (ne ? ' · ' + ne + (ne === 1 ? ' evento' : ' eventos') : '') + '</small></span></div>' +
+      '<div class="lane-area"><div class="lane-fundo">' + dias.map(d => '<i class="' + fundoCls(d) + '"></i>').join('') + '</div><div class="lane-barras">' +
+      segs.map(s => '<button type="button" class="chip ' + s.it.cls + (s.ci ? ' ci' : '') + (s.cf ? ' cf' : '') + '" style="grid-row:' + (s.l + 1) + ';grid-column:' + (s.c0 + 1) + '/' + (s.c1 + 2) + '" data-k="' + s.it.key + '" title="' + esc(s.it.titulo) + '">' + esc(s.it.titulo) + '</button>').join('') +
+      '</div></div></div>';
+  });
+  if (!CFG.faa && !CFG.ev && !CFG.esc) h += '<p class="pv-vazio">Todas as camadas estão desligadas. Ligue alguma na barra lateral.</p>';
+  $('vista').className = 'vista pessoas'; $('vista').innerHTML = h + '</div>';
 }
 
 /* ---------- aba Hoje (dia) ---------- */
@@ -455,47 +537,55 @@ function renderDia() {
 }
 
 /* ---------- barra lateral ---------- */
-function renderMini() {
-  const d = parseIso(S.mini), ano = d.getFullYear(), mes = d.getMonth(), hoje = isoHoje();
-  $('mini-tit').textContent = MESES[mes].charAt(0).toUpperCase() + MESES[mes].slice(1) + ' de ' + ano;
-  const p = isoDe(new Date(ano, mes, 1)), i0 = inicioSemana(p);
-  let h = 'DSTQQSS'.split('').map(c => '<div class="dw">' + c + '</div>').join('');
-  for (let k = 0; k < 42; k++) {
-    const iso = somaDias(i0, k), dt = parseIso(iso);
-    h += '<button type="button" data-d="' + iso + '" class="' + (dt.getMonth() !== mes ? 'fora ' : '') + (iso === hoje ? 'hoje ' : '') + (iso === S.sel && iso !== hoje ? 'sel' : '') + '">' + dt.getDate() + '</button>';
-  }
-  $('mini-g').innerHTML = h;
-}
+const CAMADAS = [['faa', 'FAAs e prazos', '#f59e0b'], ['conc', 'Concluídas', '#2563eb'], ['esc', 'Escala', 'var(--pri)'], ['ev', 'Eventos', '#8b5cf6'], ['fer', 'Feriados', '#3f8f5b']];
+const plural = (n, a, b) => n + ' ' + (n === 1 ? a : b);
 
 function renderLateral() {
-  document.querySelectorAll('#side [data-c]').forEach(i => { i.checked = !!CFG[i.dataset.c]; });
+  $('camadas').innerHTML = CAMADAS.map(([k, r, c]) => '<button type="button" class="cam' + (CFG[k] ? ' on' : '') + '" style="--cc:' + c + '" data-c="' + k + '"><i></i>' + r + '</button>').join('');
+
   const outras = PESSOAS.filter(p => !p.eu);
   let h = '';
   if (!SQL_CAL_OK) h = '<small>As agendas das pessoas ainda não estão ativas.</small>';
   else if (!outras.length) h = '<small>Ninguém aceitou ainda. <a href="perfil.html#pessoas">Adicionar pessoas</a></small>';
   else h = outras.map(p => {
     const f = fotoOk(p.foto), n = p.nome || p.usuario;
-    return '<label class="ck" style="--ck:' + corPessoa(p.user_id) + '"><input type="checkbox" data-p="' + esc(p.user_id) + '"' + (CFG.off[p.user_id] === true ? '' : ' checked') + '><span class="av">' + (f ? '<img src="' + esc(f) + '" alt="">' : esc(n.trim().charAt(0).toUpperCase())) + '</span><span class="n">' + esc(n) + '</span></label>';
-  }).join('') + '<small>Mostra as FAAs e os eventos partilhados de cada pessoa.</small>';
+    return '<button type="button" class="pes' + (CFG.off[p.user_id] === true ? '' : ' on') + '" style="--cc:' + corPessoa(p.user_id) + '" data-p="' + esc(p.user_id) + '"><span class="av">' + (f ? '<img src="' + esc(f) + '" alt="">' : esc(n.trim().charAt(0).toUpperCase())) + '</span>' + esc(primeiroNome(p)) + '</button>';
+  }).join('');
   $('outras').innerHTML = h;
+
+  // cartão de hoje
+  const hoje = isoHoje(), dt = parseIso(hoje);
+  $('hc-dia').textContent = dt.getDate(); $('hc-sem').textContent = DIAS_LONGO[dt.getDay()]; $('hc-mes').textContent = MESES[dt.getMonth()] + ' de ' + dt.getFullYear();
+  const vis = REL.filter(r => r.categoria === 'faa' && r.status !== 'concluido' && donoVisivel(r.user_id));
+  const atr = vis.filter(r => statusDe(r) === 'atrasado').length;
+  const urg = vis.filter(r => ehUrgente(r) && statusDe(r) !== 'atrasado').length;
+  const prox = vis.filter(r => { const st = statusDe(r); return st !== 'atrasado' && !ehUrgente(r) && diasEntre(hoje, somaDias(baseDe(r), prazoDe(r))) <= 3; }).length;
+  const l = [];
+  if (atr) l.push('<span class="r"><i></i>' + plural(atr, 'FAA atrasada', 'FAAs atrasadas') + '</span>');
+  if (urg) l.push('<span class="r"><i></i>' + plural(urg, 'jurídico urgente', 'jurídicos urgentes') + '</span>');
+  if (prox) l.push('<span><i></i>' + plural(prox, 'vence', 'vencem') + ' em até 3 dias</span>');
+  if (ESC.length) l.push('<span><i></i>Escala hoje: ' + plural(ESC.length, 'pessoa', 'pessoas') + '</span>');
+  if (!l.length) l.push('<span><i></i>Tudo em dia por aqui</span>');
+  $('hc-stats').innerHTML = l.join('');
 }
 
 function titulo() {
   const d = parseIso(S.ref);
   if (S.vista === 'mes') return MESES[d.getMonth()] + ' de ' + d.getFullYear();
-  if (S.vista === 'semana') { const a = parseIso(inicioSemana(S.ref)), b = parseIso(somaDias(inicioSemana(S.ref), 6)); return a.getMonth() === b.getMonth() ? a.getDate() + ' – ' + b.getDate() + ' de ' + MESES[b.getMonth()] + ' de ' + b.getFullYear() : a.getDate() + ' ' + MES_CURTO[a.getMonth()] + ' – ' + b.getDate() + ' ' + MES_CURTO[b.getMonth()] + ' ' + b.getFullYear(); }
-  const s = parseIso(S.sel); return DIAS_LONGO[s.getDay()] + ', ' + s.getDate() + ' de ' + MESES[s.getMonth()] + ' de ' + s.getFullYear();
+  if (S.vista === 'pessoas') { const a = parseIso(inicioSemana(S.ref)), b = parseIso(somaDias(inicioSemana(S.ref), NDIAS_P - 1)); return a.getMonth() === b.getMonth() ? a.getDate() + ' – ' + b.getDate() + ' de ' + MESES[b.getMonth()] : a.getDate() + ' ' + MES_CURTO[a.getMonth()] + ' – ' + b.getDate() + ' ' + MES_CURTO[b.getMonth()]; }
+  const s = parseIso(S.sel); return DIAS_LONGO[s.getDay()] + ', ' + s.getDate() + ' de ' + MESES[s.getMonth()];
 }
+const subtitulo = () => S.vista === 'mes' ? 'Prazos das FAAs, eventos e escala' : (S.vista === 'pessoas' ? 'Quem está com o quê, nas próximas duas semanas' : (S.sel === isoHoje() ? 'Hoje' : String(parseIso(S.sel).getFullYear())));
 
+function desenhar() { if (S.vista === 'hoje') renderDia(); else if (S.vista === 'pessoas') renderPessoas(); else renderMes(); }
 function render() {
-  $('titulo').textContent = titulo();
+  $('titulo').textContent = titulo(); $('sub-titulo').textContent = subtitulo(); $('ir-data').value = S.sel;
   document.querySelectorAll('#abas button').forEach(b => b.classList.toggle('on', b.dataset.v === S.vista));
-  if (S.vista === 'hoje') renderDia(); else renderGrade();
-  renderMini(); renderLateral();
+  desenhar(); renderLateral();
   const w = janela(), chave = w.ini + '|' + w.fim;
   if (chave !== evJanela) carregarEventos().then(() => { if (evJanela === chave) render2(); });
 }
-function render2() { if (S.vista === 'hoje') renderDia(); else renderGrade(); renderLateral(); }
+function render2() { desenhar(); renderLateral(); }
 
 /* ---------- dados ---------- */
 async function carregarRel() {
@@ -524,33 +614,31 @@ async function carregarEventos() {
 async function recarregarTudo() {
   await Promise.all([carregarRel(), carregarEscala(), carregarPessoas()]);
   await carregarEventos();
-  render2(); renderMini();
+  render2();
 }
 
 /* ---------- navegação ---------- */
 function mover(n) {
   if (S.vista === 'mes') { const d = parseIso(S.ref); S.ref = isoDe(new Date(d.getFullYear(), d.getMonth() + n, 1)); }
-  else if (S.vista === 'semana') S.ref = somaDias(S.ref, 7 * n);
+  else if (S.vista === 'pessoas') S.ref = somaDias(S.ref, 7 * n);
   else { S.sel = somaDias(S.sel, n); S.ref = S.sel; }
-  S.mini = S.ref; render();
+  render();
 }
-function irPara(iso, vista) { S.ref = iso; S.sel = iso; S.mini = iso; if (vista) S.vista = vista; render(); }
+function irPara(iso, vista) { S.ref = iso; S.sel = iso; if (vista) S.vista = vista; render(); }
 $('btn-hoje').onclick = () => irPara(isoHoje());
 $('btn-ant').onclick = () => mover(-1);
 $('btn-prox').onclick = () => mover(1);
 $('abas').onclick = e => { const b = e.target.closest('[data-v]'); if (!b) return; S.vista = b.dataset.v; if (S.vista !== 'mes') S.ref = S.sel; render(); };
-$('mini-ant').onclick = () => { const d = parseIso(S.mini); S.mini = isoDe(new Date(d.getFullYear(), d.getMonth() - 1, 1)); renderMini(); };
-$('mini-prox').onclick = () => { const d = parseIso(S.mini); S.mini = isoDe(new Date(d.getFullYear(), d.getMonth() + 1, 1)); renderMini(); };
-$('mini-g').onclick = e => { const b = e.target.closest('[data-d]'); if (!b) return; irPara(b.dataset.d); fecharSide(); };
+$('ir-data').onchange = e => { if (e.target.value) irPara(e.target.value); };
 $('btn-menu').onclick = () => $('side').classList.add('aberto');
 const fecharSide = () => $('side').classList.remove('aberto');
 document.addEventListener('click', e => { if ($('side').classList.contains('aberto') && !e.target.closest('#side') && !e.target.closest('#btn-menu')) fecharSide(); });
 
-$('side').addEventListener('change', e => {
-  const c = e.target.dataset.c, p = e.target.dataset.p;
-  if (c) CFG[c] = e.target.checked;
-  if (p) { if (e.target.checked) delete CFG.off[p]; else CFG.off[p] = true; }
-  salvarCfg(); render2();
+$('side').addEventListener('click', e => {
+  const c = e.target.closest('[data-c]'), p = e.target.closest('[data-p]');
+  if (c) { CFG[c.dataset.c] = !CFG[c.dataset.c]; salvarCfg(); render2(); return; }
+  if (p) { const id = p.dataset.p; if (CFG.off[id]) delete CFG.off[id]; else CFG.off[id] = true; salvarCfg(); render2(); return; }
+  if (e.target.closest('#hoje-card')) { irPara(isoHoje(), 'hoje'); fecharSide(); }
 });
 
 $('vista').addEventListener('click', e => {
@@ -558,8 +646,8 @@ $('vista').addEventListener('click', e => {
   if (k) return abrirItem(ITENS[k.dataset.k]);
   const d = e.target.closest('[data-d]');
   if (d) {
-    if (d.classList.contains('dnum') || d.classList.contains('mais')) return irPara(d.dataset.d, 'hoje');
-    S.sel = d.dataset.d; document.querySelectorAll('.dia.sel').forEach(x => x.classList.remove('sel')); d.classList.add('sel'); renderMini();
+    if (d.classList.contains('dnum') || d.classList.contains('mais') || d.classList.contains('p-dia')) return irPara(d.dataset.d, 'hoje');
+    S.sel = d.dataset.d; document.querySelectorAll('.dia.sel').forEach(x => x.classList.remove('sel')); d.classList.add('sel'); $('ir-data').value = S.sel;
   }
   if (e.target.id === 'btn-ev-dia') abrirForm(null, S.sel);
 });
