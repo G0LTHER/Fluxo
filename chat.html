@@ -542,7 +542,7 @@ async function carregarConversa(forcarFim) {
 
 function renderMensagens(lista) {
   const box = $('msgs');
-  if (!lista.length) { box.innerHTML = '<div class="conv-vazia">Nenhuma mensagem ainda.<br>Diga olá 👋</div>'; return; }
+  if (!lista.length) { box.innerHTML = '<div class="conv-vazia">Nenhuma mensagem ainda.<br>Diga olá!</div>'; return; }
   let h = '', ultimoDia = '';
   lista.forEach(m => {
     const dia = diaRotulo(m.criado_em);
@@ -614,7 +614,7 @@ function conteudoMsg(texto) {
 }
 function resumoTexto(t) {
   const m = PDF_RE.exec(String(t || ''));
-  return m ? '📄 ' + (m[2] || 'PDF') : String(t || '').replace(/\s+/g, ' ');
+  return m ? 'PDF · ' + (m[2] || 'PDF') : String(t || '').replace(/\s+/g, ' ');
 }
 function fmtBytes(b) {
   b = +b || 0;

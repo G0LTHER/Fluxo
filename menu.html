@@ -714,6 +714,44 @@
   .sb-sair { color: var(--alerta-tx); }
   .sb-sair:hover { background: var(--alerta-bg); color: var(--alerta-tx); }
   .sidebar { overflow: hidden; }
+
+  /* ===== ideias novas: histórico, comentários, anexos, busca e resumo ===== */
+  .extras { margin-top: 14px; display: flex; flex-direction: column; gap: 14px; }
+  .ex-tit { font-weight: 800; margin-bottom: 6px; }
+  .hist { list-style: none; margin: 0; padding: 0 0 0 14px; border-left: 2px solid var(--bd); display: flex; flex-direction: column; gap: 8px; }
+  .hist li { position: relative; display: flex; flex-direction: column; font-size: 13px; }
+  .hist li::before { content: ''; position: absolute; left: -20px; top: 5px; width: 10px; height: 10px; border-radius: 50%; background: var(--pri); }
+  .hist li span { color: var(--mut); }
+  .cm { padding: 8px 10px; border: 1px solid var(--bd); border-radius: 10px; background: var(--card); margin-bottom: 6px; }
+  .cm-top { display: flex; align-items: center; gap: 8px; }
+  .cm-top small { color: var(--mut); }
+  .cm-x { margin-left: auto; border: 0; background: none; color: var(--mut); font-size: 18px; line-height: 1; cursor: pointer; }
+  .cm-x:hover { color: #dc2626; }
+  .cm-tx { white-space: pre-wrap; word-break: break-word; margin-top: 2px; }
+  .cm-novo { display: flex; gap: 8px; align-items: flex-end; }
+  .cm-novo textarea { flex: 1; min-height: 40px; resize: vertical; }
+  .anx { display: flex; align-items: center; gap: 8px; padding: 6px 0; flex-wrap: wrap; }
+  .anx-n { flex: 1; min-width: 120px; word-break: break-all; }
+  .anx-n small { color: var(--mut); }
+  .anx-add { cursor: pointer; margin-top: 4px; }
+  .mod-fundo { position: fixed; inset: 0; z-index: 90; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 14px; overflow-y: auto; }
+  .mod-fundo[hidden] { display: none; }
+  .mod-box { background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 18px; width: 100%; max-width: 560px; padding: 14px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
+  .busca-in { width: 100%; font-size: 16px; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--bd); background: var(--bg); color: var(--tx); }
+  .busca-res { margin-top: 10px; max-height: 52vh; overflow-y: auto; }
+  .busca-g { font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); padding: 8px 8px 4px; }
+  .busca-i { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 9px 10px; border-radius: 10px; color: var(--tx); cursor: pointer; font: inherit; }
+  .busca-i small { display: block; color: var(--mut); font-size: 12px; }
+  .busca-i.sel, .busca-i:hover { background: var(--bg); }
+  .busca-dica { color: var(--mut); font-size: 12px; margin: 8px 2px 0; }
+  .rs-num { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin: 10px 0 14px; }
+  .rs-num div { background: var(--bg); border: 1px solid var(--bd); border-radius: 12px; padding: 10px 12px; }
+  .rs-num b { display: block; font-size: 22px; }
+  .rs-num span { font-size: 12px; color: var(--mut); }
+  .rs-tab { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .rs-tab th, .rs-tab td { text-align: right; padding: 7px 6px; border-top: 1px solid var(--bd); }
+  .rs-tab th:first-child, .rs-tab td:first-child { text-align: left; }
+  .rs-tab th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--mut); border-top: 0; }
 </style>
 </head>
 <body>
@@ -751,6 +789,7 @@
       <button type="button" class="sb-item" id="sb-escala" onclick="window.location.href='escala.html'" title="Escala">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h3M14 14h3"/></svg>
         <span class="sb-item-tx">Escala</span>
+        <span class="sb-badge" id="sb-escala-badge" hidden>0</span>
       </button>
       <button type="button" class="sb-item" id="sb-cal" onclick="window.location.href='calendario.html'" title="Calendário">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h6M11 18h6"/></svg>
@@ -787,7 +826,7 @@
   <div class="esc-modal" id="esc-modal" hidden>
     <div class="esc-fundo" onclick="fecharEscalaPessoa()"></div>
     <div class="esc-folha" role="dialog" aria-modal="true" aria-label="Escala do dia">
-      <div class="em-topo"><div><b>Escala de hoje</b><small id="em-sub"></small></div><button type="button" class="sp-x" onclick="fecharEscalaPessoa()" aria-label="Fechar">✕</button></div>
+      <div class="em-topo"><div><b>Escala de hoje</b><small id="em-sub"></small></div><button type="button" class="sp-x" onclick="fecharEscalaPessoa()" aria-label="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
       <div class="em-pessoas" id="em-pessoas"></div>
       <div class="em-corpo" id="em-corpo"></div>
       <div class="em-nav"><button type="button" class="mini-btn" onclick="escalaPessoa(-1)">‹ Anterior</button><span id="em-pos"></span><button type="button" class="mini-btn" onclick="escalaPessoa(1)">Próxima ›</button></div>
@@ -795,7 +834,7 @@
   </div>
 
   <div class="sino-painel" id="sino-painel" hidden role="dialog" aria-label="Notificações">
-    <div class="sp-cab"><b>Notificações</b><button type="button" class="sp-x" onclick="fecharSino()" aria-label="Fechar">✕</button></div>
+    <div class="sp-cab"><b>Notificações</b><button type="button" class="sp-x" onclick="fecharSino()" aria-label="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></div>
     <div class="sp-corpo" id="sp-corpo"></div>
     <div class="sp-rodape" id="sp-rodape"></div>
   </div>
@@ -814,6 +853,12 @@
       </div>
       <div class="topo-acoes">
         <!-- ONCLICK AGORA MOSTRA ALERTA/ATRASADOS NA DASHBOARD -->
+        <button type="button" class="topo-sino" title="Buscar (Ctrl+K)" aria-label="Buscar" onclick="abrirBusca()">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </button>
+        <button type="button" class="topo-sino" title="Resumo da semana" aria-label="Resumo da semana" onclick="abrirResumo()">
+          <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        </button>
         <button type="button" class="topo-sino" title="Notificações" onclick="abrirSino(event)">
           <svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
           <span class="topo-badge" id="topo-badge" hidden>0</span>
@@ -966,7 +1011,7 @@
             <div class="card" id="escala-card" style="margin-bottom:0" hidden>
               <div class="esc-cab">
                 <div><h2 style="font-size:16px">Escala de hoje</h2><small class="mut" id="escala-sub"></small></div>
-                <div class="esc-acoes"><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(-1)" aria-label="Rolar para a esquerda">‹</button><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(1)" aria-label="Rolar para a direita">›</button><button type="button" class="mini-btn" id="esc-expandir" onclick="escalaExpandir()" aria-expanded="false" title="Mostrar todas as pessoas, crescendo para baixo">Expandir ⌄</button><button type="button" class="mini-btn" onclick="window.location.href='calendario.html?v=hoje'" title="Ver a escala e o dia de hoje no calendário">Ver mais</button><a class="mini-btn" href="escala.html">Abrir escala</a></div>
+                <div class="esc-acoes"><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(-1)" aria-label="Rolar para a esquerda">‹</button><button type="button" class="mini-btn esc-seta" onclick="escalaRolar(1)" aria-label="Rolar para a direita">›</button><button type="button" class="mini-btn" id="esc-expandir" onclick="escalaExpandir()" aria-expanded="false" title="Mostrar todas as pessoas, crescendo para baixo">Expandir <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M6 9l6 6 6-6"/></svg></button><button type="button" class="mini-btn" onclick="window.location.href='calendario.html?v=hoje'" title="Ver a escala e o dia de hoje no calendário">Ver mais</button><a class="mini-btn" href="escala.html">Abrir escala</a></div>
               </div>
               <div class="esc-grid" id="escala-grid"></div>
             </div>
@@ -1036,6 +1081,16 @@
   </div>
 </div>
 
+<div class="mod-fundo" id="busca-fundo" hidden><div class="mod-box">
+  <input class="busca-in" id="busca-in" placeholder="Buscar FAAs, pessoas, eventos e páginas..." autocomplete="off" aria-label="Buscar">
+  <div class="busca-res" id="busca-res"></div>
+  <p class="busca-dica">Esc fecha · ↑ ↓ navegam · Enter abre</p>
+</div></div>
+<div class="mod-fundo" id="resumo-fundo" hidden><div class="mod-box" style="max-width:640px">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h2 style="margin:0;font-size:18px">Resumo da semana</h2><button type="button" class="mini-btn" onclick="$('resumo-fundo').hidden = true">Fechar</button></div>
+  <div id="resumo-corpo"></div>
+  <div style="display:flex;justify-content:flex-end;margin-top:12px"><button type="button" class="mini-btn pri" onclick="baixarResumoPdf()">Baixar PDF do resumo</button></div>
+</div></div>
 <div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
 
 <!-- SUPABASE & JSPDF -->
@@ -1209,7 +1264,7 @@ async function salvar() {
   const agora = new Date().toISOString();
   const linhas = [['faa', P_FAA], ['same', P_SAME], ['prov', P_PROV]].map(([categoria, dados]) => ({ user_id: uid, categoria, texto: T[categoria], dados, atualizado_em: agora }));
   const { error } = await db.from('listas').upsert(linhas, { onConflict: 'user_id,categoria' });
-  $('msg').textContent = error ? 'Erro ao guardar online' : 'Guardado ✓';
+  $('msg').textContent = error ? 'Erro ao guardar online' : 'Guardado com sucesso';
 }
 
 async function carregar() {
@@ -1281,14 +1336,14 @@ async function carregarEscalaHoje() {
   const card = $('escala-card'); if (!card) return;
   const { data, error } = await db.rpc('escala_hoje');
   if (error) { card.hidden = true; return; }   // SQL da escala ainda não rodou: não mostra o bloco
-  const lista = Array.isArray(data) ? data : [];
+  const lista = await aplicarTrocasEscalaHoje(Array.isArray(data) ? data : []);
   ESC_LISTA = lista; renderCalendarioDash();
   $('escala-sub').textContent = escDataHoje() + (lista.length ? ' · ' + lista.length + (lista.length === 1 ? ' pessoa' : ' pessoas') : '');
   card.hidden = false; escalaAplicarExpandido();
   if (!lista.length) { $('escala-grid').innerHTML = '<p class="mut" style="margin:0">Nenhuma escala montada ainda. <a href="escala.html" style="color:var(--pri);font-weight:700">Montar escala</a></p>'; return; }
   $('escala-grid').innerHTML = lista.map((x, i) => {
     const nome = x.nome || x.usuario, t = (x.tarefas || '').trim();
-    const sub = (x.semana_nome || ('Semana ' + x.semana_numero)) + (x.minha_escala ? '' : ' · escala de ' + (x.dono_nome || x.dono_usuario));
+    const sub = (x.semana_nome || ('Semana ' + x.semana_numero)) + (x.minha_escala ? '' : ' · escala de ' + (x.dono_nome || x.dono_usuario)) + (x.troca ? ' · troca' : '');
     return '<div class="esc-bloco' + (x.eu ? ' eu' : '') + '" data-i="' + i + '" role="button" tabindex="0" title="Ver a lista completa"><div class="esc-quem"><span class="esc-av">' + esc(nome.trim().charAt(0).toUpperCase()) + '</span><div style="min-width:0"><b>' + esc(x.eu ? 'Você' : nome) + '</b><small>' + esc(sub) + '</small></div>' + (x.eu ? '<span class="esc-tag">hoje</span>' : (x.convidado ? '<span class="esc-tag conv">convidado</span>' : '')) + '</div><div class="esc-tarefa' + (t ? '' : ' vazia') + '">' + (t ? esc(t) : 'Sem função hoje') + '</div><div class="esc-ver">Ver lista ›</div></div>';
   }).join('');
 }
@@ -1364,7 +1419,7 @@ async function carregarRel() {
     ({ data, error } = await db.from('relatorio').select(COLS_REL).order('id', { ascending: false }).limit(500));
   }
   if (error) aviso('Erro ao carregar painel: ' + error.message);
-  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos();
+  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos(); verificarLembretes();
 }
 function recarregarRel() { carregarRel(); if (relAba === 'arquivo') { if (arqCat) carregarArquivo(true); else contarArquivo(); } }
 const rerender = () => relAba === 'arquivo' ? renderArquivo() : renderAtivos();
@@ -1393,7 +1448,7 @@ function atualizarAlerta() {
       ${urgentes ? '<button type="button" class="mini-btn" data-al="urgente">Ver urgentes</button>' : ''}
       ${aVencer ? '<button type="button" class="mini-btn" data-al="alerta">Ver a vencer</button>' : ''}
       ${atrasados ? '<button type="button" class="mini-btn" data-al="atrasado">Ver atrasados</button>' : ''}
-      <button type="button" class="mini-btn" data-al="fechar">✕</button>
+      <button type="button" class="mini-btn" data-al="fechar" aria-label="Fechar"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
   </div>`;
 }
@@ -1566,7 +1621,7 @@ function renderSino() {
     return '<button type="button" class="sp-item" data-sino="reg" data-id="' + r.id + '"><span class="sp-dot amar"></span><span class="sp-tx"><b>' + esc(r.descricao) + '</b><small>' + (d <= 0 ? 'vence hoje' : 'vence em ' + plural(d, 'dia', 'dias')) + (r.responsavel ? ' · ' + esc(r.responsavel) : '') + '</small></span></button>';
   }).join(''));
 
-  $('sp-corpo').innerHTML = h || '<p class="sp-vazio">Tudo em dia. Nenhum atraso e nenhuma mensagem nova. 🎉</p>';
+  $('sp-corpo').innerHTML = h || '<p class="sp-vazio"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;color:#16a34a"><path d="M20 6L9 17l-5-5"/></svg> Tudo em dia. Nenhum atraso e nenhuma mensagem nova.</p>';
 
   const suporta = 'Notification' in window, perm = suporta ? Notification.permission : 'indisponivel';
   let nota = '';
@@ -1633,7 +1688,7 @@ function calIrSemana(iso) { CAL_REF = parseIso(iso); calModo('semana'); }
 function abrirRegistroCal(id) {
   abaRel('ativos');
   document.querySelectorAll('#filtros-st .pill').forEach(b => b.classList.toggle('active', b.dataset.st === ''));
-  $('rel-busca').value = ''; ABERTOS.add(id); RELFOCO = id; renderAtivos();
+  $('rel-busca').value = ''; ABERTOS.add(id); RELFOCO = id; renderAtivos(); if (!EXTRAS[id]) carregarExtras(id);
   const el = document.querySelector('#rel-lista [data-id="' + id + '"]'), item = el ? el.closest('.rel-item') : null;
   if (item) item.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
@@ -1693,7 +1748,7 @@ $('cal-grid').addEventListener('click', e => {
 function escalaAplicarExpandido() {
   let on = false; try { on = localStorage.getItem('fluxo_esc_aberto') === '1'; } catch (e) {}
   const c = $('escala-card'), b = $('esc-expandir'); if (!c || !b) return;
-  c.classList.toggle('aberto', on); b.textContent = on ? 'Recolher ⌃' : 'Expandir ⌄'; b.setAttribute('aria-expanded', on ? 'true' : 'false');
+  c.classList.toggle('aberto', on); b.innerHTML = on ? 'Recolher <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M6 15l6-6 6 6"/></svg>' : 'Expandir <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M6 9l6 6 6-6"/></svg>'; b.setAttribute('aria-expanded', on ? 'true' : 'false');
 }
 function escalaExpandir() {
   const c = $('escala-card'); if (!c) return;
@@ -1706,6 +1761,202 @@ function escalaExpandir() {
 async function abrirFaaDaUrl() {
   const id = Number(new URLSearchParams(location.search).get('faa')); if (!id) return;
   await carregarRel(); abrirRegistroCal(id);
+}
+
+/* ===== histórico, comentários e anexos da FAA ===== */
+const EXTRAS = {}, BUSCA_REC = {};
+const fmtDH = iso => { const d = new Date(iso); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+const fmtKB = b => b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
+
+function historicoHTML(r) {
+  const l = [['Pedida', dtBR(r.data) + (r.responsavel ? ' · ' + esc(r.responsavel) : '')]];
+  if (ehUrgente(r) && r.urgente_desde) l.push(['Marcada como jurídico / urgente', dtBR(r.urgente_desde)]);
+  if (r.iniciado_em && r.status !== 'pendente') l.push(['Em execução', fmtDH(r.iniciado_em) + (r.executor ? ' · ' + esc(r.executor) : '')]);
+  if (r.status === 'concluido' && r.concluido_em) l.push(['Concluída', fmtDH(r.concluido_em) + (r.executor ? ' · ' + esc(r.executor) : '')]);
+  return '<ol class="hist">' + l.map(([a, b]) => '<li><b>' + a + '</b><span>' + b + '</span></li>').join('') + '</ol>';
+}
+
+function extrasHTML(r) {
+  const ex = EXTRAS[r.id];
+  let h = '<div><div class="mut ex-tit">Histórico</div>' + historicoHTML(r) + '</div>';
+  if (!ex) return h + '<div class="mut">A carregar comentários e anexos...</div>';
+  if (ex.erro) return h + '<div class="mut">' + esc(ex.erro) + '</div>';
+  h += '<div><div class="mut ex-tit">Comentários (' + ex.com.length + ')</div>' +
+    (ex.com.length ? ex.com.map(c => '<div class="cm"><div class="cm-top"><b>' + esc(c.autor || 'Alguém') + '</b><small>' + fmtDH(c.criado_em) + '</small>' + (c.user_id === uid ? '<button type="button" class="cm-x" data-acao="del-com" data-id="' + r.id + '" data-c="' + c.id + '" title="Apagar comentário" aria-label="Apagar comentário">×</button>' : '') + '</div><div class="cm-tx">' + esc(c.texto) + '</div></div>').join('') : '<div class="mut">Nenhum comentário ainda.</div>') +
+    '<div class="cm-novo"><textarea id="cm-' + r.id + '" rows="2" maxlength="1000" placeholder="Escreva um comentário..."></textarea><button type="button" class="mini-btn pri" data-acao="comentar" data-id="' + r.id + '">Comentar</button></div></div>';
+  h += '<div><div class="mut ex-tit">Anexos em PDF (' + ex.anx.length + '/5)</div>' +
+    (ex.anx.length ? ex.anx.map(a => '<div class="anx"><span class="anx-n">' + esc(a.nome) + ' <small>' + fmtKB(a.tamanho) + '</small></span><button type="button" class="mini-btn" data-acao="ver-anx" data-id="' + r.id + '" data-a="' + a.id + '">Abrir</button>' + (a.user_id === uid ? '<button type="button" class="mini-btn" data-acao="del-anx" data-id="' + r.id + '" data-a="' + a.id + '">Remover</button>' : '') + '</div>').join('') : '<div class="mut">Nenhum PDF anexado.</div>') +
+    (ex.anx.length < 5 ? '<label class="mini-btn anx-add">+ Anexar PDF<input type="file" accept="application/pdf" data-anx="' + r.id + '" hidden></label>' : '') + '</div>';
+  return h;
+}
+function pintarExtras(id) { const el = $('ex-' + id), r = REL.concat(ARQ).find(x => x.id === id); if (el && r) el.innerHTML = extrasHTML(r); }
+async function carregarExtras(id) {
+  const [c, a] = await Promise.all([
+    db.from('relatorio_comentarios').select('id,user_id,autor,texto,criado_em').eq('relatorio_id', id).order('criado_em', { ascending: true }),
+    db.from('relatorio_anexos').select('id,user_id,nome,tamanho,criado_em').eq('relatorio_id', id).order('criado_em', { ascending: true })
+  ]);
+  EXTRAS[id] = (c.error || a.error) ? { erro: 'Comentários e anexos ainda não estão ativos: rode o banco_de_dado_ideias.txt no Supabase.', com: [], anx: [] } : { com: c.data || [], anx: a.data || [] };
+  pintarExtras(id);
+}
+async function comentarFaa(id) {
+  const t = $('cm-' + id), txt = t ? t.value.trim() : ''; if (!txt) return aviso('Escreva o comentário.');
+  const { error } = await db.from('relatorio_comentarios').insert({ relatorio_id: id, texto: txt, autor: String(nomeUsuario() || '').slice(0, 80) });
+  if (error) return aviso('Erro ao comentar: ' + error.message);
+  await carregarExtras(id);
+}
+async function apagarComentario(id, cid) {
+  if (!confirm('Apagar este comentário?')) return;
+  const { error } = await db.from('relatorio_comentarios').delete().eq('id', cid);
+  if (error) return aviso('Erro: ' + error.message);
+  await carregarExtras(id);
+}
+async function anexarPdf(id, f) {
+  if (f.type !== 'application/pdf' && !/\.pdf$/i.test(f.name)) return aviso('Só é possível anexar PDF.');
+  if (f.size > 3145728) return aviso('O PDF passa de 3 MB.');
+  aviso('Enviando o PDF...');
+  const b64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(',')[1] || ''); fr.onerror = () => rej(new Error('leitura')); fr.readAsDataURL(f); }).catch(() => '');
+  if (!b64) return aviso('Não consegui ler o arquivo.');
+  const { error } = await db.from('relatorio_anexos').insert({ relatorio_id: id, nome: f.name.slice(0, 160), tamanho: f.size, conteudo: b64 });
+  if (error) return aviso('Erro ao anexar: ' + error.message);
+  aviso('PDF anexado.'); await carregarExtras(id);
+}
+async function abrirAnexo(aid) {
+  const aba = window.open('', '_blank');
+  const { data, error } = await db.from('relatorio_anexos').select('nome,conteudo').eq('id', aid).maybeSingle();
+  if (error || !data) { if (aba) aba.close(); return aviso('Não foi possível abrir o PDF.'); }
+  const bin = atob(data.conteudo), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  const url = URL.createObjectURL(new Blob([u8], { type: 'application/pdf' }));
+  if (aba) aba.location.href = url; else { const a = document.createElement('a'); a.href = url; a.download = data.nome; a.click(); }
+  setTimeout(() => URL.revokeObjectURL(url), 120000);
+}
+async function apagarAnexo(id, aid) {
+  if (!confirm('Remover este PDF anexado?')) return;
+  const { error } = await db.from('relatorio_anexos').delete().eq('id', aid);
+  if (error) return aviso('Erro: ' + error.message);
+  await carregarExtras(id);
+}
+
+/* ===== lembretes de prazo (uma vez por dia e por marco: 5, 3, 1 dia, hoje e atrasada) ===== */
+function verificarLembretes() {
+  if (!uid) return;
+  const hoje = isoHoje(); let reg = {};
+  try { reg = JSON.parse(localStorage.getItem('fluxo_lembretes') || '{}'); } catch (e) {}
+  if (reg._d !== hoje) reg = { _d: hoje };
+  const grupos = { hoje: [], dias: [], atr: [] };
+  REL.forEach(r => {
+    if (r.categoria !== 'faa' || r.status === 'concluido' || r.user_id !== uid) return;
+    const rest = prazoDe(r) - diasEntre(baseDe(r), hoje);
+    const marco = rest < 0 ? 'atr' : ([0, 1, 3, 5].includes(rest) ? String(rest) : '');
+    if (!marco) return;
+    const k = r.id + ':' + marco; if (reg[k]) return; reg[k] = 1;
+    (rest < 0 ? grupos.atr : (rest === 0 ? grupos.hoje : grupos.dias)).push({ r, rest });
+  });
+  try { localStorage.setItem('fluxo_lembretes', JSON.stringify(reg)); } catch (e) {}
+  const nome = x => String(x.r.descricao).replace(/^FAAs?: /, '').slice(0, 40);
+  const partes = [];
+  if (grupos.hoje.length) partes.push('Vence hoje: ' + grupos.hoje.slice(0, 2).map(nome).join('; ') + (grupos.hoje.length > 2 ? ' +' + (grupos.hoje.length - 2) : ''));
+  if (grupos.dias.length) partes.push(grupos.dias.length + (grupos.dias.length === 1 ? ' vence' : ' vencem') + ' em até 5 dias');
+  if (grupos.atr.length) partes.push(grupos.atr.length + (grupos.atr.length === 1 ? ' atrasada' : ' atrasadas'));
+  if (partes.length) notificar('Prazo das FAAs', partes.join(' · '), 'lembrete-prazo', 'menu.html');
+}
+
+/* ===== busca geral (Ctrl+K) ===== */
+const PAGINAS = [['Calendário', 'calendario.html'], ['Escala', 'escala.html'], ['Chat', 'chat.html'], ['Perfil', 'perfil.html'], ['Pessoas e pedidos', 'perfil.html#pessoas'], ['Armazenamento', 'perfil.html#armazenamento']];
+const normBusca = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+let BUSCA_I = 0, BUSCA_ITENS = [], BUSCA_EVT = null, tBusca = null, buscaSeq = 0;
+
+function abrirBusca() { $('busca-fundo').hidden = false; $('busca-in').value = ''; BUSCA_EVT = null; $('busca-in').focus(); montarBusca(''); }
+function fecharBusca() { $('busca-fundo').hidden = true; }
+function desenharBusca() {
+  let g = '', h = '';
+  BUSCA_ITENS.forEach((it, i) => { if (it.g !== g) { g = it.g; h += '<div class="busca-g">' + esc(g) + '</div>'; } h += '<button type="button" class="busca-i' + (i === BUSCA_I ? ' sel' : '') + '" data-i="' + i + '">' + esc(it.t) + (it.s ? '<small>' + esc(it.s) + '</small>' : '') + '</button>'; });
+  $('busca-res').innerHTML = h || '<p class="busca-dica">Nada encontrado.</p>';
+  const s = $('busca-res').querySelector('.sel'); if (s) s.scrollIntoView({ block: 'nearest' });
+}
+async function montarBusca(q) {
+  const seq = ++buscaSeq, n = normBusca(q).trim(), it = [];
+  const paginas = PAGINAS.filter(([t]) => !n || normBusca(t).includes(n)).map(([t, u]) => ({ g: 'Ir para', t, a: () => { location.href = u; } }));
+  if (!n || 'resumo da semana'.includes(n)) paginas.push({ g: 'Ir para', t: 'Resumo da semana', a: abrirResumo });
+  if (n) {
+    Object.entries(NOMES_PESSOAS).filter(([u, nm]) => normBusca(u + ' ' + nm).includes(n)).slice(0, 5).forEach(([u, nm]) => it.push({ g: 'Pessoas', t: nm, s: '@' + u + ' · abrir conversa', a: () => { location.href = 'chat.html?u=' + encodeURIComponent(u); } }));
+    REL.filter(r => normBusca(r.descricao + ' ' + (r.detalhe || '') + ' ' + (r.responsavel || '')).includes(n)).slice(0, 8).forEach(r => it.push({ g: 'FAAs e registos', t: r.descricao, s: ST[statusDe(r)].curto + ' · pedido ' + dtBR(r.data), a: () => abrirFaaPorBusca(r.id) }));
+  }
+  BUSCA_ITENS = it.concat(paginas); BUSCA_I = 0; desenharBusca();
+  if (!n || n.length < 2) return;
+  // arquivadas (banco) e eventos do calendário, em segundo plano
+  const qs = q.trim().replace(/[%,()*\\]/g, ' ').slice(0, 60);
+  const [arq, evt] = await Promise.all([
+    db.from('relatorio').select(COLS_REL).eq('status', 'concluido').or('descricao.ilike.%' + qs + '%,detalhe.ilike.%' + qs + '%').order('id', { ascending: false }).limit(6),
+    BUSCA_EVT ? Promise.resolve({ data: BUSCA_EVT }) : db.rpc('cal_eventos', { p_ini: somaDias(isoHoje(), -365), p_fim: somaDias(isoHoje(), 365) })
+  ]);
+  if (seq !== buscaSeq) return;
+  if (!BUSCA_EVT && Array.isArray(evt.data)) BUSCA_EVT = evt.data;
+  const extra = [];
+  (arq.data || []).filter(r => !REL.some(x => x.id === r.id)).forEach(r => { BUSCA_REC[r.id] = r; extra.push({ g: 'Arquivadas', t: r.descricao, s: 'Pedido ' + dtBR(r.data) + ' · abrir o PDF', a: () => pdfRegisto(r.id, 'ver') }); });
+  (BUSCA_EVT || []).filter(e => normBusca(e.titulo + ' ' + (e.descricao || '')).includes(n)).slice(0, 5).forEach(e => extra.push({ g: 'Eventos', t: e.titulo, s: dtBR(e.inicio) + (e.fim !== e.inicio ? ' a ' + dtBR(e.fim) : ''), a: () => { location.href = 'calendario.html?d=' + e.inicio; } }));
+  const antes = BUSCA_ITENS.filter(x => !['Arquivadas', 'Eventos'].includes(x.g));
+  const ordem = ['Pessoas', 'FAAs e registos', 'Arquivadas', 'Eventos', 'Ir para'];
+  BUSCA_ITENS = antes.concat(extra).sort((a, b) => ordem.indexOf(a.g) - ordem.indexOf(b.g));
+  BUSCA_I = 0; desenharBusca();
+}
+async function abrirFaaPorBusca(id) { fecharBusca(); mudarAbaMenu('dash'); await carregarRel(); abrirRegistroCal(id); }
+function executarBusca(i) { const it = BUSCA_ITENS[i]; if (!it) return; fecharBusca(); it.a(); }
+$('busca-in').addEventListener('input', e => { clearTimeout(tBusca); tBusca = setTimeout(() => montarBusca(e.target.value), 180); });
+$('busca-res').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if (b) executarBusca(Number(b.dataset.i)); });
+$('busca-fundo').addEventListener('mousedown', e => { if (e.target.id === 'busca-fundo') fecharBusca(); });
+$('resumo-fundo').addEventListener('mousedown', e => { if (e.target.id === 'resumo-fundo') $('resumo-fundo').hidden = true; });
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === 'k') { e.preventDefault(); if ($('busca-fundo').hidden) abrirBusca(); else fecharBusca(); return; }
+  if (e.key === 'Escape') { if (!$('busca-fundo').hidden) fecharBusca(); if (!$('resumo-fundo').hidden) $('resumo-fundo').hidden = true; return; }
+  if ($('busca-fundo').hidden) return;
+  if (e.key === 'ArrowDown') { e.preventDefault(); BUSCA_I = Math.min(BUSCA_ITENS.length - 1, BUSCA_I + 1); desenharBusca(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); BUSCA_I = Math.max(0, BUSCA_I - 1); desenharBusca(); }
+  else if (e.key === 'Enter') { e.preventDefault(); executarBusca(BUSCA_I); }
+});
+
+/* ===== resumo da semana (com PDF) ===== */
+let RESUMO = null;
+function calcularResumo() {
+  const hoje = isoHoje(), ini = somaDias(hoje, -6), ini30 = somaDias(hoje, -29);
+  const faa = REL.filter(r => r.categoria === 'faa'), diaConc = r => isoDe(new Date(r.concluido_em));
+  const pedidas = faa.filter(r => r.data >= ini);
+  const conc7 = faa.filter(r => r.status === 'concluido' && r.concluido_em && diaConc(r) >= ini);
+  const conc30 = faa.filter(r => r.status === 'concluido' && r.concluido_em && diaConc(r) >= ini30);
+  const abertas = faa.filter(r => r.status !== 'concluido');
+  const atrasadas = abertas.filter(r => statusDe(r) === 'atrasado');
+  const durs = conc30.map(r => Math.max(0, diasEntre(baseDe(r), diaConc(r))));
+  const media = durs.length ? durs.reduce((a, b) => a + b, 0) / durs.length : null;
+  const noPrazo = conc30.filter(r => diasEntre(baseDe(r), diaConc(r)) <= prazoDe(r)).length;
+  const por = {}, conta = (r, k) => { const n = String(r.responsavel || 'Sem responsável').trim(); (por[n] = por[n] || { pedidas: 0, conc: 0, abertas: 0, atrasadas: 0 })[k]++; };
+  pedidas.forEach(r => conta(r, 'pedidas')); conc7.forEach(r => conta(r, 'conc')); abertas.forEach(r => conta(r, 'abertas')); atrasadas.forEach(r => conta(r, 'atrasadas'));
+  RESUMO = { ini, hoje, pedidas: pedidas.length, conc7: conc7.length, abertas: abertas.length, atrasadas: atrasadas.length, urgentes: abertas.filter(ehUrgente).length, media, noPrazo, total30: conc30.length, por: Object.entries(por).sort((a, b) => b[1].abertas - a[1].abertas || a[0].localeCompare(b[0], 'pt-BR')) };
+  return RESUMO;
+}
+function abrirResumo() {
+  const r = calcularResumo();
+  const num = [[r.pedidas, 'pedidas nos últimos 7 dias'], [r.conc7, 'concluídas nos últimos 7 dias'], [r.abertas, 'em aberto agora'], [r.atrasadas, 'atrasadas agora'], [r.urgentes, 'jurídico / urgente'], [r.media === null ? '—' : r.media.toFixed(1).replace('.', ',') + ' d', 'tempo médio para concluir (30 dias)']];
+  $('resumo-corpo').innerHTML = '<p class="mut" style="margin:6px 0 0">' + dtBR(r.ini) + ' a ' + dtBR(r.hoje) + '</p><div class="rs-num">' + num.map(([v, t]) => '<div><b>' + v + '</b><span>' + t + '</span></div>').join('') + '</div>' +
+    (r.total30 ? '<p class="mut" style="margin:0 0 12px">Concluídas dentro do prazo (30 dias): <b>' + r.noPrazo + ' de ' + r.total30 + '</b></p>' : '') +
+    '<table class="rs-tab"><thead><tr><th>Pessoa</th><th>Pedidas 7d</th><th>Concl. 7d</th><th>Abertas</th><th>Atrasadas</th></tr></thead><tbody>' +
+    (r.por.length ? r.por.map(([n, v]) => '<tr><td>' + esc(n) + '</td><td>' + v.pedidas + '</td><td>' + v.conc + '</td><td>' + v.abertas + '</td><td>' + v.atrasadas + '</td></tr>').join('') : '<tr><td colspan="5" class="mut">Sem FAAs para mostrar.</td></tr>') +
+    '</tbody></table><p class="busca-dica">Calculado a partir das 500 FAAs mais recentes carregadas no painel.</p>';
+  $('resumo-fundo').hidden = false;
+}
+function baixarResumoPdf() {
+  if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
+  const r = RESUMO || calcularResumo(), doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), W = 210, M = 18; let y = 0;
+  doc.setFillColor(13, 148, 136); doc.rect(0, 0, W, 14, 'F'); doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(12); doc.text('Fluxo - Resumo da semana', M, 9.2);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.text(pdfTxt(dtBR(r.ini) + ' a ' + dtBR(r.hoje)), W - M, 9.2, { align: 'right' });
+  y = 28; doc.setTextColor(15, 23, 42); doc.setFontSize(11);
+  [['Pedidas nos últimos 7 dias', r.pedidas], ['Concluídas nos últimos 7 dias', r.conc7], ['Em aberto agora', r.abertas], ['Atrasadas agora', r.atrasadas], ['Jurídico / urgente', r.urgentes], ['Tempo médio para concluir (30 dias)', r.media === null ? '-' : r.media.toFixed(1).replace('.', ',') + ' dias'], ['Concluídas dentro do prazo (30 dias)', r.total30 ? r.noPrazo + ' de ' + r.total30 : '-']].forEach(([k, v]) => {
+    doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(pdfTxt(k), M, y); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42); doc.text(pdfTxt(String(v)), W - M, y, { align: 'right' }); doc.setDrawColor(226, 232, 240); doc.line(M, y + 2.2, W - M, y + 2.2); y += 8;
+  });
+  y += 6; doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(13, 148, 136); doc.text('Por pessoa', M, y); y += 7;
+  const cols = [M, 108, 130, 152, 174]; doc.setFontSize(9); doc.setTextColor(100, 116, 139);
+  ['Pessoa', 'Pedidas 7d', 'Concl. 7d', 'Abertas', 'Atrasadas'].forEach((t, i) => doc.text(t, cols[i], y)); y += 6;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(15, 23, 42);
+  r.por.forEach(([n, v]) => { if (y > 280) { doc.addPage(); y = 20; } doc.text(pdfTxt(n).slice(0, 38), cols[0], y); [v.pedidas, v.conc, v.abertas, v.atrasadas].forEach((x, i) => doc.text(String(x), cols[i + 1], y)); y += 6.5; });
+  doc.save('Fluxo-Resumo-' + r.hoje + '.pdf');
 }
 
 function renderGraficoDash() {
@@ -1735,6 +1986,30 @@ function renderGraficoDash() {
 const fotoOk = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
 let tPessoasMenu = null;
 
+async function carregarTrocasBadge() {
+  const el = $('sb-escala-badge'); if (!el) return;
+  const { data, error } = await db.rpc('escala_trocas_qtd');
+  const n = error ? 0 : (Number(data) || 0);
+  el.hidden = !n; el.textContent = n > 99 ? '99+' : n;
+  el.title = n ? n + (n === 1 ? ' pedido de troca para responder' : ' pedidos de troca para responder') : '';
+}
+
+// aplica as trocas aceitas de hoje na escala mostrada no dashboard
+async function aplicarTrocasEscalaHoje(lista) {
+  if (!lista.length) return lista;
+  const hoje = isoHoje(), { data, error } = await db.rpc('escala_trocas_periodo', { p_ini: hoje, p_fim: hoje });
+  if (error || !Array.isArray(data) || !data.length) return lista;
+  const meu = String(PERFIL.usuario || '').toLowerCase();
+  const donoDe = x => x.minha_escala ? meu : String(x.dono_usuario || '').toLowerCase();
+  data.forEach(t => {
+    const dono = String(t.dono_usuario || '').toLowerCase();
+    const a = lista.find(x => donoDe(x) === dono && String(x.usuario || '').toLowerCase() === String(t.de_usuario).toLowerCase());
+    const b = lista.find(x => donoDe(x) === dono && String(x.usuario || '').toLowerCase() === String(t.para_usuario).toLowerCase());
+    if (a && b) { const tmp = a.tarefas; a.tarefas = b.tarefas; b.tarefas = tmp; a.troca = b.troca = true; }
+  });
+  return lista;
+}
+
 async function carregarPedidosBadge() {
   const el = $('sb-perfil-badge'); if (!el) return;
   const { data, error } = await db.rpc('contato_pedidos_qtd');
@@ -1763,7 +2038,7 @@ async function carregarPessoas(silencioso) {
     return '<button type="button" class="sb-pessoa" data-u="' + esc(x.usuario) + '" title="Conversar com ' + esc(nome) + '"><span class="pessoa-av">' + av + '</span><span class="pessoa-nome">' + esc(nome) + '</span>' + (n ? '<span class="sb-badge">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</button>';
   }).join('');
 
-  carregarPedidosBadge();
+  carregarPedidosBadge(); carregarTrocasBadge();
   if (!tPessoasMenu) tPessoasMenu = setInterval(() => carregarPessoas(true), 15000);
 }
 
@@ -1964,7 +2239,7 @@ function itemRel(r) {
   const isAtrasadoTopo = sk === 'atrasado';
 
   const badge = `<span class="st-wrap">
-      <button type="button" class="st-badge ${st.cor}" ${ops.length ? `data-acao="menu" data-id="${r.id}" title="Alterar status"` : 'disabled'}><i class="st-dot st-${st.cor}"></i>${esc(st.curto)}${ops.length ? '<span class="caret">▾</span>' : ''}</button>
+      <button type="button" class="st-badge ${st.cor}" ${ops.length ? `data-acao="menu" data-id="${r.id}" title="Alterar status"` : 'disabled'}><i class="st-dot st-${st.cor}"></i>${esc(st.curto)}${ops.length ? '<svg class="caret" viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>' : ''}</button>
       ${MENU_ID === r.id && ops.length ? `<div class="st-menu">${ops.map(([a, t]) => `<button type="button" data-acao="${a}" data-id="${r.id}">${t}</button>`).join('')}</div>` : ''}
     </span>`;
 
@@ -1993,6 +2268,7 @@ function itemRel(r) {
         <button type="button" class="mini-btn pri" data-acao="pdf" data-id="${r.id}"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Visualizar PDF</button>
         <button type="button" class="mini-btn" data-acao="baixar" data-id="${r.id}"><svg class="ic-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg> Baixar PDF</button>
       </div>
+      <div class="extras" id="ex-${r.id}">${extrasHTML(r)}</div>
       ${dono ? `<div class="edit-box"><div class="mut" style="font-weight:700">Corrigir registo (nome ou data errados)</div>
         <label class="ed-l" for="en-${r.id}">Nome / título</label><input id="en-${r.id}" value="${esc(r.descricao)}" maxlength="200">
         <label class="ed-l" for="ed-${r.id}">Conteúdo / detalhes</label><textarea id="ed-${r.id}" rows="5">${esc(r.detalhe || '')}</textarea>
@@ -2033,7 +2309,7 @@ async function editarRegistro(id) {
 $('rel-lista').addEventListener('click', e => {
   const b = e.target.closest('[data-acao]'); if (!b) return;
   const id = Number(b.dataset.id), a = b.dataset.acao;
-  if (a === 'det') { if (ABERTOS.has(id)) ABERTOS.delete(id); else ABERTOS.add(id); rerender(); }
+  if (a === 'det') { if (ABERTOS.has(id)) ABERTOS.delete(id); else { ABERTOS.add(id); if (!EXTRAS[id]) setTimeout(() => carregarExtras(id), 0); } rerender(); }
   else if (a === 'menu') { MENU_ID = MENU_ID === id ? null : id; rerender(); }
   else if (a === 'pegar') { MENU_ID = null; mudarStatus(id, 'executando'); }
   else if (a === 'concluir') { MENU_ID = null; mudarStatus(id, 'concluido'); }
@@ -2043,8 +2319,13 @@ $('rel-lista').addEventListener('click', e => {
   else if (a === 'editar') editarRegistro(id);
   else if (a === 'pdf') pdfRegisto(id, 'ver');
   else if (a === 'baixar') pdfRegisto(id, 'baixar');
+  else if (a === 'comentar') comentarFaa(id);
+  else if (a === 'del-com') apagarComentario(id, Number(b.dataset.c));
+  else if (a === 'ver-anx') abrirAnexo(Number(b.dataset.a));
+  else if (a === 'del-anx') apagarAnexo(id, Number(b.dataset.a));
   else if (a === 'apagar') apagarRel(id);
 });
+$('rel-lista').addEventListener('change', e => { const i = e.target.closest('[data-anx]'); if (i && i.files && i.files[0]) anexarPdf(Number(i.dataset.anx), i.files[0]); if (i) i.value = ''; });
 document.addEventListener('click', e => { if (MENU_ID !== null && !e.target.closest('.st-wrap')) { MENU_ID = null; rerender(); } });
 
 $('rel-alerta').addEventListener('click', e => {
@@ -2238,7 +2519,7 @@ function conf() {
     $('conf').innerHTML = P_SAME.map((p, i) => '<div style="margin-top:8px" class="lin"><input style="width:110px;font-weight:700" value="' + esc(p.same) + '" oninput="P_SAME[' + i + '].same=this.value;folha()"><input value="' + esc(p.nome) + '" oninput="P_SAME[' + i + '].nome=this.value;folha()"><button class="x" onclick="rp(' + i + ')">Remover</button></div>').join('');
   } else {
     if (!P_PROV.length) { $('conf').innerHTML = '<p class="mut">Nenhum número lido.</p>'; return; }
-    $('conf').innerHTML = '<div class="items-list">' + P_PROV.map((n, i) => '<span class="chip-item" style="font-size:14px;padding:6px 10px">Pasta: ' + n + ' <button class="x" onclick="rp(' + i + ')">✕</button></span>').join('') + '</div>';
+    $('conf').innerHTML = '<div class="items-list">' + P_PROV.map((n, i) => '<span class="chip-item" style="font-size:14px;padding:6px 10px">Pasta: ' + n + ' <button class="x" onclick="rp(' + i + ')" aria-label="Remover"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></span>').join('') + '</div>';
   }
 }
 
@@ -2286,7 +2567,20 @@ function imprimirFolha() {
 const pdfTxt = s => String(s ?? '').replace(/[—–]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[^\x00-\xFF]/g, '?');
 
 function pdfRegisto(id, acao) {
-  const r = REL.find(x => x.id === id) || ARQ.find(x => x.id === id); if (!r) return aviso('Registo não encontrado.');
+  const r = REL.find(x => x.id === id) || ARQ.find(x => x.id === id) || BUSCA_REC[id]; if (!r) return aviso('Registo não encontrado.');
+  if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
+  const o = registoParaPdf(r);
+  if (!o) return pdfRegistoResumo(id, acao);                 // registo sem a lista guardada (ex.: atividade escrita à mão)
+  const aba = acao === 'ver' ? window.open('', '_blank') : null;
+  const res = construirPdf(o);
+  if (!res) { if (aba) aba.close(); return pdfRegistoResumo(id, acao); }
+  if (acao === 'baixar') { res.doc.save(res.nome); return; }
+  if (!aba) { res.doc.save(res.nome); return aviso('O navegador bloqueou a nova guia; o PDF foi baixado.'); }
+  const url = URL.createObjectURL(res.doc.output('blob')); aba.location.href = url; setTimeout(() => URL.revokeObjectURL(url), 120000);
+}
+
+function pdfRegistoResumo(id, acao) {
+  const r = REL.find(x => x.id === id) || ARQ.find(x => x.id === id) || BUSCA_REC[id]; if (!r) return aviso('Registo não encontrado.');
   if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
   const aba = acao === 'ver' ? window.open('', '_blank') : null;
   const sk = statusDe(r), st = ST[sk], PP = prazoDe(r), dias = diasEntre(baseDe(r), isoHoje()), prazo = r.status === 'concluido' ? '' : dias > PP ? 'atrasado há ' + (dias - PP) + ' dia(s)' : dias === PP ? 'vence hoje' : 'faltam ' + (PP - dias) + ' dia(s)';
@@ -2322,73 +2616,35 @@ function colocar(un, n, lim1, limN) {
 }
 
 async function pdf() {
-  if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
-  const f = fmtAtual(), n = f.cols, pt = f.fs, { L, R, TOP, BOT, GAP } = PG, colW = largCol(n), per = porLinha(f), step = colW / per, lh = pt * MM * 1.7, bx = Math.max(3, pt * MM * 1.05);
-  const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }); const fonte = (estilo, tam) => { doc.setFont('helvetica', estilo); doc.setFontSize(tam); }; const un = []; let titulo, rodape = '';
+  const dataEscolhida = $('data-workspace') && $('data-workspace').value ? dtBR($('data-workspace').value) : hoje();
+  const r = construirPdf({ aba: abaAtiva, faa: P_FAA, same: P_SAME, prov: P_PROV, obs: obsFaa(), dataTxt: dataEscolhida, nomeProv: nomeUsuario(), hora: new Date().toLocaleTimeString('pt-BR'), fmt: fmtAtual() });
+  if (r) r.doc.save(r.nome);
+}
 
-  let dataEscolhida = $('data-workspace') && $('data-workspace').value ? dtBR($('data-workspace').value) : hoje();
-
-  if (abaAtiva === 'faa') {
-    const ps = P_FAA.filter(p => p.nome.trim() && p.datas.length); if (!ps.length) return; titulo = 'Lista de FAAs'; const rowH = lh + 1.2, nlh = (pt + 2) * MM * 1.35;
-    ps.forEach(p => {
-      fonte('bold', pt + 2); const nl = doc.splitTextToSize(p.nome.trim(), colW), headH = nl.length * nlh + 3.5, linhas = [];
-      for (let i = 0; i < p.datas.length; i += per) linhas.push(p.datas.slice(i, i + per));
-      linhas.forEach((ln, idx) => {
-        const primeira = idx === 0;
-        un.push({
-          h: (primeira ? headH : 0) + rowH + (idx === linhas.length - 1 ? 5 : 0),
-          draw: (x, y) => {
-            let yy = y; doc.setTextColor(0); doc.setLineWidth(0.2);
-            if (primeira) { fonte('bold', pt + 2); nl.forEach((t, i) => doc.text(t, x, y + (pt + 2) * MM * 0.95 + i * nlh)); const yl = y + nl.length * nlh + 0.8; doc.setDrawColor(180); doc.line(x, yl, x + colW, yl); yy = y + headH; }
-            fonte('normal', pt); doc.setDrawColor(0); const yb = yy + lh * 0.75;
-            ln.forEach((k, c) => { const xx = x + c * step; doc.rect(xx, yb - bx * 0.85, bx, bx); doc.text(fmtData(k), xx + bx + 2.5, yb); });
-          }
-        });
-      });
+/* Reconstrói, a partir do registo guardado, os mesmos dados usados na hora de criar o documento */
+function registoParaPdf(r) {
+  const det = String(r.detalhe || '').trim(); if (!det) return null;
+  const o = { aba: r.categoria, faa: [], same: [], prov: [], obs: '', dataTxt: dtBR(r.data), nomeProv: r.responsavel || '', hora: r.concluido_em ? new Date(r.concluido_em).toLocaleTimeString('pt-BR') : '', fmt: FMT[r.categoria] || FMT.faa };
+  const parteObs = det.split(/\n\nObserva[çc][ãa]o: /);
+  const linhas = parteObs[0].split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+  if (r.categoria === 'faa') {
+    o.obs = (parteObs[1] || '').trim();
+    linhas.forEach(l => {
+      const m = l.match(/^(.*) — ((?:\d{2}\/\d{2}\/\d{4})(?:, \d{2}\/\d{2}\/\d{4})*)$/); if (!m) return;
+      const datas = m[2].split(', ').map(d => { const [dd, mm, aa] = d.split('/').map(Number); return aa * 10000 + mm * 100 + dd; });
+      o.faa.push({ nome: m[1], datas });
     });
-    const obs = obsFaa();
-    if (obs) {
-      fonte('normal', pt);
-      const ol = obs.split(/\r?\n/).flatMap(l => doc.splitTextToSize(pdfTxt(l) || ' ', colW));
-      un.push({
-        h: (ol.length + 1) * lh + 6,
-        draw: (x, y) => {
-          doc.setTextColor(0); doc.setDrawColor(180); doc.setLineWidth(0.2); doc.line(x, y + 2, x + colW, y + 2);
-          fonte('bold', pt); doc.text('Observação', x, y + 2 + lh * 0.95);
-          fonte('normal', pt); ol.forEach((tx, i) => doc.text(tx, x, y + 2 + lh * 0.95 + (i + 1) * lh));
-        }
-      });
-    }
-  } else if (abaAtiva === 'same') {
-    const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim()); if (!ps.length) return; titulo = 'Lista de Pastas / SAME'; const x0 = bx + 2.5;
-    ps.forEach(p => {
-      const num = String(p.same || '').trim(), nome = (p.nome || '').trim();
-      fonte('bold', pt); const numW = num ? doc.getTextWidth(num) : 0; fonte('normal', pt); const sepW = num && nome ? doc.getTextWidth(' - ') : 0, livre = colW - x0 - numW - sepW, inline = livre >= 25;
-      const nl = nome ? doc.splitTextToSize(nome, inline ? livre : colW - x0) : [], nLin = inline ? Math.max(1, nl.length) : (num ? 1 : 0) + nl.length;
-      un.push({
-        h: nLin * lh + 2.5,
-        draw: (x, y) => {
-          doc.setTextColor(0); doc.setDrawColor(0); doc.setLineWidth(0.2); const yb = y + lh * 0.75; doc.rect(x, yb - bx * 0.85, bx, bx);
-          if (num) { fonte('bold', pt); doc.text(num, x + x0, yb); }
-          fonte('normal', pt);
-          if (inline) { nl.forEach((t, i) => doc.text((i === 0 && num ? ' - ' : '') + t, x + x0 + numW + (i === 0 ? 0 : sepW), yb + i * lh)); } else { nl.forEach((t, i) => doc.text(t, x + x0, yb + ((num ? 1 : 0) + i) * lh)); }
-          doc.setDrawColor(200); doc.line(x, y + nLin * lh + 0.8, x + colW, y + nLin * lh + 0.8);
-        }
-      });
-    });
-  } else {
-    if (!P_PROV.length) return; titulo = 'Provisória de ' + nomeUsuario(); rodape = 'documento criado dia ' + dataEscolhida + ' horário ' + new Date().toLocaleTimeString('pt-BR');
-    P_PROV.forEach(num => un.push({ h: lh + 3, draw: (x, y) => { const yb = y + lh * 0.75; fonte('bold', pt); doc.setTextColor(0); doc.text('Pasta: ' + num, x, yb); doc.setDrawColor(220); doc.setLineWidth(0.2); doc.line(x, yb + 3, x + colW, yb + 3); } }));
+    return o.faa.length ? o : null;
   }
-
-  const ft = Math.round(pt * 1.4); fonte('bold', ft); doc.setTextColor(0); const tl = doc.splitTextToSize(titulo, R - L - 28); doc.text(tl, L, TOP); fonte('normal', 11); doc.text(dataEscolhida, R, TOP, { align: 'right' });
-  const top1 = TOP + (tl.length - 1) * ft * MM * 1.2 + ft * MM + 7.6;
-  const cap1 = BOT - top1, capN = BOT - TOP; let lim1 = cap1;
-  if (n > 1) { const total = un.reduce((s, u) => s + u.h, 0), maior = Math.max(...un.map(u => u.h)); if (total <= cap1 * n) { for (let t = Math.max(maior, total / n); t <= cap1; t += 0.5) { if (colocar(un, n, t, capN).every(p => p.pg === 0)) { lim1 = t; break; } } } }
-  const pos = colocar(un, n, lim1, capN);
-  un.forEach((u, i) => { const p = pos[i]; while (doc.getNumberOfPages() <= p.pg) doc.addPage(); doc.setPage(p.pg + 1); u.draw(L + p.col * (colW + GAP), (p.pg === 0 ? top1 : TOP) + p.y); });
-  if (rodape) { doc.setPage(doc.getNumberOfPages()); fonte('normal', 10); doc.setTextColor(100); doc.text(rodape, R, 288, { align: 'right' }); }
-  doc.save('Fluxo-' + abaAtiva.toUpperCase() + '-' + dataEscolhida.replace(/\//g, '-') + '.pdf');
+  if (r.categoria === 'same') {
+    linhas.forEach(l => { const m = l.match(/^SAME (\S+)(?: — (.*))?$/); o.same.push(m ? { same: m[1], nome: m[2] || '' } : { same: '', nome: l }); });
+    return o.same.length ? o : null;
+  }
+  if (r.categoria === 'prov') {
+    linhas.forEach(l => { const m = l.match(/^Pasta (.+)$/); if (m) o.prov.push(m[1]); });
+    return o.prov.length ? o : null;
+  }
+  return null;
 }
 </script>
 </body>

@@ -145,6 +145,9 @@
   .c-urg { --cc: #dc2626; background-image: repeating-linear-gradient(45deg, rgba(220,38,38,.30) 0 8px, rgba(220,38,38,.12) 8px 16px); }
   .c-fer { --cc: #3f8f5b; } .c-esc { --cc: var(--pri); }
   .e-azul { --cc: #3b82f6; } .e-verde { --cc: #16a34a; } .e-roxo { --cc: #8b5cf6; } .e-laranja { --cc: #ea580c; } .e-rosa { --cc: #db2777; } .e-cinza { --cc: #64748b; }
+  .chip.troca { box-shadow: inset 0 0 0 1px var(--cc); }
+  .tag-troca { display: inline-block; font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--pri); background: color-mix(in srgb, var(--pri) 14%, transparent); border-radius: 999px; padding: 1px 8px; margin-left: 4px; }
+  .chip.folga { background-image: repeating-linear-gradient(135deg, rgba(100,116,139,.28) 0 6px, transparent 6px 12px); }
   .mais { pointer-events: auto; border: 0; background: none; color: var(--mut); font-weight: 700; font-size: 11.5px; text-align: left; padding: 0 10px; height: 22px; }
   .mais:hover { color: var(--tx); text-decoration: underline; }
 
@@ -243,7 +246,7 @@
     <button type="button" class="hoje-card" id="hoje-card" title="Ver o dia de hoje">
       <div class="hc-data"><span class="hc-dia" id="hc-dia">—</span><span><b id="hc-sem">—</b><small id="hc-mes"></small></span></div>
       <div class="hc-stats" id="hc-stats"></div>
-      <span class="hc-ver">Ver o dia de hoje →</span>
+      <span class="hc-ver">Ver o dia de hoje <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </button>
 
     <div class="grupo">
@@ -358,7 +361,7 @@ const CFG_PAD = { faa: true, conc: false, esc: true, ev: true, fer: true, off: {
 let CFG = (() => { try { return Object.assign({}, CFG_PAD, JSON.parse(localStorage.getItem('fluxo_cal_cfg') || '{}')); } catch (e) { return Object.assign({}, CFG_PAD); } })();
 const salvarCfg = () => { try { localStorage.setItem('fluxo_cal_cfg', JSON.stringify(CFG)); } catch (e) {} };
 const S = { vista: 'mes', ref: isoHoje(), sel: isoHoje(), mini: isoHoje() };
-{ const q = new URLSearchParams(location.search).get('v'); if (q === 'hoje' || q === 'pessoas' || q === 'mes') S.vista = q; else if (q === 'semana') S.vista = 'pessoas'; }
+{ const q = new URLSearchParams(location.search).get('v'); if (q === 'hoje' || q === 'pessoas' || q === 'mes') S.vista = q; else if (q === 'semana') S.vista = 'pessoas'; const dq = new URLSearchParams(location.search).get('d'); if (/^\d{4}-\d{2}-\d{2}$/.test(dq || '')) { S.ref = dq; S.sel = dq; S.mini = dq; } }
 
 const CORES_PESSOA = ['#8b5cf6', '#ea580c', '#db2777', '#0ea5e9', '#16a34a', '#ca8a04', '#64748b', '#e11d48'];
 const corPessoa = id => { const i = PESSOAS.filter(p => !p.eu).findIndex(p => p.user_id === id); return CORES_PESSOA[(i < 0 ? 0 : i) % CORES_PESSOA.length]; };
@@ -382,6 +385,53 @@ function janela() {
   return { ini: inicioSemana(p), fim: somaDias(inicioSemana(u), 6) };
 }
 
+/* ---------- escala por dia: ciclo de cada pessoa + trocas aceitas ---------- */
+let ESC_BASES = [], TROCAS_PER = [], ESC_MEMO = {};
+const baixo = x => String(x || '').toLowerCase();
+const tarefasDe = txt => String(txt || '').split(/[\n;,]+/).map(x => x.trim()).filter(Boolean).map(t => t.charAt(0).toUpperCase() + t.slice(1));
+const segundaDe = iso => { const d = parseIso(iso); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return isoDe(d); };
+const ehEu = x => !!x.usuario && baixo(x.usuario) === baixo(EU.usuario || '');
+
+async function carregarEscalaBases() {
+  const bases = [], vistos = new Set();
+  const add = d => { if (!d || typeof d !== 'object') return; const k = baixo(d.dono_usuario || d.dono); if (vistos.has(k)) return; vistos.add(k); bases.push(d); };
+  const proprio = await db.rpc('escala_ver', {});
+  if (!proprio.error) add(proprio.data);
+  const donos = await db.rpc('escala_donos');
+  if (!donos.error && Array.isArray(donos.data)) {
+    const outras = await Promise.all(donos.data.map(d => db.rpc('escala_ver', { p_dono: d.dono })));
+    outras.forEach(r => { if (!r.error) add(r.data); });
+  }
+  ESC_BASES = bases; ESC_MEMO = {};
+}
+async function carregarTrocasPeriodo() {
+  const { data, error } = await db.rpc('escala_trocas_periodo', { p_ini: somaDias(isoHoje(), -30), p_fim: somaDias(isoHoje(), 120) });
+  TROCAS_PER = (!error && Array.isArray(data)) ? data : []; ESC_MEMO = {};
+}
+
+// Cada pessoa gira só nas semanas em que aparece; o servidor marca a linha "agora" (hoje). Para outro dia, avançamos
+// uma posição no ciclo da pessoa a cada segunda-feira (previsão pelo ciclo).
+function escalaDoDia(iso) {
+  if (ESC_MEMO[iso]) return ESC_MEMO[iso];
+  const out = [], diff = Math.round((parseIso(segundaDe(iso)) - parseIso(segundaDe(isoHoje()))) / (7 * 86400000)), dow = (parseIso(iso).getDay() + 6) % 7;
+  ESC_BASES.forEach(b => {
+    const dono = baixo(b.dono_usuario), pessoas = new Map();
+    (b.semanas || []).forEach(sm => (sm.linhas || []).forEach(l => { const k = l.convidado ? 'c:' + baixo(l.convidado) : 'u:' + baixo(l.usuario); if (!pessoas.has(k)) pessoas.set(k, []); pessoas.get(k).push({ n: sm.numero, l }); }));
+    pessoas.forEach(regs => {
+      regs.sort((a, c) => a.n - c.n);
+      const ag = regs.findIndex(r => r.l.agora); if (ag < 0) return;
+      const alvo = regs[(((ag + diff) % regs.length) + regs.length) % regs.length], l = alvo.l;
+      out.push({ dono, donoNome: b.dono_nome || b.dono_usuario || '', nome: l.nome || l.usuario || l.convidado || '?', usuario: l.convidado ? '' : String(l.usuario || ''), convidado: !!l.convidado, semana: alvo.n, tarefas: tarefasDe((l.dias || [])[dow]), troca: false });
+    });
+  });
+  TROCAS_PER.filter(t => t.data === iso).forEach(t => {
+    const a = out.find(x => x.dono === baixo(t.dono_usuario) && baixo(x.usuario) === baixo(t.de_usuario)), c = out.find(x => x.dono === baixo(t.dono_usuario) && baixo(x.usuario) === baixo(t.para_usuario));
+    if (a && c) { const tmp = a.tarefas; a.tarefas = c.tarefas; c.tarefas = tmp; a.troca = c.troca = true; }
+  });
+  if (!out.length && iso === isoHoje() && ESC.length) ESC.forEach(x => out.push({ dono: '', donoNome: x.dono_nome || '', nome: x.nome || x.usuario || '?', usuario: x.convidado ? '' : String(x.usuario || ''), convidado: !!x.convidado, semana: x.semana_numero, tarefas: tarefasDe(x.tarefas), troca: false }));
+  return (ESC_MEMO[iso] = out);
+}
+
 /* ---------- itens (FAAs, escala, eventos, feriados) ---------- */
 function montarItens(ini, fim) {
   const lista = []; ITENS = {}; let n = 0;
@@ -391,8 +441,11 @@ function montarItens(ini, fim) {
   if (CFG.fer) {
     for (let d = ini; d <= fim; d = somaDias(d, 1)) { const f = feriadoDe(d); if (f) add({ tipo: 'fer', ini: d, fim: d, titulo: f, cls: 'c-fer', ord: 0 }); }
   }
-  if (CFG.esc && ESC.length && hoje >= ini && hoje <= fim) {
-    add({ tipo: 'esc', ini: hoje, fim: hoje, titulo: 'Escala · ' + ESC.length + (ESC.length === 1 ? ' pessoa' : ' pessoas'), cls: 'c-esc', ord: 1 });
+  if (CFG.esc) {
+    for (let d = ini; d <= fim; d = somaDias(d, 1)) {
+      const lista = escalaDoDia(d).filter(x => x.tarefas.length); if (!lista.length) continue;
+      add({ tipo: 'esc', ini: d, fim: d, titulo: 'Escala · ' + lista.length + (lista.length === 1 ? ' pessoa' : ' pessoas'), cls: 'c-esc' + (lista.some(x => x.troca) ? ' troca' : ''), ord: 1 });
+    }
   }
   if (CFG.faa) {
     REL.forEach(r => {
@@ -408,7 +461,8 @@ function montarItens(ini, fim) {
       if (!e.meu && !donoVisivel(e.dono_id)) return;
       if (e.inicio > fim || e.fim < ini) return;
       const dono = e.meu ? null : pessoaPorId(e.dono_id);
-      add({ tipo: 'ev', e, ini: e.inicio, fim: e.fim, titulo: (e.hora_ini ? e.hora_ini + ' ' : '') + (dono ? primeiroNome(dono) + ': ' : '') + e.titulo, cls: 'e-' + e.cor, ord: 2 });
+      const folga = e.tipo === 'folga';
+      add({ tipo: 'ev', e, ini: e.inicio, fim: e.fim, titulo: (folga ? 'Folga · ' : '') + (e.hora_ini ? e.hora_ini + ' ' : '') + (dono ? primeiroNome(dono) + ': ' : '') + e.titulo, cls: 'e-' + e.cor + (folga ? ' folga' : ''), ord: 2 });
     });
   }
   return lista;
@@ -464,9 +518,11 @@ function renderPessoas() {
   const conhecidos = new Set(linhas.map(l => l.id));
   const donoDe = it => it.tipo === 'faa' ? it.r.user_id : (it.tipo === 'ev' ? it.e.dono_id : null);
   const itensPessoa = itens.filter(it => it.tipo === 'faa' || it.tipo === 'ev');
+  const convidados = new Map();
+  if (CFG.esc) dias.forEach(d => escalaDoDia(d).forEach(x => { if (x.convidado && x.tarefas.length && !convidados.has(baixo(x.nome))) convidados.set(baixo(x.nome), x.nome); }));
+  convidados.forEach((nome, k) => linhas.push({ id: 'g:' + k, p: { nome, usuario: '' }, convidado: true }));
   if (itensPessoa.some(it => !conhecidos.has(donoDe(it)))) linhas.push({ id: '_outros', p: { nome: 'Outros', usuario: '' }, outros: true });
 
-  const escDe = l => l.outros ? null : ESC.find(x => l.p.eu ? x.eu : (x.usuario && l.p.usuario && String(x.usuario).toLowerCase() === String(l.p.usuario).toLowerCase()));
   const fundoCls = d => { const dow = parseIso(d).getDay(); return (d === hoje ? 'hoje' : (CFG.fer && feriadoDe(d) ? 'fer' : (dow === 0 || dow === 6 ? 'fds' : ''))); };
   let n = 0;
 
@@ -475,16 +531,18 @@ function renderPessoas() {
 
   linhas.forEach(l => {
     const lista = itensPessoa.filter(it => l.outros ? !conhecidos.has(donoDe(it)) : donoDe(it) === l.id);
-    const e1 = CFG.esc ? escDe(l) : null;
-    if (e1 && hoje >= w.ini && hoje <= w.fim) {
-      const t = String(e1.tarefas || '').split(/[\n;,]+/).map(x => x.trim()).filter(Boolean);
-      const it = { key: 'p' + (n++), tipo: 'esc', ini: hoje, fim: hoje, titulo: 'Escala · ' + (t[0] || 'sem função') + (t.length > 1 ? ' +' + (t.length - 1) : ''), cls: 'c-esc', ord: 1 };
-      ITENS[it.key] = it; lista.push(it);
+    if (CFG.esc && !l.outros) {
+      dias.forEach(d => {
+        const e = escalaDoDia(d).find(x => l.convidado ? (x.convidado && baixo(x.nome) === baixo(l.p.nome)) : (l.p.eu ? ehEu(x) : (x.usuario && l.p.usuario && baixo(x.usuario) === baixo(l.p.usuario))));
+        if (!e || !e.tarefas.length) return;
+        const it = { key: 'p' + (n++), tipo: 'esc', ini: d, fim: d, titulo: (e.troca ? 'Troca · ' : '') + e.tarefas.join(' · '), cls: 'c-esc' + (e.troca ? ' troca' : ''), ord: 1 };
+        ITENS[it.key] = it; lista.push(it);
+      });
     }
     const segs = lanear(lista, w.ini, NDIAS_P);
     const nf = lista.filter(i => i.tipo === 'faa').length, ne = lista.filter(i => i.tipo === 'ev').length;
-    const cor = l.p.eu ? 'var(--pri)' : (l.outros ? '#64748b' : corPessoa(l.id)), nome = l.p.eu ? 'Você' : (l.p.nome || l.p.usuario || 'Pessoa'), f = fotoOk(l.p.foto);
-    h += '<div class="lane" style="--cc:' + cor + '"><div class="lane-nome"><span class="av">' + (f ? '<img src="' + esc(f) + '" alt="">' : esc(nome.trim().charAt(0).toUpperCase())) + '</span><span style="min-width:0"><b>' + esc(nome) + '</b><small>' + nf + (nf === 1 ? ' FAA' : ' FAAs') + (ne ? ' · ' + ne + (ne === 1 ? ' evento' : ' eventos') : '') + '</small></span></div>' +
+    const cor = l.p.eu ? 'var(--pri)' : ((l.outros || l.convidado) ? '#64748b' : corPessoa(l.id)), nome = l.p.eu ? 'Você' : (l.p.nome || l.p.usuario || 'Pessoa'), f = fotoOk(l.p.foto);
+    h += '<div class="lane" style="--cc:' + cor + '"><div class="lane-nome"><span class="av">' + (f ? '<img src="' + esc(f) + '" alt="">' : esc(nome.trim().charAt(0).toUpperCase())) + '</span><span style="min-width:0"><b>' + esc(nome) + '</b><small>' + (l.convidado ? 'Convidado · ' : '') + nf + (nf === 1 ? ' FAA' : ' FAAs') + (ne ? ' · ' + ne + (ne === 1 ? ' evento' : ' eventos') : '') + '</small></span></div>' +
       '<div class="lane-area"><div class="lane-fundo">' + dias.map(d => '<i class="' + fundoCls(d) + '"></i>').join('') + '</div><div class="lane-barras">' +
       segs.map(s => '<button type="button" class="chip ' + s.it.cls + (s.ci ? ' ci' : '') + (s.cf ? ' cf' : '') + '" style="grid-row:' + (s.l + 1) + ';grid-column:' + (s.c0 + 1) + '/' + (s.c1 + 2) + '" data-k="' + s.it.key + '" title="' + esc(s.it.titulo) + '">' + esc(s.it.titulo) + '</button>').join('') +
       '</div></div></div>';
@@ -503,14 +561,14 @@ function renderDia() {
   if (fer) h += '<div class="h-card"><div class="h-item"><span class="h-dot" style="background:#3f8f5b"></span><div class="h-tx"><b>' + esc(fer) + '</b><small>Feriado nacional</small></div></div></div>';
 
   if (CFG.esc) {
-    h += '<div class="h-card"><h3>Escala<a class="btn-o" href="escala.html" style="text-decoration:none;color:inherit">Editar escala</a></h3>';
-    if (!ehHoje) h += '<p class="h-vazio">Por enquanto a escala só aparece aqui para o dia de hoje.</p>';
-    else if (!ESC.length) h += '<p class="h-vazio">Nenhuma escala montada para hoje.</p>';
-    else h += '<div class="h-esc">' + ESC.map(x => {
-      const nome = x.nome || x.usuario, it = String(x.tarefas || '').split(/[\n;,]+/).map(t => t.trim()).filter(Boolean).map(t => t.charAt(0).toUpperCase() + t.slice(1));
-      return '<div class="h-pes' + (x.eu ? ' eu' : '') + '"><b>' + esc(x.eu ? nome + ' (você)' : nome) + '</b><small>' + esc(x.semana_nome || ('Semana ' + x.semana_numero)) + (x.convidado ? ' · convidado' : '') + '</small>' +
-        (it.length ? '<ol>' + it.map(t => '<li>' + esc(t) + '</li>').join('') + '</ol>' : '<div style="margin-top:8px"><i>Sem função hoje</i></div>') + '</div>';
-    }).join('') + '</div>';
+    const lista = escalaDoDia(d), futuro = d >= hoje;
+    h += '<div class="h-card"><h3>Escala<span style="display:flex;gap:6px">' + (futuro && lista.length ? '<a class="btn-o" href="escala.html?troca=' + d + '" style="text-decoration:none;color:inherit">Pedir troca</a>' : '') + '<a class="btn-o" href="escala.html" style="text-decoration:none;color:inherit">Abrir escala</a></span></h3>';
+    if (!lista.length) h += '<p class="h-vazio">Nenhuma escala montada para este dia.</p>';
+    else h += '<div class="h-esc">' + lista.map(x => {
+      const nome = x.nome, eu = ehEu(x);
+      return '<div class="h-pes' + (eu ? ' eu' : '') + '"><b>' + esc(eu ? nome + ' (você)' : nome) + (x.troca ? ' <span class="tag-troca">troca</span>' : '') + '</b><small>Semana ' + esc(x.semana) + (x.convidado ? ' · convidado' : '') + (x.donoNome && !eu && x.donoNome !== (EU.nome || '') ? ' · escala de ' + esc(x.donoNome) : '') + '</small>' +
+        (x.tarefas.length ? '<ol>' + x.tarefas.map(t => '<li>' + esc(t) + '</li>').join('') + '</ol>' : '<div style="margin-top:8px"><i>Sem função</i></div>') + '</div>';
+    }).join('') + '</div>' + (d !== hoje ? '<p class="h-vazio" style="margin-top:10px;font-size:12px">Para outros dias a escala é uma previsão pelo ciclo de cada pessoa (a semana avança toda segunda-feira) e já considera as trocas aceitas.</p>' : '');
     h += '</div>';
   }
 
@@ -529,7 +587,7 @@ function renderDia() {
     h += '<div class="h-card"><h3>Eventos<button type="button" class="btn-o" id="btn-ev-dia">+ Evento neste dia</button></h3>';
     h += ev.length ? ev.map(i => {
       const e = i.e, dono = e.meu ? 'Você' : (pessoaPorId(e.dono_id) ? (pessoaPorId(e.dono_id).nome || pessoaPorId(e.dono_id).usuario) : 'Alguém');
-      return '<button type="button" class="h-item" data-k="' + i.key + '"><span class="h-dot ' + 'e-' + e.cor + '"></span><span class="h-tx"><b>' + esc(e.titulo) + '</b><small>' + (e.hora_ini ? e.hora_ini + (e.hora_fim ? '–' + e.hora_fim : '') + ' · ' : '') + esc(dono) + (e.inicio !== e.fim ? ' · ' + dtBR(e.inicio) + ' a ' + dtBR(e.fim) : '') + '</small></span></button>';
+      return '<button type="button" class="h-item" data-k="' + i.key + '"><span class="h-dot ' + 'e-' + e.cor + '"></span><span class="h-tx"><b>' + esc(e.titulo) + '</b><small>' + (e.tipo === 'folga' ? 'Folga / ausência · ' : '') + (e.hora_ini ? e.hora_ini + (e.hora_fim ? '–' + e.hora_fim : '') + ' · ' : '') + esc(dono) + (e.inicio !== e.fim ? ' · ' + dtBR(e.inicio) + ' a ' + dtBR(e.fim) : '') + '</small></span></button>';
     }).join('') : '<p class="h-vazio">Nenhum evento neste dia.</p>';
     h += '</div>';
   }
@@ -564,7 +622,8 @@ function renderLateral() {
   if (atr) l.push('<span class="r"><i></i>' + plural(atr, 'FAA atrasada', 'FAAs atrasadas') + '</span>');
   if (urg) l.push('<span class="r"><i></i>' + plural(urg, 'jurídico urgente', 'jurídicos urgentes') + '</span>');
   if (prox) l.push('<span><i></i>' + plural(prox, 'vence', 'vencem') + ' em até 3 dias</span>');
-  if (ESC.length) l.push('<span><i></i>Escala hoje: ' + plural(ESC.length, 'pessoa', 'pessoas') + '</span>');
+  const escHoje = escalaDoDia(hoje).filter(x => x.tarefas.length).length || (ESC_BASES.length ? 0 : ESC.length);
+  if (escHoje) l.push('<span><i></i>Escala hoje: ' + plural(escHoje, 'pessoa', 'pessoas') + '</span>');
   if (!l.length) l.push('<span><i></i>Tudo em dia por aqui</span>');
   $('hc-stats').innerHTML = l.join('');
 }
@@ -613,6 +672,7 @@ async function carregarEventos() {
 }
 async function recarregarTudo() {
   await Promise.all([carregarRel(), carregarEscala(), carregarPessoas()]);
+  await Promise.all([carregarEscalaBases(), carregarTrocasPeriodo()]);
   await carregarEventos();
   render2();
 }
@@ -663,7 +723,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(
 
 function abrirItem(it) {
   if (!it) return;
-  if (it.tipo === 'esc') return irPara(isoHoje(), 'hoje');
+  if (it.tipo === 'esc') return irPara(it.ini, 'hoje');
   if (it.tipo === 'fer') return;
   if (it.tipo === 'ev') return it.e.meu ? abrirForm(it.e) : abrirEvento(it.e);
   const r = it.r, p = it.p, rest = diasEntre(isoHoje(), p.venc);
@@ -678,17 +738,18 @@ function abrirItem(it) {
 
 function abrirEvento(e) {
   const p = pessoaPorId(e.dono_id), quem = p ? (p.nome || p.usuario) : 'Alguém';
-  abrirModal('<h3>' + esc(e.titulo) + '</h3><div class="m-info"><p><span class="pill-st e-' + e.cor + '">Partilhado por ' + esc(quem) + '</span></p>' +
+  abrirModal('<h3>' + esc(e.titulo) + '</h3><div class="m-info"><p><span class="pill-st e-' + e.cor + '">' + (e.tipo === 'folga' ? 'Folga / ausência de ' : 'Partilhado por ') + esc(quem) + '</span></p>' +
     '<p><b>Quando:</b> ' + dtBR(e.inicio) + (e.fim !== e.inicio ? ' a ' + dtBR(e.fim) : '') + (e.hora_ini ? ' · ' + e.hora_ini + (e.hora_fim ? '–' + e.hora_fim : '') : '') + '</p>' +
     (e.descricao ? '<p>' + esc(e.descricao).replace(/\n/g, '<br>') + '</p>' : '') + '</div>' +
     '<div class="m-acoes"><button type="button" class="btn-o" onclick="fecharModal()">Fechar</button></div>');
 }
 
-let EV_COR = 'azul';
+let EV_COR = 'azul', EV_TIPO = 'evento';
 function abrirForm(e, dia) {
   const novo = !e, ini = novo ? (dia || isoHoje()) : e.inicio;
-  EV_COR = novo ? 'azul' : e.cor;
+  EV_COR = novo ? 'azul' : e.cor; EV_TIPO = novo ? 'evento' : (e.tipo || 'evento');
   abrirModal('<h3>' + (novo ? 'Novo evento' : 'Editar evento') + '</h3>' +
+    '<label>Tipo</label><div class="abas" id="ev-tipo"><button type="button" data-t="evento" class="' + (EV_TIPO === 'evento' ? 'on' : '') + '">Evento</button><button type="button" data-t="folga" class="' + (EV_TIPO === 'folga' ? 'on' : '') + '">Folga / ausência</button></div>' +
     '<label for="ev-titulo">Título</label><input type="text" id="ev-titulo" maxlength="120" placeholder="Ex.: Reunião, folga, consulta..." value="' + esc(novo ? '' : e.titulo) + '">' +
     '<div class="lin"><div><label for="ev-ini">Início</label><input type="date" id="ev-ini" value="' + ini + '"></div><div><label for="ev-fim">Fim</label><input type="date" id="ev-fim" value="' + (novo ? ini : e.fim) + '"></div></div>' +
     '<div class="lin"><div><label for="ev-hi">Hora início (opcional)</label><input type="time" id="ev-hi" value="' + (novo ? '' : (e.hora_ini || '')) + '"></div><div><label for="ev-hf">Hora fim (opcional)</label><input type="time" id="ev-hf" value="' + (novo ? '' : (e.hora_fim || '')) + '"></div></div>' +
@@ -697,6 +758,7 @@ function abrirForm(e, dia) {
     '<label class="chk"><input type="checkbox" id="ev-part"' + (novo || e.partilhado ? ' checked' : '') + '><span>Partilhar com as minhas pessoas (quem aceitou o seu pedido vê este evento)</span></label>' +
     '<p class="m-msg" id="ev-msg"></p>' +
     '<div class="m-acoes">' + (novo ? '' : '<button type="button" class="btn-pe grow" id="ev-apagar">Apagar</button>') + '<button type="button" class="btn-o" onclick="fecharModal()">Cancelar</button><button type="button" class="btn-p" id="ev-salvar">Salvar</button></div>');
+  $('ev-tipo').onclick = x => { const b = x.target.closest('[data-t]'); if (!b) return; EV_TIPO = b.dataset.t; document.querySelectorAll('#ev-tipo button').forEach(y => y.classList.toggle('on', y === b)); if (EV_TIPO === 'folga' && novo) { EV_COR = 'cinza'; document.querySelectorAll('#ev-cores button').forEach(y => y.classList.toggle('on', y.dataset.c === 'cinza')); } };
   $('ev-cores').onclick = x => { const b = x.target.closest('[data-c]'); if (!b) return; EV_COR = b.dataset.c; document.querySelectorAll('#ev-cores button').forEach(y => y.classList.toggle('on', y === b)); };
   $('ev-ini').onchange = () => { if ($('ev-fim').value < $('ev-ini').value) $('ev-fim').value = $('ev-ini').value; };
   $('ev-salvar').onclick = () => salvarEvento(novo ? null : e.id);
@@ -710,9 +772,9 @@ async function salvarEvento(id) {
   if (!t) { msg.textContent = ERROS_EV.titulo; return; }
   if (!ini || fim < ini) { msg.textContent = ERROS_EV.datas; return; }
   $('ev-salvar').disabled = true;
-  const { data, error } = await db.rpc('cal_evento_salvar', { p_id: id, p_titulo: t, p_descricao: $('ev-desc').value, p_inicio: ini, p_fim: fim, p_hora_ini: $('ev-hi').value, p_hora_fim: $('ev-hf').value, p_cor: EV_COR, p_partilhado: $('ev-part').checked });
+  const { data, error } = await db.rpc('cal_evento_salvar', { p_id: id, p_titulo: t, p_descricao: $('ev-desc').value, p_inicio: ini, p_fim: fim, p_hora_ini: $('ev-hi').value, p_hora_fim: $('ev-hf').value, p_cor: EV_COR, p_partilhado: $('ev-part').checked, p_tipo: EV_TIPO });
   $('ev-salvar').disabled = false;
-  if (error) { msg.textContent = /cal_evento_salvar/.test(error.message || '') ? 'Rode o banco_de_dado_calendario.txt no Supabase para salvar eventos.' : 'Erro: ' + error.message; return; }
+  if (error) { msg.textContent = /cal_evento_salvar/.test(error.message || '') ? 'Rode o banco_de_dado_calendario.txt e depois o banco_de_dado_ideias.txt no Supabase para salvar eventos e folgas.' : 'Erro: ' + error.message; return; }
   if (data && data.erro) { msg.textContent = ERROS_EV[data.erro] || 'Não foi possível salvar.'; return; }
   fecharModal(); toast(id ? 'Evento atualizado.' : 'Evento criado.');
   await carregarEventos(); render2();

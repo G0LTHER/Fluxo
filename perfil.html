@@ -379,8 +379,14 @@
   .bloco-pessoas:first-child { margin-top: 0; }
   .bloco-pessoas h3 .qtd { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 7px; margin-left: 8px; border-radius: 11px; background: #dc2626; color: #fff; font-size: 12px; font-weight: 800; vertical-align: middle; }
   .bloco-pessoas h3 .qtd.neutro { background: var(--bd); color: var(--mut); }
-  .pessoa-card.pedido { flex-wrap: wrap; }
-  .pessoa-card.pedido .pessoa-acoes { width: 100%; justify-content: flex-end; }
+  /* botões das pessoas: o seletor genérico ".pessoa-acoes button" apagava o fundo do .btn-sm */
+  .pessoa-card { flex-wrap: wrap; }
+  .pessoa-card .pessoa-acoes { width: 100%; justify-content: flex-end; }
+  .pessoa-acoes .btn-sm { padding: 7px 14px; border-radius: 8px; font-size: 13px; }
+  .pessoa-acoes .btn-sm:not(.sec):not(.perigo) { background: var(--pri); color: #fff; border: 0; }
+  .pessoa-acoes .btn-sm:not(.sec):not(.perigo):hover { background: var(--pri-hover); }
+  .pessoa-acoes .btn-sm.sec { background: transparent; color: var(--tx); border: 1px solid var(--bd); }
+  .pessoa-acoes .btn-sm.perigo { background: transparent; color: #ef4444; border: 1px solid rgba(239,68,68,.5); }
   .btn-sm { border: 0; border-radius: 8px; padding: 7px 14px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; background: var(--pri); color: #fff; }
   .btn-sm:hover { background: var(--pri-hover); }
   .btn-sm:disabled { opacity: .55; cursor: default; }
@@ -462,7 +468,7 @@
       
       <!-- Cabeçalho (Mobile + Título) -->
       <div class="page-header">
-        <button class="mobile-menu-btn" onclick="toggleSidebarMobile()">☰</button>
+        <button class="mobile-menu-btn" onclick="toggleSidebarMobile()" aria-label="Abrir menu"><svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
         <h1 class="page-title">Configurações</h1>
         <div style="width: 24px;"></div> <!-- Spacer -->
       </div>
@@ -1009,7 +1015,7 @@ async function statusRecuperacao() {
   const tem = !!data;
   $('btn-gerar-codigo').textContent = tem ? 'Gerar novo código' : 'Gerar código';
   $('rec-status').innerHTML = tem
-    ? '<div class="ok-box">✔ Código ativo gerado em <b>' + esc(new Date(data).toLocaleString('pt-BR')) + '</b>.</div>'
+    ? '<div class="ok-box"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-3px;color:#16a34a"><path d="M20 6L9 17l-5-5"/></svg> Código ativo gerado em <b>' + esc(new Date(data).toLocaleString('pt-BR')) + '</b>.</div>'
     : '<div class="warn-box">Você ainda não gerou um código de recuperação.</div>';
 }
 
