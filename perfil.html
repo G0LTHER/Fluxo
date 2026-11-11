@@ -988,7 +988,7 @@ async function cancelarPedido(u) {
   await carregarPessoas();
 }
 
-function abrirChat(u) { window.location.href = 'chat.html?u=' + encodeURIComponent(u); }
+function abrirChat(u) { window.location.href = 'menu.html?chat=' + encodeURIComponent(u); }
 
 async function removerPessoa(u) {
   if (!confirm('Remover @' + u + ' da sua lista?')) return;

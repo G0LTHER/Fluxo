@@ -752,7 +752,89 @@
   .rs-tab th, .rs-tab td { text-align: right; padding: 7px 6px; border-top: 1px solid var(--bd); }
   .rs-tab th:first-child, .rs-tab td:first-child { text-align: left; }
   .rs-tab th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--mut); border-top: 0; }
-</style>
+
+  /* ===== CHAT FLUTUANTE ===== */
+  .cf-fab { position: fixed; right: 20px; bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 90; width: 58px; height: 58px; border: 0; border-radius: 50%; background: var(--pri); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.28); padding: 0; transition: transform .15s ease, background .15s; }
+  .cf-fab:hover { background: var(--pri-hover); transform: scale(1.05); }
+  .cf-fab svg { width: 26px; height: 26px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cf-badge { position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #dc2626; color: #fff; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; border: 2px solid var(--bg); }
+  .cf-badge[hidden], .cf-fab[hidden], .cf-panel[hidden], .cf-v[hidden], .cf-oculto { display: none !important; }
+  .cf-panel { position: fixed; right: 20px; bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 140; width: 380px; max-width: calc(100vw - 24px); height: 580px; max-height: calc(100dvh - 40px); background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 18px; box-shadow: 0 18px 50px rgba(0,0,0,.35); display: flex; flex-direction: column; overflow: hidden; }
+  .cf-v { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+  .cf-topo { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--bd); background: var(--card); min-height: 56px; }
+  .cf-topo h3 { margin: 0; font-size: 17px; font-weight: 800; flex: 1; min-width: 0; }
+  .cf-ic { width: 36px; height: 36px; border: 0; border-radius: 10px; background: transparent; color: var(--mut); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; text-decoration: none; }
+  .cf-ic:hover { background: var(--bg); color: var(--tx); }
+  .cf-ic.perigo:hover { color: #dc2626; }
+  .cf-ic svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cf-busca { padding: 8px 12px; border-bottom: 1px solid var(--bd); }
+  .cf-busca input { width: 100%; padding: 9px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); color: var(--tx); font: inherit; outline: none; }
+  .cf-busca input:focus { border-color: var(--pri); }
+  .cf-lista { flex: 1; overflow-y: auto; padding: 6px; -webkit-overflow-scrolling: touch; }
+  .cf-pessoa { display: flex; align-items: center; gap: 10px; width: 100%; padding: 9px; border: 0; background: transparent; color: inherit; border-radius: 12px; cursor: pointer; text-align: left; font: inherit; }
+  .cf-pessoa:hover { background: var(--bg); }
+  .cf-av { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--pri), var(--pri-hover)); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; overflow: hidden; }
+  .cf-av.sm { width: 34px; height: 34px; font-size: 14px; }
+  .cf-av img { width: 100%; height: 100%; object-fit: cover; }
+  .cf-info { flex: 1; min-width: 0; }
+  .cf-l1, .cf-l2 { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .cf-nome { font-weight: 700; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cf-hora { font-size: 11px; color: var(--mut); flex-shrink: 0; }
+  .cf-ult { font-size: 12.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cf-n { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--pri); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .cf-vazio { color: var(--mut); text-align: center; padding: 26px 16px; font-size: 13.5px; margin: auto; }
+  .cf-vazio a { color: var(--pri); font-weight: 700; }
+  .cf-tinfo { flex: 1; min-width: 0; line-height: 1.2; }
+  .cf-tinfo b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cf-tinfo small { color: var(--mut); font-size: 11.5px; }
+  .cf-msgs { flex: 1; overflow-y: auto; padding: 12px 10px; display: flex; flex-direction: column; gap: 4px; background: var(--bg); overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  .cf-dia { align-self: center; margin: 8px 0 4px; font-size: 11px; font-weight: 700; color: var(--mut); background: var(--card); border: 1px solid var(--bd); padding: 2px 10px; border-radius: 999px; }
+  .cf-bolha { max-width: 84%; padding: 7px 11px 5px; border-radius: 16px; word-break: break-word; overflow-wrap: anywhere; white-space: pre-wrap; font-size: 14.5px; line-height: 1.4; }
+  .cf-bolha time { display: block; margin-top: 2px; font-size: 10.5px; opacity: .7; text-align: right; }
+  .cf-bolha.minha { align-self: flex-end; background: var(--pri); color: #fff; border-bottom-right-radius: 5px; }
+  .cf-bolha.outra { align-self: flex-start; background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-bottom-left-radius: 5px; }
+  .cf-bolha.env { opacity: .6; }
+  .cf-bolha a { color: inherit; text-decoration: underline; font-weight: 700; }
+  .cf-acoes { display: none; justify-content: flex-end; margin-top: 3px; }
+  .cf-bolha.minha.sel .cf-acoes { display: flex; }
+  @media (hover: hover) { .cf-bolha.minha:hover .cf-acoes { display: flex; } }
+  .cf-apagar { border: 1px solid rgba(255,255,255,.7); background: rgba(0,0,0,.15); color: #fff; border-radius: 999px; padding: 2px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; }
+  .cf-arq { display: flex; align-items: center; gap: 9px; min-width: 170px; padding: 7px 9px; margin-bottom: 2px; border-radius: 12px; background: rgba(0,0,0,.14); cursor: pointer; white-space: normal; }
+  .cf-bolha.outra .cf-arq { background: var(--bg); border: 1px solid var(--bd); }
+  .cf-arq.carregando { opacity: .6; pointer-events: none; }
+  .cf-arq svg { width: 26px; height: 26px; flex-shrink: 0; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .cf-arq-i { display: flex; flex-direction: column; min-width: 0; }
+  .cf-arq-n { font-weight: 700; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 190px; }
+  .cf-arq-s { font-size: 11px; opacity: .75; }
+  .cf-envio { display: flex; align-items: flex-end; gap: 6px; padding: 8px 10px; padding-bottom: max(8px, env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--bd); background: var(--card); }
+  .cf-envio textarea { flex: 1; min-width: 0; resize: none; max-height: 110px; padding: 9px 13px; border: 1px solid var(--bd); border-radius: 20px; background: var(--bg); color: var(--tx); font: inherit; font-size: 15px; line-height: 1.35; outline: none; }
+  .cf-envio textarea:focus { border-color: var(--pri); }
+  .cf-send { width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--pri); color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; }
+  .cf-send:hover { background: var(--pri-hover); }
+  .cf-send:disabled { opacity: .5; cursor: not-allowed; }
+  .cf-send svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .cf-aviso { margin: 8px 10px 0; padding: 9px 11px; border-radius: 12px; font-size: 12.5px; line-height: 1.4; background: #fef3c7; color: #78350f; border: 1px solid #fcd34d; }
+  :root[data-theme="dark"] .cf-aviso { background: #3a2a07; color: #fde68a; border-color: #78561a; }
+  .cf-aviso-b { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+  .cf-peq { border: 0; border-radius: 9px; padding: 6px 11px; background: var(--pri); color: #fff; font-weight: 700; font-size: 12.5px; cursor: pointer; }
+  .cf-peq.perigo { background: #dc2626; }
+  .cf-peq.sec { background: transparent; color: inherit; border: 1px solid currentColor; }
+  .cf-peq:disabled { opacity: .55; cursor: not-allowed; }
+  .cf-modal { position: absolute; inset: 0; z-index: 5; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 14px; }
+  .cf-modal > div { width: 100%; background: var(--card); border: 1px solid var(--bd); border-radius: 16px; padding: 16px; }
+  .cf-modal h4 { margin: 0 0 6px; font-size: 16px; }
+  .cf-modal p { margin: 0 0 8px; font-size: 12.5px; color: var(--mut); }
+  .cf-modal label { display: block; margin: 8px 0 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--mut); }
+  .cf-modal select { width: 100%; padding: 9px 10px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); color: var(--tx); font: inherit; }
+  .cf-modal-b { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  .cf-res { font-size: 12.5px; margin-top: 8px; min-height: 16px; color: var(--pri); }
+  .cf-res.erro { color: #dc2626; }
+  @media (max-width: 760px) {
+    .cf-fab { right: 16px; bottom: max(16px, env(safe-area-inset-bottom, 0px)); width: 54px; height: 54px; }
+    .cf-panel { inset: 0; width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; padding-top: env(safe-area-inset-top, 0px); }
+    .cf-busca input, .cf-envio textarea { font-size: 16px; }
+  }
+  </style>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
@@ -780,11 +862,6 @@
       <button type="button" class="sb-item" id="sb-sameprov" onclick="mudarAbaMenu('sameprov')" title="SAME / Provisória">
         <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
         <span class="sb-item-tx">SAME / Provisória</span>
-      </button>
-      <button type="button" class="sb-item" id="sb-chat" onclick="window.location.href='chat.html'" title="Chat">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <span class="sb-item-tx">Chat</span>
-        <span class="sb-badge" id="sb-chat-badge" hidden>0</span>
       </button>
       <button type="button" class="sb-item" id="sb-escala" onclick="window.location.href='escala.html'" title="Escala">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h3M14 14h3"/></svg>
@@ -1093,6 +1170,21 @@
 </div></div>
 <div id="toast" role="status" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;display:none;z-index:99;max-width:90vw;text-align:center"></div>
 
+<style>
+/* visor de PDF */
+.pdf-visor { position: fixed; inset: 0; z-index: 400; background: rgba(15,23,42,.62); display: flex; justify-content: center; padding: max(10px, env(safe-area-inset-top, 0px)) 10px max(10px, env(safe-area-inset-bottom, 0px)); }
+.pdf-visor > div { background: var(--card); color: var(--tx); border-radius: 14px; width: min(920px, 100%); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,.35); }
+.pdf-visor-top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--bd); flex-wrap: wrap; }
+.pdf-visor-top b { flex: 1; min-width: 120px; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pdf-visor iframe { flex: 1; border: 0; background: #fff; width: 100%; }
+/* Fluxo IA no chat */
+.cf-av.ia { background: linear-gradient(135deg, #7c3aed, #0d9488); }
+.cf-av.ia svg { width: 22px; height: 22px; }
+.cf-tag-ia { font-size: 10px; font-weight: 800; background: var(--pri); color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
+.cf-ia-acoes { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.cf-ia-bt { border: 1.5px solid var(--pri); background: transparent; color: var(--pri); border-radius: 10px; padding: 7px 10px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; text-align: left; }
+.cf-ia-bt:hover { background: var(--pri); color: #fff; }
+</style>
 <!-- SUPABASE & JSPDF -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1419,7 +1511,7 @@ async function carregarRel() {
     ({ data, error } = await db.from('relatorio').select(COLS_REL).order('id', { ascending: false }).limit(500));
   }
   if (error) aviso('Erro ao carregar painel: ' + error.message);
-  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos(); verificarLembretes();
+  REL = data || []; atualizarMetricasDashboard(); if (relAba === 'ativos') renderAtivos(); verificarLembretes(); if (window.iaVerificar) iaVerificar();
 }
 function recarregarRel() { carregarRel(); if (relAba === 'arquivo') { if (arqCat) carregarArquivo(true); else contarArquivo(); } }
 const rerender = () => relAba === 'arquivo' ? renderArquivo() : renderAtivos();
@@ -1552,10 +1644,10 @@ function checarMensagensNovas(lista) {
   MSG_CHAT.forEach(x => { const k = String(x.usuario).toLowerCase(); atual[k] = { n: x.nao_lidas || 0, t: x.ultima_texto, nome: NOMES_PESSOAS[k] || x.usuario }; });
   if (MSG_BASE) {
     const novas = Object.keys(atual).filter(k => atual[k].n > (MSG_BASE[k] ? MSG_BASE[k].n : 0));
-    if (novas.length === 1) { const a = atual[novas[0]]; notificar('Nova mensagem de ' + a.nome, (a.t || '').replace(/\s+/g, ' ').slice(0, 120), 'chat-' + novas[0], 'chat.html?u=' + encodeURIComponent(novas[0])); }
-    else if (novas.length > 1) notificar('Novas mensagens', novas.length + ' pessoas escreveram para você', 'chat-varios', 'chat.html');
+    if (novas.length === 1) { const a = atual[novas[0]]; notificar('Nova mensagem de ' + a.nome, (a.t || '').replace(/\s+/g, ' ').slice(0, 120), 'chat-' + novas[0], 'menu.html?chat=' + encodeURIComponent(novas[0])); }
+    else if (novas.length > 1) notificar('Novas mensagens', novas.length + ' pessoas escreveram para você', 'chat-varios', 'menu.html');
   }
-  MSG_BASE = atual; atualizarBadgeSino();
+  MSG_BASE = atual; atualizarBadgeSino(); if (window.cfAtualizar) cfAtualizar(MSG_CHAT);
 }
 
 function checarAtrasosNovos() {
@@ -1636,7 +1728,7 @@ function renderSino() {
 $('sp-corpo').addEventListener('click', e => {
   const b = e.target.closest('[data-sino]'); if (!b) return;
   const a = b.dataset.sino; fecharSino();
-  if (a === 'chat') window.location.href = 'chat.html?u=' + encodeURIComponent(b.dataset.u);
+  if (a === 'chat') abrirChatFlutuante(b.dataset.u);
   else if (a === 'reg') { mudarAbaMenu('dash'); abrirRegistroCal(Number(b.dataset.id)); }
   else if (a === 'todas') mostrarNotificacoesAlerta();
 });
@@ -1821,13 +1913,11 @@ async function anexarPdf(id, f) {
   aviso('PDF anexado.'); await carregarExtras(id);
 }
 async function abrirAnexo(aid) {
-  const aba = window.open('', '_blank');
+  const aba = ehAppPdf() ? null : window.open('', '_blank');
   const { data, error } = await db.from('relatorio_anexos').select('nome,conteudo').eq('id', aid).maybeSingle();
   if (error || !data) { if (aba) aba.close(); return aviso('Não foi possível abrir o PDF.'); }
   const bin = atob(data.conteudo), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
-  const url = URL.createObjectURL(new Blob([u8], { type: 'application/pdf' }));
-  if (aba) aba.location.href = url; else { const a = document.createElement('a'); a.href = url; a.download = data.nome; a.click(); }
-  setTimeout(() => URL.revokeObjectURL(url), 120000);
+  entregarPdf(new Blob([u8], { type: 'application/pdf' }), data.nome || 'anexo.pdf', 'ver', aba);
 }
 async function apagarAnexo(id, aid) {
   if (!confirm('Remover este PDF anexado?')) return;
@@ -1861,7 +1951,7 @@ function verificarLembretes() {
 }
 
 /* ===== busca geral (Ctrl+K) ===== */
-const PAGINAS = [['Calendário', 'calendario.html'], ['Escala', 'escala.html'], ['Chat', 'chat.html'], ['Perfil', 'perfil.html'], ['Pessoas e pedidos', 'perfil.html#pessoas'], ['Armazenamento', 'perfil.html#armazenamento']];
+const PAGINAS = [['Calendário', 'calendario.html'], ['Escala', 'escala.html'], ['Perfil', 'perfil.html'], ['Pessoas e pedidos', 'perfil.html#pessoas'], ['Armazenamento', 'perfil.html#armazenamento']];
 const normBusca = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 let BUSCA_I = 0, BUSCA_ITENS = [], BUSCA_EVT = null, tBusca = null, buscaSeq = 0;
 
@@ -1878,7 +1968,7 @@ async function montarBusca(q) {
   const paginas = PAGINAS.filter(([t]) => !n || normBusca(t).includes(n)).map(([t, u]) => ({ g: 'Ir para', t, a: () => { location.href = u; } }));
   if (!n || 'resumo da semana'.includes(n)) paginas.push({ g: 'Ir para', t: 'Resumo da semana', a: abrirResumo });
   if (n) {
-    Object.entries(NOMES_PESSOAS).filter(([u, nm]) => normBusca(u + ' ' + nm).includes(n)).slice(0, 5).forEach(([u, nm]) => it.push({ g: 'Pessoas', t: nm, s: '@' + u + ' · abrir conversa', a: () => { location.href = 'chat.html?u=' + encodeURIComponent(u); } }));
+    Object.entries(NOMES_PESSOAS).filter(([u, nm]) => normBusca(u + ' ' + nm).includes(n)).slice(0, 5).forEach(([u, nm]) => it.push({ g: 'Pessoas', t: nm, s: '@' + u + ' · abrir conversa', a: () => { abrirChatFlutuante(u); } }));
     REL.filter(r => normBusca(r.descricao + ' ' + (r.detalhe || '') + ' ' + (r.responsavel || '')).includes(n)).slice(0, 8).forEach(r => it.push({ g: 'FAAs e registos', t: r.descricao, s: ST[statusDe(r)].curto + ' · pedido ' + dtBR(r.data), a: () => abrirFaaPorBusca(r.id) }));
   }
   BUSCA_ITENS = it.concat(paginas); BUSCA_I = 0; desenharBusca();
@@ -1956,7 +2046,7 @@ function baixarResumoPdf() {
   ['Pessoa', 'Pedidas 7d', 'Concl. 7d', 'Abertas', 'Atrasadas'].forEach((t, i) => doc.text(t, cols[i], y)); y += 6;
   doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(15, 23, 42);
   r.por.forEach(([n, v]) => { if (y > 280) { doc.addPage(); y = 20; } doc.text(pdfTxt(n).slice(0, 38), cols[0], y); [v.pedidas, v.conc, v.abertas, v.atrasadas].forEach((x, i) => doc.text(String(x), cols[i + 1], y)); y += 6.5; });
-  doc.save('Fluxo-Resumo-' + r.hoje + '.pdf');
+  entregarPdf(doc.output('blob'), 'Fluxo-Resumo-' + r.hoje + '.pdf', 'baixar');
 }
 
 function renderGraficoDash() {
@@ -2028,7 +2118,7 @@ async function carregarPessoas(silencioso) {
   checarMensagensNovas(r.error ? [] : (r.data || []));
   const nao = {}; let total = 0;
   (r.data || []).forEach(x => { const n = x.nao_lidas || 0; nao[String(x.usuario).toLowerCase()] = n; total += n; });
-  [['sb-chat-badge'], ['menu-btn-badge']].forEach(([id]) => { const el = $(id); if (el) { el.hidden = !total; el.textContent = total > 99 ? '99+' : total; } });
+  [['cf-badge'], ['menu-btn-badge']].forEach(([id]) => { const el = $(id); if (el) { el.hidden = !total; el.textContent = total > 99 ? '99+' : total; } });
 
   const data = (p.data || []).slice().sort((a, b) => String(a.nome || a.usuario).localeCompare(String(b.nome || b.usuario)));
   if (!data.length) { lista.innerHTML = '<p class="pessoas-vazio">Ninguém adicionado ainda.</p>'; }
@@ -2044,7 +2134,8 @@ async function carregarPessoas(silencioso) {
 
 $('sb-pessoas-lista').addEventListener('click', e => {
   const b = e.target.closest('.sb-pessoa'); if (!b) return;
-  window.location.href = 'chat.html?u=' + encodeURIComponent(b.dataset.u);
+  abrirChatFlutuante(b.dataset.u);
+  if (typeof fecharDrawer === 'function') fecharDrawer();
 });
 
 /* ===== MENU LATERAL (expandir/recolher) ===== */
@@ -2571,18 +2662,16 @@ function pdfRegisto(id, acao) {
   if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
   const o = registoParaPdf(r);
   if (!o) return pdfRegistoResumo(id, acao);                 // registo sem a lista guardada (ex.: atividade escrita à mão)
-  const aba = acao === 'ver' ? window.open('', '_blank') : null;
+  const aba = (acao === 'ver' && !ehAppPdf()) ? window.open('', '_blank') : null;
   const res = construirPdf(o);
   if (!res) { if (aba) aba.close(); return pdfRegistoResumo(id, acao); }
-  if (acao === 'baixar') { res.doc.save(res.nome); return; }
-  if (!aba) { res.doc.save(res.nome); return aviso('O navegador bloqueou a nova guia; o PDF foi baixado.'); }
-  const url = URL.createObjectURL(res.doc.output('blob')); aba.location.href = url; setTimeout(() => URL.revokeObjectURL(url), 120000);
+  entregarPdf(res.doc.output('blob'), res.nome, acao, aba);
 }
 
 function pdfRegistoResumo(id, acao) {
   const r = REL.find(x => x.id === id) || ARQ.find(x => x.id === id) || BUSCA_REC[id]; if (!r) return aviso('Registo não encontrado.');
   if (!window.jspdf) return aviso('A biblioteca de PDF não carregou. Verifique a internet.');
-  const aba = acao === 'ver' ? window.open('', '_blank') : null;
+  const aba = (acao === 'ver' && !ehAppPdf()) ? window.open('', '_blank') : null;
   const sk = statusDe(r), st = ST[sk], PP = prazoDe(r), dias = diasEntre(baseDe(r), isoHoje()), prazo = r.status === 'concluido' ? '' : dias > PP ? 'atrasado há ' + (dias - PP) + ' dia(s)' : dias === PP ? 'vence hoje' : 'faltam ' + (PP - dias) + ' dia(s)';
   const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), W = 210, M = 18, LW = W - 2 * M; let y = 0;
 
@@ -2604,9 +2693,7 @@ function pdfRegistoResumo(id, acao) {
   linhas.forEach(l => { doc.splitTextToSize(pdfTxt(l) || ' ', LW).forEach(p => { doc.text(p, M, y); y += 5.2; }); });
 
   const nome = 'Fluxo-' + (r.categoria || 'registo') + '-' + r.data + '-' + r.id + '.pdf';
-  if (acao === 'baixar') { doc.save(nome); return; }
-  if (!aba) { doc.save(nome); return aviso('O navegador bloqueou a nova guia; o PDF foi baixado.'); }
-  const url = URL.createObjectURL(doc.output('blob')); aba.location.href = url; setTimeout(() => URL.revokeObjectURL(url), 120000);
+  entregarPdf(doc.output('blob'), nome, acao, aba);
 }
 
 function colocar(un, n, lim1, limN) {
@@ -2615,16 +2702,130 @@ function colocar(un, n, lim1, limN) {
   return pos;
 }
 
+
+/* ===== PDF: monta o mesmo documento da folha de criação (usado ao criar e ao abrir pelo arquivo) ===== */
+function construirPdf(o) {
+  if (!window.jspdf) { aviso('A biblioteca de PDF não carregou. Verifique a internet.'); return null; }
+  const aba = o.aba, f = o.fmt || FMT[aba] || FMT.faa, fs = f.fs, nc = f.cols, per = porLinha(f), cw = largCol(nc);
+  const lh = fs * 1.5 * MM, cx = fs * 1.05 * MM;
+  const doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+  const setF = (est, tam) => { doc.setFont('helvetica', est); doc.setFontSize(tam); };
+  const base = (ty, tam, L) => ty + (L - tam * MM) / 2 + tam * MM * 0.8;
+  const caixa = (x, yb) => { doc.setDrawColor(17, 24, 39); doc.setLineWidth(0.35); doc.rect(x, yb - cx * 0.85, cx, cx); };
+  const un = []; let titulo = '';
+
+  if (aba === 'faa') {
+    titulo = 'Lista de FAAs';
+    (o.faa || []).filter(p => String(p.nome || '').trim()).forEach(p => {
+      setF('bold', fs + 2);
+      const nl = doc.splitTextToSize(pdfTxt(String(p.nome).trim()), cw), nlh = (fs + 2) * 1.5 * MM, top = 0.9 * fs * MM, gap = 0.6 * fs * MM;
+      const rows = Math.ceil(p.datas.length / per), h = top + nl.length * nlh + 0.3 * fs * MM + gap + rows * lh + (rows - 1) * gap + fs * MM;
+      un.push({ h, draw: (x, y) => {
+        setF('bold', fs + 2); doc.setTextColor(17, 24, 39);
+        nl.forEach((t, i) => doc.text(t, x, base(y + top + i * nlh, fs + 2, nlh)));
+        const ly = y + top + nl.length * nlh + 0.2 * fs * MM;
+        doc.setDrawColor(156, 163, 175); doc.setLineWidth(0.4); doc.line(x, ly, x + cw, ly);
+        setF('normal', fs); doc.setTextColor(17, 24, 39);
+        const gy = ly + gap;
+        p.datas.forEach((k, i) => { const r = Math.floor(i / per), c = i % per, xx = x + c * (cw / per), yb = base(gy + r * (lh + gap), fs, lh); caixa(xx, yb); doc.text(fmtData(k), xx + cx + 1.4, yb); });
+      } });
+    });
+    if (String(o.obs || '').trim()) {
+      setF('normal', fs);
+      const ol = doc.splitTextToSize(pdfTxt(String(o.obs).trim()), cw);
+      un.push({ h: 0.9 * fs * MM + lh + ol.length * lh + fs * MM, draw: (x, y) => {
+        setF('bold', fs); doc.setTextColor(17, 24, 39); doc.text('Observacao', x, base(y + 0.9 * fs * MM, fs, lh));
+        setF('normal', fs); ol.forEach((t, i) => doc.text(t, x, base(y + 0.9 * fs * MM + lh + i * lh, fs, lh)));
+      } });
+    }
+  } else if (aba === 'same') {
+    titulo = 'Lista de Pastas / SAME';
+    (o.same || []).filter(p => String(p.nome || '').trim() || String(p.same || '').trim()).forEach(p => {
+      const sm = pdfTxt(String(p.same || '').trim()), nm = pdfTxt(String(p.nome || '').trim()), full = [sm, nm].filter(Boolean).join(' - ');
+      setF('bold', fs); const ln = doc.splitTextToSize(full, cw - cx - 1.4), pad = 0.35 * fs * MM;
+      un.push({ h: ln.length * lh + 2 * pad, draw: (x, y) => {
+        ln.forEach((t, i) => {
+          const yb = base(y + pad + i * lh, fs, lh);
+          if (i === 0) caixa(x, yb);
+          doc.setTextColor(17, 24, 39);
+          if (i === 0 && sm && t.indexOf(sm) === 0) { setF('bold', fs); doc.text(sm, x + cx + 1.4, yb); const w = doc.getTextWidth(sm); setF('normal', fs); doc.text(t.slice(sm.length), x + cx + 1.4 + w, yb); }
+          else { setF('normal', fs); doc.text(t, x + cx + 1.4, yb); }
+        });
+        doc.setDrawColor(229, 231, 235); doc.setLineWidth(0.25); doc.line(x, y + ln.length * lh + 2 * pad, x + cw, y + ln.length * lh + 2 * pad);
+      } });
+    });
+  } else {
+    titulo = 'Provisória de ' + (o.nomeProv || nomeUsuario());
+    (o.prov || []).forEach(n => {
+      const pad = 0.4 * fs * MM;
+      un.push({ h: lh + 2 * pad, draw: (x, y) => {
+        setF('bold', fs); doc.setTextColor(15, 23, 42); doc.text(pdfTxt('Pasta: ' + n), x, base(y + pad, fs, lh));
+        doc.setDrawColor(229, 231, 235); doc.setLineWidth(0.25); doc.line(x, y + lh + 2 * pad, x + cw, y + lh + 2 * pad);
+      } });
+    });
+  }
+  if (!un.length) return null;
+
+  const tfs = fs * 1.4, hdrH = tfs * 1.5 * MM + 2 + 6, lim1 = (PG.BOT - PG.TOP) - hdrH, limN = PG.BOT - PG.TOP;
+  const pos = colocar(un, nc, lim1, limN), ult = pos[pos.length - 1].pg; let feitas = 1;
+  setF('bold', tfs); doc.setTextColor(17, 24, 39); doc.text(pdfTxt(titulo).toUpperCase(), PG.L, base(PG.TOP, tfs, tfs * 1.5 * MM), { maxWidth: PG.R - PG.L - 40 });
+  setF('normal', 11); doc.setTextColor(75, 85, 99); doc.text(pdfTxt(o.dataTxt || ''), PG.R, base(PG.TOP, 11, tfs * 1.5 * MM), { align: 'right' });
+  doc.setDrawColor(17, 24, 39); doc.setLineWidth(0.7); doc.line(PG.L, PG.TOP + tfs * 1.5 * MM + 1, PG.R, PG.TOP + tfs * 1.5 * MM + 1);
+  let maxY = 0;
+  un.forEach((u, i) => {
+    const q = pos[i];
+    while (feitas <= q.pg) { doc.addPage(); feitas++; }
+    doc.setPage(q.pg + 1);
+    u.draw(PG.L + q.col * (cw + PG.GAP), PG.TOP + (q.pg === 0 ? hdrH : 0) + q.y);
+    if (q.pg === ult) maxY = Math.max(maxY, q.y + u.h);
+  });
+  doc.setPage(ult + 1);
+  let fy = PG.TOP + (ult === 0 ? hdrH : 0) + maxY + 10;
+  const rodape = [];
+  if (aba === 'prov') rodape.push('documento criado dia ' + (o.dataTxt || '') + (o.hora ? ' horário ' + o.hora : ''));
+  if (o.executor) rodape.push('Responsável que pegou: ' + o.executor);
+  if (rodape.length) {
+    if (fy + rodape.length * 5 + 6 > PG.BOT) { doc.addPage(); fy = PG.TOP + 4; }
+    doc.setDrawColor(203, 213, 225); doc.setLineWidth(0.3); doc.setLineDashPattern([1.2, 1.2], 0); doc.line(PG.L, fy, PG.R, fy); doc.setLineDashPattern([], 0);
+    setF('normal', 10); doc.setTextColor(100, 116, 139);
+    rodape.forEach((t, i) => doc.text(pdfTxt(t), PG.R, fy + 6 + i * 5, { align: 'right' }));
+  }
+  const rot = { faa: 'FAAs', same: 'SAME', prov: 'Provisoria' }[aba] || 'Registo';
+  return { doc, nome: 'Fluxo-' + rot + '-' + String(o.dataTxt || '').replace(/\//g, '-') + '.pdf' };
+}
+
+/* ===== entregar PDF: nova guia no navegador; visor dentro da página no app/celular; compartilhar/baixar ===== */
+const ehAppPdf = () => !!window.Capacitor || (/Android/i.test(navigator.userAgent) && /; wv\)/.test(navigator.userAgent)) || (window.navigator.standalone === true);
+async function entregarPdf(blob, nome, acao, aba) {
+  const arq = new File([blob], nome, { type: 'application/pdf' });
+  if (acao === 'baixar') {
+    if (ehAppPdf() && navigator.canShare && navigator.canShare({ files: [arq] })) { try { await navigator.share({ files: [arq], title: nome }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = nome; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000); return;
+  }
+  if (aba && !aba.closed) { const url = URL.createObjectURL(blob); aba.location.href = url; setTimeout(() => URL.revokeObjectURL(url), 120000); return; }
+  pdfVisor(blob, nome);
+}
+function pdfVisor(blob, nome) {
+  const ant = document.getElementById('pdf-visor'); if (ant) ant.remove();
+  const url = URL.createObjectURL(blob), el = document.createElement('div'); el.id = 'pdf-visor'; el.className = 'pdf-visor';
+  el.innerHTML = '<div><div class="pdf-visor-top"><b></b><button type="button" class="mini-btn pri" data-pv="baixar">Baixar / compartilhar</button><button type="button" class="mini-btn" data-pv="fechar">Fechar</button></div><iframe title="PDF" src="' + url + '"></iframe></div>';
+  el.querySelector('b').textContent = nome;
+  const fechar = () => { el.remove(); URL.revokeObjectURL(url); document.body.style.overflow = ''; };
+  el.addEventListener('click', e => { const b = e.target.closest('[data-pv]'); if (b) { if (b.dataset.pv === 'fechar') fechar(); else entregarPdf(blob, nome, 'baixar'); } else if (e.target === el) fechar(); });
+  document.body.style.overflow = 'hidden'; document.body.appendChild(el);
+}
+
 async function pdf() {
   const dataEscolhida = $('data-workspace') && $('data-workspace').value ? dtBR($('data-workspace').value) : hoje();
   const r = construirPdf({ aba: abaAtiva, faa: P_FAA, same: P_SAME, prov: P_PROV, obs: obsFaa(), dataTxt: dataEscolhida, nomeProv: nomeUsuario(), hora: new Date().toLocaleTimeString('pt-BR'), fmt: fmtAtual() });
-  if (r) r.doc.save(r.nome);
+  if (r) entregarPdf(r.doc.output('blob'), r.nome, 'baixar');
 }
 
 /* Reconstrói, a partir do registo guardado, os mesmos dados usados na hora de criar o documento */
 function registoParaPdf(r) {
   const det = String(r.detalhe || '').trim(); if (!det) return null;
-  const o = { aba: r.categoria, faa: [], same: [], prov: [], obs: '', dataTxt: dtBR(r.data), nomeProv: r.responsavel || '', hora: r.concluido_em ? new Date(r.concluido_em).toLocaleTimeString('pt-BR') : '', fmt: FMT[r.categoria] || FMT.faa };
+  const o = { aba: r.categoria, faa: [], same: [], prov: [], obs: '', dataTxt: dtBR(r.data), nomeProv: r.responsavel || '', executor: r.executor || '', hora: r.concluido_em ? new Date(r.concluido_em).toLocaleTimeString('pt-BR') : '', fmt: FMT[r.categoria] || FMT.faa };
   const parteObs = det.split(/\n\nObserva[çc][ãa]o: /);
   const linhas = parteObs[0].split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   if (r.categoria === 'faa') {
@@ -2646,6 +2847,475 @@ function registoParaPdf(r) {
   }
   return null;
 }
+</script>
+
+<!-- ===== CHAT FLUTUANTE ===== -->
+<button type="button" class="cf-fab" id="cf-fab" title="Chat" aria-label="Abrir chat" hidden>
+  <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+  <span class="cf-badge" id="cf-badge" hidden>0</span>
+</button>
+<div class="cf-panel" id="cf-panel" hidden role="dialog" aria-label="Chat">
+  <div class="cf-v" id="cf-v-lista">
+    <div class="cf-topo">
+      <h3>Chat</h3>
+      <a class="cf-ic" href="perfil.html#pessoas" title="Adicionar pessoas" aria-label="Adicionar pessoas"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></a>
+      <button type="button" class="cf-ic" id="cf-limpar-topo" title="Limpar chat (liberar espaço)" aria-label="Limpar chat"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+      <button type="button" class="cf-ic" data-cf="fechar" title="Fechar" aria-label="Fechar chat"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="cf-aviso cf-oculto" id="cf-aviso"></div>
+    <div class="cf-busca"><input id="cf-busca" type="search" placeholder="Buscar pessoa..." autocomplete="off"></div>
+    <div class="cf-lista" id="cf-lista"><p class="cf-vazio">A carregar...</p></div>
+  </div>
+
+  <div class="cf-v" id="cf-v-conv" hidden>
+    <div class="cf-topo">
+      <button type="button" class="cf-ic" id="cf-voltar" title="Voltar" aria-label="Voltar"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <span class="cf-av sm" id="cf-conv-av"></span>
+      <div class="cf-tinfo"><b id="cf-conv-nome"></b><small id="cf-conv-user"></small></div>
+      <button type="button" class="cf-ic perigo" id="cf-apagar-conv" title="Apagar conversa" aria-label="Apagar conversa"><svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg></button>
+      <button type="button" class="cf-ic" data-cf="fechar" title="Fechar" aria-label="Fechar chat"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="cf-msgs" id="cf-msgs"></div>
+    <form class="cf-envio" id="cf-envio" autocomplete="off">
+      <button type="button" class="cf-ic" id="cf-anexo" title="Enviar PDF (até 5 MB)" aria-label="Enviar PDF"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+      <input type="file" id="cf-arquivo" accept="application/pdf,.pdf" class="cf-oculto">
+      <textarea id="cf-texto" rows="1" maxlength="2000" placeholder="Escreva uma mensagem..."></textarea>
+      <button type="submit" class="cf-send" id="cf-enviar" title="Enviar" aria-label="Enviar"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
+    </form>
+  </div>
+
+  <div class="cf-modal cf-oculto" id="cf-modal">
+    <div role="dialog" aria-modal="true" aria-labelledby="cf-m-tit">
+      <h4 id="cf-m-tit">Limpar chat</h4>
+      <p id="cf-m-uso"></p>
+      <label for="cf-m-modo">O que apagar</label>
+      <select id="cf-m-modo"><option value="pdfs">Só os PDFs (a mensagem do PDF some junto)</option><option value="tudo">Mensagens e PDFs</option></select>
+      <label for="cf-m-dias">De quando</label>
+      <select id="cf-m-dias"><option value="0">Tudo, sem filtro de data</option><option value="7">Com mais de 7 dias</option><option value="30">Com mais de 30 dias</option><option value="90">Com mais de 90 dias</option></select>
+      <p style="margin:10px 0 0">Apaga só das suas conversas, para os dois lados, e não dá para desfazer.</p>
+      <div class="cf-res" id="cf-m-res"></div>
+      <div class="cf-modal-b"><button type="button" class="cf-peq sec" id="cf-m-fechar">Fechar</button><button type="button" class="cf-peq perigo" id="cf-m-ok">Apagar</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== CHAT FLUTUANTE (substitui a antiga página chat.html) ===== */
+(function () {
+  const g = id => document.getElementById(id);
+  const E = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const foto = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
+  const av = p => { const f = foto(p.foto), n = p.nome || p.usuario || '?'; return f ? '<img src="' + E(f) + '" alt="">' : E(n.trim().charAt(0).toUpperCase()); };
+  const hhmm = iso => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  const PDF_RE = /^\[pdf:(\d+)\]\s*(.*)$/;
+  const ICONE_PDF = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
+
+  let PESSOAS = [], RESUMO = {}, atual = null, ultimo = '', enviando = false, USO = null, ultimoUso = 0, tPoll = null, aberto = false;
+
+  function diaRotulo(iso) {
+    const d = new Date(iso), h = new Date(), o = new Date(); o.setDate(h.getDate() - 1);
+    if (d.toDateString() === h.toDateString()) return 'Hoje';
+    if (d.toDateString() === o.toDateString()) return 'Ontem';
+    return d.toLocaleDateString('pt-BR');
+  }
+  function horaLista(iso) {
+    if (!iso) return '';
+    return new Date(iso).toDateString() === new Date().toDateString() ? hhmm(iso) : new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  }
+  function fmtBytes(b) {
+    b = +b || 0;
+    if (b >= 1073741824) return (b / 1073741824).toFixed(2).replace('.', ',') + ' GB';
+    if (b >= 1048576) return (b / 1048576).toFixed(b >= 104857600 ? 0 : 1).replace('.', ',') + ' MB';
+    return Math.max(1, Math.round(b / 1024)) + ' KB';
+  }
+  function formatar(texto) {
+    return E(texto).replace(/(https?:\/\/[^\s]+)|(www\.[^\s]+)/gi, url => {
+      const href = /^www\./i.test(url) ? 'http://' + url : url;
+      return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + url + '</a>';
+    });
+  }
+  function conteudo(texto) {
+    const m = PDF_RE.exec(String(texto || ''));
+    if (!m) return formatar(texto);
+    return '<div class="cf-arq" data-arq="' + m[1] + '" role="button" tabindex="0">' + ICONE_PDF + '<span class="cf-arq-i"><span class="cf-arq-n">' + E(m[2] || 'arquivo.pdf') + '</span><span class="cf-arq-s">PDF · toque para abrir</span></span></div>';
+  }
+  function resumoTxt(t) { const m = PDF_RE.exec(String(t || '')); return m ? 'PDF · ' + (m[2] || 'PDF') : String(t || '').replace(/\s+/g, ' '); }
+  const pessoaDe = u => PESSOAS.find(p => String(p.usuario).toLowerCase() === u) || null;
+
+  /* ===== FLUXO IA: perguntas automáticas dentro do chat ===== */
+  const IA = '__ia';
+  const ICONE_IA = '<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg>';
+  const IA_BOAS = 'Oi! Eu sou a Fluxo IA. Quando uma FAA que você pegou estiver perto de vencer, vencer ou ficar atrasada, eu pergunto por aqui e você responde com um toque. Também pode me escrever "pendências" ou "atrasadas".';
+  let IA_ST = null, IA_UID = '';
+  const iaUid = () => (typeof uid !== 'undefined' && uid) ? uid : '';
+  const iaId = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const iaPl = (n, a, b) => n + ' ' + (n === 1 ? a : b);
+  function iaEstado() {
+    const u = iaUid(); if (!u) return { msgs: [], chaves: {} };
+    if (IA_ST && IA_UID === u) return IA_ST;
+    let x = null; try { x = JSON.parse(localStorage.getItem('fluxo_ia_' + u) || 'null'); } catch (e) {}
+    IA_ST = (x && Array.isArray(x.msgs)) ? x : { msgs: [], chaves: {} }; IA_ST.chaves = IA_ST.chaves || {}; IA_UID = u;
+    if (!IA_ST.msgs.length) { IA_ST.msgs.push({ id: iaId(), t: Date.now(), tipo: 'ia', texto: IA_BOAS, lida: true }); iaSalvar(); }
+    return IA_ST;
+  }
+  function iaSalvar() { if (!IA_UID || !IA_ST) return; try { IA_ST.msgs = IA_ST.msgs.slice(-80); localStorage.setItem('fluxo_ia_' + IA_UID, JSON.stringify(IA_ST)); } catch (e) {} }
+  const iaNaoLidas = () => iaEstado().msgs.filter(m => m.tipo === 'ia' && !m.lida).length;
+  function iaAtualizarBadge() {
+    const total = Object.keys(RESUMO).reduce((a, k) => a + (RESUMO[k].nao_lidas || 0), 0) + iaNaoLidas();
+    const b = g('cf-badge'); if (b) { b.hidden = !total; b.textContent = total > 99 ? '99+' : total; }
+    if (aberto && !atual) renderLista();
+  }
+  function iaAdd(m) {
+    const st = iaEstado(); if (!IA_UID) return;
+    m.id = iaId(); m.t = Date.now(); m.lida = !!m.lida; st.msgs.push(m);
+    if (aberto && atual === IA) m.lida = true;
+    iaSalvar(); iaAtualizarBadge();
+    if (aberto && atual === IA) renderIA(true);
+  }
+  function iaItemHtml() {
+    const st = iaEstado(), ult = st.msgs[st.msgs.length - 1], n = iaNaoLidas();
+    return '<button type="button" class="cf-pessoa" data-u="' + IA + '"><span class="cf-av ia">' + ICONE_IA + '</span><span class="cf-info">' +
+      '<span class="cf-l1"><span class="cf-nome">Fluxo IA<span class="cf-tag-ia">IA</span></span><span class="cf-hora">' + E(ult ? horaLista(ult.t) : '') + '</span></span>' +
+      '<span class="cf-l2"><span class="cf-ult">' + E(ult ? String(ult.texto).replace(/\s+/g, ' ') : 'Assistente automática') + '</span>' + (n ? '<span class="cf-n">' + n + '</span>' : '') + '</span></span></button>';
+  }
+  function modoIA(on) {
+    g('cf-anexo').style.display = on ? 'none' : '';
+    g('cf-texto').placeholder = on ? 'Escreva: pendências, atrasadas...' : 'Escreva uma mensagem...';
+    g('cf-apagar-conv').title = on ? 'Limpar conversa' : 'Apagar conversa';
+  }
+  function abrirIA() {
+    atual = IA; ultimo = ''; iaEstado();
+    g('cf-v-lista').hidden = true; g('cf-v-conv').hidden = false;
+    g('cf-conv-av').className = 'cf-av sm ia'; g('cf-conv-av').innerHTML = ICONE_IA; g('cf-conv-nome').textContent = 'Fluxo IA'; g('cf-conv-user').textContent = 'assistente automática';
+    modoIA(true);
+    iaEstado().msgs.forEach(m => { m.lida = true; }); iaSalvar(); iaAtualizarBadge();
+    renderIA(true);
+  }
+  function renderIA(forcar) {
+    const box = g('cf-msgs'), st = iaEstado();
+    const sig = st.msgs.map(m => m.id + (m.fim ? 'f' : '')).join(',');
+    if (!forcar && sig === ultimo) return; ultimo = sig;
+    let h = '', dia0 = '';
+    st.msgs.forEach(m => {
+      const d = diaRotulo(m.t); if (d !== dia0) { h += '<div class="cf-dia">' + E(d) + '</div>'; dia0 = d; }
+      const ac = (m.tipo === 'ia' && m.acoes && m.acoes.length && !m.fim) ? '<div class="cf-ia-acoes">' + m.acoes.map((a, i) => '<button type="button" class="cf-ia-bt" data-iaa="' + m.id + '" data-i="' + i + '">' + E(a.r) + '</button>').join('') + '</div>' : '';
+      h += '<div class="cf-bolha ' + (m.tipo === 'ia' ? 'outra' : 'minha') + '">' + E(m.texto) + ac + '<time>' + hhmm(m.t) + '</time></div>';
+    });
+    box.innerHTML = h; box.scrollTop = box.scrollHeight;
+  }
+  async function iaAgir(id, i) {
+    const st = iaEstado(), m = st.msgs.find(x => x.id === id); if (!m || m.fim || !m.acoes) return;
+    const a = m.acoes[i]; if (!a) return;
+    m.fim = true; st.msgs.push({ id: iaId(), t: Date.now(), tipo: 'eu', texto: a.r, lida: true }); iaSalvar(); renderIA(true);
+    let resp = a.resp || 'Certo.';
+    if (a.a && a.id) {
+      const novo = { concluir: 'concluido', liberar: 'pendente', pegar: 'executando' }[a.a];
+      try { await mudarStatus(a.id, novo); await carregarRel(); } catch (e) {}
+      const r = REL.find(x => x.id === a.id);
+      if (!(r && r.status === novo)) resp = 'Não consegui alterar agora. Tente pelo painel, no status da FAA.';
+    }
+    iaAdd({ tipo: 'ia', texto: resp, lida: true });
+  }
+  function iaPergunta(ch, texto, acoes) {
+    const st = iaEstado(); if (!IA_UID || st.chaves[ch]) return false;
+    st.chaves[ch] = isoHoje(); iaAdd({ tipo: 'ia', texto, acoes, lida: false });
+    try { notificar('Fluxo IA', texto.replace(/\s+/g, ' ').slice(0, 140), 'ia-' + ch, 'menu.html?chat=' + IA); } catch (e) {}
+    return true;
+  }
+  function iaVerificar() {
+    if (typeof REL === 'undefined' || !iaUid() || !Array.isArray(REL)) return;
+    const st = iaEstado(), hojeI = isoHoje(), corte = somaDias(hojeI, -45);
+    Object.keys(st.chaves).forEach(k => { if (st.chaves[k] < corte) delete st.chaves[k]; });
+    let n = 0;
+    REL.forEach(r => {
+      if (n >= 4 || r.status === 'concluido') return;
+      const meu = r.executor_id === uid, rest = prazoDe(r) - diasEntre(baseDe(r), hojeI), nome = r.descricao, id = r.id;
+      const concl = { r: 'Já concluí', a: 'concluir', id, resp: 'Boa! Marquei "' + nome + '" como concluída.' };
+      let ok = false;
+      if (r.status === 'executando' && meu) {
+        if (rest < 0) ok = iaPergunta('atr|' + id + '|' + hojeI, 'A FAA "' + nome + '" venceu há ' + iaPl(-rest, 'dia', 'dias') + ' e continua com você. Já terminou?', [concl, { r: 'Ainda estou fazendo', resp: 'Certo. Enquanto estiver atrasada eu pergunto de novo amanhã.' }, { r: 'Liberar para outra pessoa', a: 'liberar', id, resp: 'Liberei "' + nome + '". Ela voltou para pendente e outra pessoa pode pegar.' }]);
+        else if (rest === 0) ok = iaPergunta('hoje|' + id, 'A FAA "' + nome + '" vence hoje. Você já concluiu?', [concl, { r: 'Ainda não', resp: 'Sem problema, ainda dá tempo hoje. Se passar, ela fica atrasada e eu pergunto de novo amanhã.' }]);
+        else if (rest === 1 || rest === 3) ok = iaPergunta('rest' + rest + '|' + id, 'Faltam ' + iaPl(rest, 'dia', 'dias') + ' para a FAA "' + nome + '" vencer. Está tudo certo para entregar no prazo?', [{ r: 'Sim, no prazo', resp: 'Ótimo! Continuo de olho no prazo.' }, concl]);
+      } else if (r.status === 'pendente' && !r.executor_id && rest < 0 && r.user_id === uid) {
+        ok = iaPergunta('semdono|' + id, 'A FAA "' + nome + '" venceu e ninguém pegou. Quer assumir agora?', [{ r: 'Pegar agora', a: 'pegar', id, resp: 'Pronto, "' + nome + '" agora está com você (executando).' }, { r: 'Agora não', resp: 'Ok, não pergunto mais dessa.' }]);
+      }
+      if (ok) n++;
+    });
+    iaSalvar();
+  }
+  window.iaVerificar = iaVerificar;
+  function iaLista(f) {
+    const hojeI = isoHoje();
+    const l = REL.filter(r => r.status !== 'concluido' && (f === 'atr' ? (r.executor_id === uid || r.user_id === uid) : (r.status === 'executando' && r.executor_id === uid)))
+      .map(r => ({ r, rest: prazoDe(r) - diasEntre(baseDe(r), hojeI) })).filter(x => f === 'atr' ? x.rest < 0 : true).sort((a, b) => a.rest - b.rest).slice(0, 8);
+    if (!l.length) return f === 'atr' ? 'Nenhuma FAA atrasada. Tudo em dia!' : 'Você não está com nenhuma FAA em execução agora.';
+    return (f === 'atr' ? 'FAAs atrasadas:\n' : 'FAAs que estão com você:\n') + l.map(x => '- ' + x.r.descricao + ': ' + (x.rest < 0 ? 'atrasada há ' + iaPl(-x.rest, 'dia', 'dias') : x.rest === 0 ? 'vence hoje' : 'vence em ' + iaPl(x.rest, 'dia', 'dias'))).join('\n');
+  }
+  function iaEnviar(txt) {
+    const st = iaEstado(); st.msgs.push({ id: iaId(), t: Date.now(), tipo: 'eu', texto: txt, lida: true }); iaSalvar();
+    const q = txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    let r;
+    if (/atras|venc/.test(q)) r = iaLista('atr');
+    else if (/pend|falta|aberta|execu|minhas|o que tenho/.test(q)) r = iaLista('meu');
+    else if (/^(oi|ola|bom dia|boa tarde|boa noite)/.test(q)) r = 'Oi! Quer ver suas "pendências" ou as "atrasadas"?';
+    else if (/ajuda|o que voce faz|como funciona/.test(q)) r = IA_BOAS;
+    else r = 'Eu faço perguntas automáticas sobre prazos das FAAs que você pegou. Você pode me escrever "pendências" ou "atrasadas".';
+    iaAdd({ tipo: 'ia', texto: r, lida: true }); renderIA(true);
+  }
+  g('cf-msgs').addEventListener('click', e => { const b = e.target.closest('[data-iaa]'); if (b) iaAgir(b.dataset.iaa, +b.dataset.i); });
+  setInterval(iaVerificar, 5 * 60 * 1000);
+  setTimeout(() => { iaVerificar(); iaAtualizarBadge(); }, 4000);
+
+  /* ----- abrir / fechar ----- */
+  function abrirPainel() {
+    aberto = true; g('cf-panel').hidden = false; g('cf-fab').hidden = true;
+    carregarLista(); carregarUso();
+    clearInterval(tPoll); tPoll = setInterval(atualizar, 6000);
+  }
+  function fecharPainel() {
+    aberto = false; g('cf-panel').hidden = true; g('cf-fab').hidden = false; atual = null;
+    g('cf-v-conv').hidden = true; g('cf-v-lista').hidden = false; clearInterval(tPoll);
+  }
+  window.abrirChatFlutuante = async function (u) {
+    if (!aberto) abrirPainel();
+    if (u) { await carregarLista(); abrirConversa(String(u).toLowerCase()); }
+  };
+  window.cfAtualizar = function (lista) {
+    // chamado pelo menu quando chegam mensagens novas
+    RESUMO = {}; (lista || []).forEach(x => { RESUMO[String(x.usuario).toLowerCase()] = x; });
+    iaAtualizarBadge();
+    if (aberto) { if (atual) carregarConversa(false); }
+  };
+
+  /* ----- lista ----- */
+  async function carregarLista() {
+    const [p, r] = await Promise.all([db.rpc('listar_contatos'), db.rpc('chat_resumo')]);
+    PESSOAS = (p.data || []).slice();
+    RESUMO = {}; (r.data || []).forEach(x => { RESUMO[String(x.usuario).toLowerCase()] = x; });
+    renderLista();
+  }
+  function renderLista() {
+    const box = g('cf-lista'), q = g('cf-busca').value.trim().toLowerCase();
+    const iaH = (!q || 'fluxo ia assistente'.includes(q)) ? iaItemHtml() : '';
+    let lista = PESSOAS.slice();
+    if (q) lista = lista.filter(p => (String(p.nome || '') + ' ' + p.usuario).toLowerCase().includes(q));
+    if (!lista.length) { box.innerHTML = iaH + '<p class="cf-vazio">' + (PESSOAS.length ? 'Ninguém encontrado.' : 'Ninguém adicionado ainda.<br><a href="perfil.html#pessoas">Adicionar pessoas</a>') + '</p>'; return; }
+    lista.sort((a, b) => {
+      const ra = RESUMO[String(a.usuario).toLowerCase()], rb = RESUMO[String(b.usuario).toLowerCase()];
+      const ta = ra && ra.ultima_em ? +new Date(ra.ultima_em) : 0, tb = rb && rb.ultima_em ? +new Date(rb.ultima_em) : 0;
+      return ta !== tb ? tb - ta : String(a.nome || a.usuario).localeCompare(String(b.nome || b.usuario));
+    });
+    box.innerHTML = iaH + lista.map(p => {
+      const r = RESUMO[String(p.usuario).toLowerCase()], nl = r ? (r.nao_lidas || 0) : 0;
+      return '<button type="button" class="cf-pessoa" data-u="' + E(p.usuario) + '"><span class="cf-av">' + av(p) + '</span><span class="cf-info">' +
+        '<span class="cf-l1"><span class="cf-nome">' + E(p.nome || p.usuario) + '</span><span class="cf-hora">' + E(horaLista(r && r.ultima_em)) + '</span></span>' +
+        '<span class="cf-l2"><span class="cf-ult">' + (r && r.ultima_texto ? E(resumoTxt(r.ultima_texto)) : '@' + E(p.usuario)) + '</span>' +
+        (nl ? '<span class="cf-n">' + (nl > 99 ? '99+' : nl) + '</span>' : '') + '</span></span></button>';
+    }).join('');
+  }
+  g('cf-lista').addEventListener('click', e => { const b = e.target.closest('.cf-pessoa'); if (b) abrirConversa(b.dataset.u.toLowerCase()); });
+  g('cf-busca').addEventListener('input', renderLista);
+
+  /* ----- conversa ----- */
+  async function abrirConversa(u) {
+    if (u === IA) return abrirIA();
+    modoIA(false); g('cf-conv-av').className = 'cf-av sm';
+    let p = pessoaDe(u);
+    if (!p) { await carregarLista(); p = pessoaDe(u); }
+    if (!p) { alert('@' + u + ' não está na sua lista.'); return; }
+    atual = u; ultimo = '';
+    g('cf-v-lista').hidden = true; g('cf-v-conv').hidden = false;
+    g('cf-conv-av').innerHTML = av(p); g('cf-conv-nome').textContent = p.nome || p.usuario; g('cf-conv-user').textContent = '@' + p.usuario;
+    g('cf-msgs').innerHTML = '<div class="cf-vazio">A carregar...</div>';
+    await carregarConversa(true);
+    if (window.matchMedia('(pointer:fine)').matches) g('cf-texto').focus();
+  }
+  function voltar() {
+    atual = null; ultimo = '';
+    g('cf-v-conv').hidden = true; g('cf-v-lista').hidden = false; renderLista();
+  }
+  g('cf-voltar').addEventListener('click', voltar);
+  document.querySelectorAll('[data-cf="fechar"]').forEach(b => b.addEventListener('click', fecharPainel));
+  g('cf-fab').addEventListener('click', () => abrirPainel());
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && aberto && g('cf-modal').classList.contains('cf-oculto')) { atual ? voltar() : fecharPainel(); } });
+
+  async function carregarConversa(forcar) {
+    if (!atual) return;
+    if (atual === IA) { renderIA(forcar); return; }
+    const alvo = atual;
+    const { data, error } = await db.rpc('chat_conversa', { p_usuario: alvo, p_limite: 200 });
+    if (alvo !== atual) return;
+    const box = g('cf-msgs');
+    if (error) { box.innerHTML = '<div class="cf-vazio">Não foi possível carregar a conversa.</div>'; return; }
+    const lista = data || [], ids = lista.map(m => m.id).join(',');
+    if (!forcar && ids === ultimo) return;
+    const noFim = forcar || (box.scrollHeight - box.scrollTop - box.clientHeight < 140);
+    ultimo = ids;
+    if (!lista.length) box.innerHTML = '<div class="cf-vazio">Nenhuma mensagem ainda.<br>Diga olá!</div>';
+    else {
+      let h = '', dia0 = '';
+      lista.forEach(m => {
+        const d = diaRotulo(m.criado_em);
+        if (d !== dia0) { h += '<div class="cf-dia">' + E(d) + '</div>'; dia0 = d; }
+        h += '<div class="cf-bolha ' + (m.de_mim ? 'minha' : 'outra') + '">' + conteudo(m.texto) + '<time>' + hhmm(m.criado_em) + '</time>' +
+          (m.de_mim ? '<div class="cf-acoes"><button type="button" class="cf-apagar" data-apagar="' + m.id + '">Apagar</button></div>' : '') + '</div>';
+      });
+      box.innerHTML = h;
+    }
+    if (noFim) box.scrollTop = box.scrollHeight;
+    if (lista.some(m => !m.de_mim)) db.rpc('chat_marcar_lidas', { p_usuario: alvo }).then(() => { carregarResumo(); if (window.carregarPessoas) carregarPessoas(true); }, () => {});
+  }
+  async function carregarResumo() {
+    const { data } = await db.rpc('chat_resumo');
+    RESUMO = {}; (data || []).forEach(x => { RESUMO[String(x.usuario).toLowerCase()] = x; });
+    if (aberto && !atual) renderLista();
+  }
+  async function atualizar() {
+    if (document.visibilityState !== 'visible' || !aberto) return;
+    await carregarResumo();
+    if (atual) carregarConversa(false);
+    if (Date.now() - ultimoUso > 60000) carregarUso();
+  }
+
+  /* ----- enviar texto ----- */
+  const campo = g('cf-texto');
+  const ajustar = () => { campo.style.height = 'auto'; campo.style.height = Math.min(campo.scrollHeight, 110) + 'px'; };
+  campo.addEventListener('input', ajustar);
+  campo.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && window.matchMedia('(pointer:fine)').matches) { e.preventDefault(); g('cf-envio').requestSubmit(); } });
+  g('cf-envio').addEventListener('submit', async e => {
+    e.preventDefault();
+    const txt = campo.value.trim();
+    if (!txt || !atual || enviando) return;
+    if (atual === IA) { campo.value = ''; ajustar(); iaEnviar(txt); return; }
+    enviando = true; g('cf-enviar').disabled = true;
+    const alvo = atual, box = g('cf-msgs');
+    const vz = box.querySelector('.cf-vazio'); if (vz) vz.remove();
+    const tmp = document.createElement('div'); tmp.className = 'cf-bolha minha env'; tmp.innerHTML = formatar(txt) + '<time>…</time>';
+    box.appendChild(tmp); box.scrollTop = box.scrollHeight;
+    campo.value = ''; ajustar();
+    const { data, error } = await db.rpc('chat_enviar', { p_usuario: alvo, p_texto: txt });
+    enviando = false; g('cf-enviar').disabled = false;
+    if (error || data !== 'ok') {
+      tmp.remove(); campo.value = txt; ajustar();
+      alert('Não foi possível enviar: ' + (error ? error.message : data === 'sem_permissao' ? 'essa pessoa não está na sua lista.' : data === 'vazio' ? 'mensagem vazia.' : data));
+      return;
+    }
+    await carregarConversa(true); carregarResumo();
+  });
+
+  /* ----- PDF, apagar, abrir ----- */
+  g('cf-msgs').addEventListener('click', e => {
+    const ap = e.target.closest('[data-apagar]'); if (ap) { apagarMsg(+ap.dataset.apagar); return; }
+    const arq = e.target.closest('[data-arq]'); if (arq) { abrirPdf(+arq.dataset.arq, arq); return; }
+    if (e.target.closest('a')) return;
+    const b = e.target.closest('.cf-bolha.minha');
+    document.querySelectorAll('.cf-bolha.sel').forEach(x => { if (x !== b) x.classList.remove('sel'); });
+    if (b) b.classList.toggle('sel');
+  });
+  async function apagarMsg(id) {
+    if (!confirm('Apagar esta mensagem para os dois lados?\nSe for um PDF, o arquivo também é apagado.')) return;
+    const { data, error } = await db.rpc('chat_apagar_mensagem', { p_id: id });
+    if (error || (data !== 'ok' && data !== 'nao_encontrado')) { alert('Não foi possível apagar: ' + (error ? error.message : data)); return; }
+    await carregarConversa(false); carregarResumo(); carregarUso();
+  }
+  g('cf-apagar-conv').addEventListener('click', async () => {
+    if (!atual) return;
+    if (atual === IA) { if (confirm('Limpar a conversa com a Fluxo IA?')) { const st = iaEstado(); st.msgs = [{ id: iaId(), t: Date.now(), tipo: 'ia', texto: IA_BOAS, lida: true }]; iaSalvar(); renderIA(true); } return; }
+    const alvo = atual, p = pessoaDe(alvo), nome = p ? (p.nome || p.usuario) : '@' + alvo;
+    if (!confirm('Apagar TODA a conversa com ' + nome + '?\nAs mensagens e os PDFs somem para os dois lados e não dá para desfazer.')) return;
+    const { data, error } = await db.rpc('chat_apagar_conversa', { p_usuario: alvo });
+    if (error || data !== 'ok') { alert('Não foi possível apagar a conversa: ' + (error ? error.message : data)); return; }
+    await carregarConversa(true); carregarResumo(); carregarUso();
+  });
+  const lerB64 = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(f); });
+  g('cf-anexo').addEventListener('click', () => { if (atual && !enviando) g('cf-arquivo').click(); });
+  g('cf-arquivo').addEventListener('change', async () => {
+    const f = g('cf-arquivo').files[0]; g('cf-arquivo').value = '';
+    if (!f || !atual || enviando) return;
+    if (!(f.type === 'application/pdf' || /\.pdf$/i.test(f.name))) { alert('Só é possível enviar arquivos PDF.'); return; }
+    if (f.size > 5 * 1024 * 1024) { alert('Este PDF tem ' + fmtBytes(f.size) + '. O limite é 5 MB.'); return; }
+    enviando = true; g('cf-enviar').disabled = true; g('cf-anexo').disabled = true;
+    const alvo = atual, box = g('cf-msgs');
+    const vz = box.querySelector('.cf-vazio'); if (vz) vz.remove();
+    const tmp = document.createElement('div'); tmp.className = 'cf-bolha minha env';
+    tmp.innerHTML = '<div class="cf-arq">' + ICONE_PDF + '<span class="cf-arq-i"><span class="cf-arq-n">' + E(f.name) + '</span><span class="cf-arq-s">A enviar...</span></span></div><time>…</time>';
+    box.appendChild(tmp); box.scrollTop = box.scrollHeight;
+    let erro = '';
+    try {
+      const { data, error } = await db.rpc('chat_enviar_pdf', { p_usuario: alvo, p_nome: f.name, p_base64: await lerB64(f) });
+      if (error) erro = error.message;
+      else if (data !== 'ok') erro = ({ arquivo_grande: 'O PDF passa de 5 MB.', arquivo_invalido: 'O arquivo não é um PDF válido.', sem_permissao: 'Essa pessoa não está na sua lista.', nao_encontrado: 'Utilizador não encontrado.' })[data] || 'Erro ao enviar.';
+    } catch (x) { erro = 'Não foi possível ler o arquivo.'; }
+    enviando = false; g('cf-enviar').disabled = false; g('cf-anexo').disabled = false; tmp.remove();
+    if (erro) { alert('Não foi possível enviar o PDF: ' + erro); return; }
+    if (alvo === atual) await carregarConversa(true);
+    carregarResumo(); carregarUso();
+  });
+  async function abrirPdf(id, el) {
+    if (el.classList.contains('carregando')) return;
+    el.classList.add('carregando');
+    try {
+      const { data, error } = await db.rpc('chat_arquivo_obter', { p_id: id });
+      if (error || !data || !data.base64) { alert('Não foi possível abrir o PDF. Ele pode ter sido apagado.'); return; }
+      const bin = atob(data.base64), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      entregarPdf(new Blob([bytes], { type: 'application/pdf' }), data.nome || 'arquivo.pdf', 'ver', null);
+    } catch (x) { alert('Não foi possível abrir o PDF.'); }
+    finally { el.classList.remove('carregando'); }
+  }
+
+  /* ----- aviso de espaço (800 MB) e limpeza ----- */
+  async function carregarUso() {
+    ultimoUso = Date.now();
+    const { data, error } = await db.rpc('chat_uso');
+    if (error || !data) return;
+    USO = data; renderAviso();
+    if (!g('cf-modal').classList.contains('cf-oculto')) textoUso();
+  }
+  const adiado = () => { try { return (+localStorage.getItem('fluxo_chat_aviso_ate') || 0) > Date.now(); } catch (e) { return false; } };
+  function renderAviso() {
+    const box = g('cf-aviso');
+    if (!USO || +USO.chat_bytes < +USO.aviso_bytes || adiado()) { box.classList.add('cf-oculto'); return; }
+    box.innerHTML = '<b>O chat já ocupa ' + E(fmtBytes(USO.chat_bytes)) + ' do banco.</b> Apague mensagens e PDFs antigos para liberar espaço. Aos ' + E(fmtBytes(USO.limite_bytes)) + ' o sistema apaga os mais antigos sozinho.' +
+      '<div class="cf-aviso-b"><button type="button" class="cf-peq perigo" data-av="limpar">Limpar chat</button><button type="button" class="cf-peq sec" data-av="manter">Manter por enquanto</button></div>';
+    box.classList.remove('cf-oculto');
+  }
+  g('cf-aviso').addEventListener('click', e => {
+    const b = e.target.closest('[data-av]'); if (!b) return;
+    if (b.dataset.av === 'limpar') abrirLimpeza();
+    else { try { localStorage.setItem('fluxo_chat_aviso_ate', String(Date.now() + 24 * 3600 * 1000)); } catch (x) {} renderAviso(); }
+  });
+  function textoUso() {
+    g('cf-m-uso').textContent = USO
+      ? 'O chat usa ' + fmtBytes(USO.chat_bytes) + ' (' + USO.mensagens + ' mensagens, ' + USO.pdfs + ' PDFs). Banco inteiro: ' + fmtBytes(USO.banco_bytes) + ' de ' + fmtBytes(USO.limite_bytes) + '.'
+      : 'Escolha o que apagar para liberar espaço no banco.';
+  }
+  function abrirLimpeza() { g('cf-m-res').textContent = ''; g('cf-m-res').className = 'cf-res'; textoUso(); g('cf-modal').classList.remove('cf-oculto'); carregarUso(); }
+  g('cf-limpar-topo').addEventListener('click', abrirLimpeza);
+  g('cf-m-fechar').addEventListener('click', () => g('cf-modal').classList.add('cf-oculto'));
+  g('cf-m-ok').addEventListener('click', async () => {
+    const modo = g('cf-m-modo').value, dias = +g('cf-m-dias').value;
+    if (!confirm('Apagar ' + (modo === 'pdfs' ? 'os PDFs' : 'as mensagens e os PDFs') + (dias ? ' com mais de ' + dias + ' dias' : '') + ' das suas conversas?\nIsso some para os dois lados e não dá para desfazer.')) return;
+    const btn = g('cf-m-ok'), res = g('cf-m-res'); btn.disabled = true;
+    const { data, error } = await db.rpc('chat_limpar', { p_modo: modo, p_dias: dias });
+    btn.disabled = false;
+    if (error || !data || data.erro) { res.className = 'cf-res erro'; res.textContent = 'Erro: ' + (error ? error.message : (data && data.erro) || 'tente de novo'); return; }
+    const n = data.apagadas || 0; res.className = 'cf-res';
+    res.textContent = n ? n + (n === 1 ? ' item apagado.' : ' itens apagados.') : 'Nada para apagar com esse filtro.';
+    await carregarUso(); carregarResumo(); if (atual) carregarConversa(true);
+  });
+
+  /* ----- início: só aparece com login; abre por ?chat=usuario ----- */
+  (async function () {
+    try {
+      const { data } = await db.auth.getSession();
+      if (!data.session) return;
+      g('cf-fab').hidden = false;
+      const u = (new URLSearchParams(location.search).get('chat') || '').trim().toLowerCase();
+      if (u) { window.abrirChatFlutuante(u); history.replaceState(null, '', location.pathname); }
+    } catch (e) {}
+  })();
+})();
 </script>
 </body>
 </html>
