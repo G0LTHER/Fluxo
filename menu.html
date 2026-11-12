@@ -1115,6 +1115,13 @@
               <button type="button" class="pill" data-st="pendente">No Prazo</button>
               <button type="button" class="pill" data-st="atrasado">Atrasados</button>
               <button type="button" class="pill" data-st="urgente">Jurídico / Urgente</button>
+              <button type="button" class="pill" data-st="concluido">Concluídos</button>
+            </div>
+            <div class="rel-chips" id="rel-chips">
+              <button type="button" class="rel-chip" data-k="recentes">Recentes</button>
+              <button type="button" class="rel-chip" data-k="antigos">Antigos</button>
+              <button type="button" class="rel-chip" data-k="atrasados">Atrasados</button>
+              <button type="button" class="rel-chip" data-k="concluidos">Concluídos</button>
             </div>
           </div>
 
@@ -1177,13 +1184,25 @@
 .pdf-visor-top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--bd); flex-wrap: wrap; }
 .pdf-visor-top b { flex: 1; min-width: 120px; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pdf-visor iframe { flex: 1; border: 0; background: #fff; width: 100%; }
-/* Fluxo IA no chat */
+/* Fluxo Bot no chat */
 .cf-av.ia { background: linear-gradient(135deg, #7c3aed, #0d9488); }
 .cf-av.ia svg { width: 22px; height: 22px; }
 .cf-tag-ia { font-size: 10px; font-weight: 800; background: var(--pri); color: #fff; border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 1px; }
 .cf-ia-acoes { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .cf-ia-bt { border: 1.5px solid var(--pri); background: transparent; color: var(--pri); border-radius: 10px; padding: 7px 10px; font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; text-align: left; }
 .cf-ia-bt:hover { background: var(--pri); color: #fff; }
+/* respostas prontas da IA */
+.cf-ia-sug { border-top: 1px solid var(--bd); background: var(--card); padding: 4px 8px 8px; }
+.cf-ia-sug[hidden] { display: none; }
+.cf-ia-sug-top { display: flex; align-items: center; justify-content: space-between; width: 100%; background: none; border: 0; padding: 4px 2px 6px; font: inherit; font-size: 11.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--mut); cursor: pointer; }
+.cf-ia-chips { display: flex; flex-wrap: wrap; gap: 6px; max-height: 118px; overflow-y: auto; }
+.cf-ia-sug.fechado .cf-ia-chips { display: none; }
+.cf-ia-chip { border: 1px solid var(--bd); background: var(--bg); color: var(--tx); border-radius: 999px; padding: 6px 11px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.cf-ia-chip:hover { border-color: var(--pri); color: var(--pri); }
+/* filtros do menu */
+.rel-chips { flex: 0 0 100%; display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 4px; -webkit-overflow-scrolling: touch; }
+.rel-chip { flex: none; padding: 8px 15px; border-radius: 999px; border: 1px solid var(--bd); background: var(--card); color: var(--mut); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.rel-chip.on { background: var(--pri); border-color: var(--pri); color: #fff; }
 </style>
 <!-- SUPABASE & JSPDF -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
@@ -2245,6 +2264,24 @@ $('rel-pag').addEventListener('click', e => {
   $('rel-lista').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
+let relOrd = '';
+function relChip(k) {
+  const pillAtivo = () => { const b = document.querySelector('#filtros-st .pill.active'); return b ? b.dataset.st : ''; };
+  const setPill = st => document.querySelectorAll('#filtros-st .pill').forEach(b => b.classList.toggle('active', b.dataset.st === st));
+  if (k === 'recentes' || k === 'antigos') relOrd = relOrd === k ? '' : k;
+  else if (k === 'atrasados') setPill(pillAtivo() === 'atrasado' ? '' : 'atrasado');
+  else if (k === 'concluidos') setPill(pillAtivo() === 'concluido' ? '' : 'concluido');
+  renderAtivos(true);
+}
+function relSyncChips() {
+  const b = document.querySelector('#filtros-st .pill.active'), st = b ? b.dataset.st : '';
+  document.querySelectorAll('#rel-chips .rel-chip').forEach(c => {
+    const k = c.dataset.k;
+    c.classList.toggle('on', k === relOrd || (k === 'atrasados' && st === 'atrasado') || (k === 'concluidos' && st === 'concluido'));
+  });
+}
+$('rel-chips').addEventListener('click', e => { const c = e.target.closest('.rel-chip'); if (c) relChip(c.dataset.k); });
+
 function renderAtivos(resetPag) {
   const qGeral = key($('rel-busca').value.trim());
   const btnFs = document.querySelector('#filtros-st .pill.active');
@@ -2259,6 +2296,7 @@ function renderAtivos(resetPag) {
     if (qGeral && !textoCompleto.includes(qGeral)) return false;
     return true;
   }).sort((x, y) => {
+    if (relOrd) { const d = relOrd === 'recentes' ? y.data.localeCompare(x.data) : x.data.localeCompare(y.data); if (d) return d; return relOrd === 'recentes' ? y.id - x.id : x.id - y.id; }
     const rank = (r, s) => s === 'atrasado' ? (ehUrgente(r) ? 0 : 2) : s === 'urgente' ? 1 : ({ executando: 3, pendente: 4, concluido: 5 })[s];
     const rx = rank(x, statusDe(x)), ry = rank(y, statusDe(y));
     if (rx !== ry) return rx - ry;
@@ -2276,7 +2314,7 @@ function renderAtivos(resetPag) {
   const pagina = lista.slice((RELPAG - 1) * REL_POR_PAG, RELPAG * REL_POR_PAG);
 
   $('rel-lista').innerHTML = lista.length ? REL_HEAD + pagina.map(itemRel).join('') : '<p class="mut" style="text-align:center; padding: 20px;">Nenhum registo encontrado.</p>';
-  renderPager(lista.length, totalPag);
+  renderPager(lista.length, totalPag); relSyncChips();
 }
 
 async function carregarArquivo(reset) {
@@ -2876,6 +2914,7 @@ function registoParaPdf(r) {
       <button type="button" class="cf-ic" data-cf="fechar" title="Fechar" aria-label="Fechar chat"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="cf-msgs" id="cf-msgs"></div>
+    <div class="cf-ia-sug" id="cf-ia-sug" hidden></div>
     <form class="cf-envio" id="cf-envio" autocomplete="off">
       <button type="button" class="cf-ic" id="cf-anexo" title="Enviar PDF (até 5 MB)" aria-label="Enviar PDF"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
       <input type="file" id="cf-arquivo" accept="application/pdf,.pdf" class="cf-oculto">
@@ -2945,7 +2984,7 @@ function registoParaPdf(r) {
   /* ===== FLUXO IA: perguntas automáticas dentro do chat ===== */
   const IA = '__ia';
   const ICONE_IA = '<svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg>';
-  const IA_BOAS = 'Oi! Eu sou a Fluxo IA. Quando uma FAA que você pegou estiver perto de vencer, vencer ou ficar atrasada, eu pergunto por aqui e você responde com um toque. Também pode me escrever "pendências" ou "atrasadas".';
+  const IA_BOAS = 'Oi! Eu sou o Fluxo Bot. Quando uma FAA que você pegou estiver perto de vencer, vencer ou ficar atrasada, eu pergunto por aqui e você responde com um toque. Para consultar algo, use as respostas prontas aqui embaixo.';
   let IA_ST = null, IA_UID = '';
   const iaUid = () => (typeof uid !== 'undefined' && uid) ? uid : '';
   const iaId = () => 'm' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -2955,6 +2994,7 @@ function registoParaPdf(r) {
     if (IA_ST && IA_UID === u) return IA_ST;
     let x = null; try { x = JSON.parse(localStorage.getItem('fluxo_ia_' + u) || 'null'); } catch (e) {}
     IA_ST = (x && Array.isArray(x.msgs)) ? x : { msgs: [], chaves: {} }; IA_ST.chaves = IA_ST.chaves || {}; IA_UID = u;
+    IA_ST.msgs.forEach(m => { if (m.tipo === 'ia' && /^Oi! Eu sou a Fluxo IA/.test(m.texto)) m.texto = IA_BOAS; });
     if (!IA_ST.msgs.length) { IA_ST.msgs.push({ id: iaId(), t: Date.now(), tipo: 'ia', texto: IA_BOAS, lida: true }); iaSalvar(); }
     return IA_ST;
   }
@@ -2975,18 +3015,18 @@ function registoParaPdf(r) {
   function iaItemHtml() {
     const st = iaEstado(), ult = st.msgs[st.msgs.length - 1], n = iaNaoLidas();
     return '<button type="button" class="cf-pessoa" data-u="' + IA + '"><span class="cf-av ia">' + ICONE_IA + '</span><span class="cf-info">' +
-      '<span class="cf-l1"><span class="cf-nome">Fluxo IA<span class="cf-tag-ia">IA</span></span><span class="cf-hora">' + E(ult ? horaLista(ult.t) : '') + '</span></span>' +
-      '<span class="cf-l2"><span class="cf-ult">' + E(ult ? String(ult.texto).replace(/\s+/g, ' ') : 'Assistente automática') + '</span>' + (n ? '<span class="cf-n">' + n + '</span>' : '') + '</span></span></button>';
+      '<span class="cf-l1"><span class="cf-nome">Fluxo Bot<span class="cf-tag-ia">BOT</span></span><span class="cf-hora">' + E(ult ? horaLista(ult.t) : '') + '</span></span>' +
+      '<span class="cf-l2"><span class="cf-ult">' + E(ult ? String(ult.texto).replace(/\s+/g, ' ') : 'Perguntas prontas') + '</span>' + (n ? '<span class="cf-n">' + n + '</span>' : '') + '</span></span></button>';
   }
   function modoIA(on) {
-    g('cf-anexo').style.display = on ? 'none' : '';
-    g('cf-texto').placeholder = on ? 'Escreva: pendências, atrasadas...' : 'Escreva uma mensagem...';
+    g('cf-envio').style.display = on ? 'none' : '';
     g('cf-apagar-conv').title = on ? 'Limpar conversa' : 'Apagar conversa';
+    g('cf-ia-sug').hidden = !on; if (on) iaSugRender();
   }
   function abrirIA() {
     atual = IA; ultimo = ''; iaEstado();
     g('cf-v-lista').hidden = true; g('cf-v-conv').hidden = false;
-    g('cf-conv-av').className = 'cf-av sm ia'; g('cf-conv-av').innerHTML = ICONE_IA; g('cf-conv-nome').textContent = 'Fluxo IA'; g('cf-conv-user').textContent = 'assistente automática';
+    g('cf-conv-av').className = 'cf-av sm ia'; g('cf-conv-av').innerHTML = ICONE_IA; g('cf-conv-nome').textContent = 'Fluxo Bot'; g('cf-conv-user').textContent = 'perguntas prontas';
     modoIA(true);
     iaEstado().msgs.forEach(m => { m.lida = true; }); iaSalvar(); iaAtualizarBadge();
     renderIA(true);
@@ -3006,7 +3046,8 @@ function registoParaPdf(r) {
   async function iaAgir(id, i) {
     const st = iaEstado(), m = st.msgs.find(x => x.id === id); if (!m || m.fim || !m.acoes) return;
     const a = m.acoes[i]; if (!a) return;
-    m.fim = true; st.msgs.push({ id: iaId(), t: Date.now(), tipo: 'eu', texto: a.r, lida: true }); iaSalvar(); renderIA(true);
+    m.fim = true; st.msgs.push({ id: iaId(), t: Date.now(), tipo: 'eu', texto: a.r, lida: true }); st.aguarda = ''; iaSalvar(); renderIA(true);
+    if (a.q) { iaAdd({ tipo: 'ia', texto: iaConsulta(a.q.t, a.q.v), lida: true }); return; }
     let resp = a.resp || 'Certo.';
     if (a.a && a.id) {
       const novo = { concluir: 'concluido', liberar: 'pendente', pegar: 'executando' }[a.a];
@@ -3019,7 +3060,7 @@ function registoParaPdf(r) {
   function iaPergunta(ch, texto, acoes) {
     const st = iaEstado(); if (!IA_UID || st.chaves[ch]) return false;
     st.chaves[ch] = isoHoje(); iaAdd({ tipo: 'ia', texto, acoes, lida: false });
-    try { notificar('Fluxo IA', texto.replace(/\s+/g, ' ').slice(0, 140), 'ia-' + ch, 'menu.html?chat=' + IA); } catch (e) {}
+    try { notificar('Fluxo Bot', texto.replace(/\s+/g, ' ').slice(0, 140), 'ia-' + ch, 'menu.html?chat=' + IA); } catch (e) {}
     return true;
   }
   function iaVerificar() {
@@ -3044,24 +3085,109 @@ function registoParaPdf(r) {
     iaSalvar();
   }
   window.iaVerificar = iaVerificar;
-  function iaLista(f) {
+  const iaK = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const IA_STOP = new Set('de do da dos das a o as os que quem pega pegar faz fica vai hoje na no nas nos escala tem esta ta com faa faas paciente dias dia quantos quanto faltam falta para pra vencer vence prazo quando em e um uma minha meu por favor cuida'.split(' '));
+  const iaTokens = x => iaK(x).split(/[^a-z0-9@._]+/).filter(t => t.length >= 3 && !IA_STOP.has(t));
+  const iaRest = r => prazoDe(r) - diasEntre(baseDe(r), isoHoje());
+  const iaPrazoTxt = r => { const x = iaRest(r); return x < 0 ? 'atrasada há ' + iaPl(-x, 'dia', 'dias') : x === 0 ? 'vence hoje' : 'vence em ' + iaPl(x, 'dia', 'dias'); };
+  const iaQuem = x => x.convidado ? String(x.nome || x.usuario || 'Convidado').trim() + ' (convidado)' : '@' + String(x.usuario || x.nome || '').replace(/^@/, '') + (x.eu ? ' (você)' : '');
+  const iaAbertas = () => REL.filter(r => r.status !== 'concluido');
+  function iaAchar(arg) {
+    const tk = iaTokens(arg); if (!tk.length) return [];
+    return REL.map(r => { const t = iaK(r.descricao + ' ' + (r.responsavel || '')); return { r, sc: tk.filter(w => t.includes(w)).length }; })
+      .filter(x => x.sc > 0).sort((a, b) => b.sc - a.sc || (a.r.status === 'concluido') - (b.r.status === 'concluido') || b.r.data.localeCompare(a.r.data)).map(x => x.r);
+  }
+  function iaLinhas(tit, l, fn) { return tit + '\n' + l.slice(0, 8).map(x => '- ' + fn(x)).join('\n') + (l.length > 8 ? '\n(e mais ' + (l.length - 8) + ')' : ''); }
+  function iaEsc(arg) {
+    if (typeof ESC_LISTA === 'undefined' || !ESC_LISTA.length) return 'Ainda não há escala montada para hoje.';
+    const tk = iaTokens(arg);
+    const l = ESC_LISTA.filter(x => !tk.length || tk.some(w => iaK((x.tarefas || '') + ' ' + (x.nome || '') + ' ' + (x.usuario || '')).includes(w)));
+    if (!l.length) return 'Ninguém tem "' + String(arg).trim() + '" na escala de hoje.';
+    return iaLinhas(tk.length ? 'Na escala de hoje, sobre "' + String(arg).trim() + '":' : 'Escala de hoje:', l, x => iaQuem(x) + ': ' + (escItens(x.tarefas).join(', ') || 'sem tarefas'));
+  }
+  function iaConsulta(t, arg) {
     const hojeI = isoHoje();
-    const l = REL.filter(r => r.status !== 'concluido' && (f === 'atr' ? (r.executor_id === uid || r.user_id === uid) : (r.status === 'executando' && r.executor_id === uid)))
-      .map(r => ({ r, rest: prazoDe(r) - diasEntre(baseDe(r), hojeI) })).filter(x => f === 'atr' ? x.rest < 0 : true).sort((a, b) => a.rest - b.rest).slice(0, 8);
-    if (!l.length) return f === 'atr' ? 'Nenhuma FAA atrasada. Tudo em dia!' : 'Você não está com nenhuma FAA em execução agora.';
-    return (f === 'atr' ? 'FAAs atrasadas:\n' : 'FAAs que estão com você:\n') + l.map(x => '- ' + x.r.descricao + ': ' + (x.rest < 0 ? 'atrasada há ' + iaPl(-x.rest, 'dia', 'dias') : x.rest === 0 ? 'vence hoje' : 'vence em ' + iaPl(x.rest, 'dia', 'dias'))).join('\n');
+    if (t === 'meu' || t === 'atr') {
+      const l = REL.filter(r => r.status !== 'concluido' && (t === 'atr' ? (r.executor_id === uid || r.user_id === uid) : (r.status === 'executando' && r.executor_id === uid)))
+        .map(r => ({ r, rest: iaRest(r) })).filter(x => t === 'atr' ? x.rest < 0 : true).sort((a, b) => a.rest - b.rest);
+      if (!l.length) return t === 'atr' ? 'Nenhuma FAA atrasada. Tudo em dia!' : 'Você não está com nenhuma FAA em execução agora.';
+      return iaLinhas(t === 'atr' ? 'FAAs atrasadas:' : 'FAAs que estão com você:', l, x => x.r.descricao + ': ' + iaPrazoTxt(x.r));
+    }
+    if (t === 'hoje') { const l = iaAbertas().filter(r => iaRest(r) === 0); return l.length ? iaLinhas('Vencem hoje:', l, r => r.descricao + (r.executor ? ' (com ' + r.executor + ')' : ' (ninguém pegou)')) : 'Nenhuma FAA vence hoje.'; }
+    if (t === 'prox') { const l = iaAbertas().map(r => ({ r, rest: iaRest(r) })).filter(x => x.rest >= 0).sort((a, b) => a.rest - b.rest); return l.length ? iaLinhas('Próximos vencimentos:', l, x => x.r.descricao + ': ' + iaPrazoTxt(x.r)) : 'Não há FAAs a vencer nos próximos dias.'; }
+    if (t === 'dias' || t === 'quem') {
+      const l = iaAchar(arg);
+      if (!l.length) return 'Não achei nenhuma FAA com "' + String(arg).trim() + '". Tente só o nome do paciente.';
+      const f = r => r.status === 'concluido' ? 'já foi concluída' + (r.executor ? ' por ' + r.executor : '')
+        : t === 'dias' ? iaPrazoTxt(r) + (r.status === 'executando' ? ' (em execução' + (r.executor ? ' com ' + r.executor : '') + ')' : '')
+        : (r.status === 'executando' ? 'está com ' + (r.executor || 'alguém') + ' (executando)' : 'está pendente, ninguém pegou ainda');
+      return l.length === 1 ? 'A FAA "' + l[0].descricao + '" ' + f(l[0]) + '.' : iaLinhas('Achei ' + l.length + ' FAAs:', l, r => r.descricao + ': ' + f(r));
+    }
+    if (t === 'esc') return iaEsc(arg);
+    if (t === 'escall') return iaEsc('');
+    if (t === 'minhaesc') {
+      if (typeof ESC_LISTA === 'undefined' || !ESC_LISTA.length) return 'Ainda não há escala montada para hoje.';
+      const x = ESC_LISTA.find(e => e.eu); return x ? 'Hoje na sua escala: ' + (escItens(x.tarefas).join(', ') || 'sem tarefas definidas') + '.' : 'Você não está na escala de hoje.';
+    }
+    if (t === 'dia') {
+      const ab = iaAbertas(), atr = ab.filter(r => iaRest(r) < 0).length, hj = ab.filter(r => iaRest(r) === 0).length, meus = ab.filter(r => r.status === 'executando' && r.executor_id === uid).length, pend = ab.filter(r => r.status === 'pendente').length;
+      return 'Resumo de hoje:\n- Atrasadas: ' + atr + '\n- Vencem hoje: ' + hj + '\n- Com você (executando): ' + meus + '\n- Pendentes (ninguém pegou): ' + pend + '\n- ' + iaConsulta('minhaesc');
+    }
+    return IA_AJUDA;
+  }
+  const IA_AJUDA = 'Use as respostas prontas aqui embaixo para saber:\n- quantos dias faltam para vencer a FAA de um paciente\n- quem está com uma FAA\n- quem pega tal coisa hoje na escala\n- sua escala de hoje, pendências, atrasadas, vencem hoje e próximos vencimentos';
+  const IA_CHIPS = [
+    { r: 'Resumo do dia', t: 'dia' }, { r: 'Minhas pendências', t: 'meu' }, { r: 'Atrasadas', t: 'atr' }, { r: 'Vencem hoje', t: 'hoje' }, { r: 'Próximos vencimentos', t: 'prox' },
+    { r: 'Dias para vencer uma FAA', t: 'dias?' }, { r: 'Quem está com uma FAA', t: 'quem?' }, { r: 'Quem pega algo na escala hoje', t: 'esc?' },
+    { r: 'Minha escala de hoje', t: 'minhaesc' }, { r: 'Escala de hoje (todos)', t: 'escall' }, { r: 'O que você sabe fazer?', t: 'ajuda' }
+  ];
+  function iaSugRender() {
+    const box = g('cf-ia-sug'), ab = localStorage.getItem('fluxo_ia_sug') !== '0';
+    box.classList.toggle('fechado', !ab);
+    box.innerHTML = '<button type="button" class="cf-ia-sug-top" data-sug="toggle"><span>Respostas prontas</span><span>' + (ab ? '▾' : '▴') + '</span></button><div class="cf-ia-chips">' + IA_CHIPS.map((c, i) => '<button type="button" class="cf-ia-chip" data-sug="' + i + '">' + E(c.r) + '</button>').join('') + '</div>';
+  }
+  function iaPedir(t) {
+    const st = iaEstado(); st.aguarda = t; let acoes, texto;
+    if (t === 'esc') {
+      texto = 'Qual tarefa da escala? Escolha uma tarefa abaixo.';
+      const it = []; if (typeof ESC_LISTA !== 'undefined') ESC_LISTA.forEach(x => escItens(x.tarefas).forEach(y => { if (!it.some(z => iaK(z) === iaK(y))) it.push(y); }));
+      acoes = it.slice(0, 12).map(y => ({ r: y.slice(0, 40), q: { t: 'esc', v: y } }));
+      if (!acoes.length) { st.aguarda = ''; iaSalvar(); return iaAdd({ tipo: 'ia', texto: iaEsc(''), lida: true }); }
+    } else {
+      texto = t === 'dias' ? 'De qual FAA? Escolha uma abaixo.' : 'Qual FAA? Escolha uma abaixo.';
+      acoes = iaAbertas().sort((a, b) => iaRest(a) - iaRest(b)).slice(0, 10).map(r => ({ r: r.descricao.slice(0, 40), q: { t, v: r.descricao } }));
+    }
+    iaSalvar(); iaAdd({ tipo: 'ia', texto, acoes, lida: true });
+  }
+  function iaEntender(txt) {
+    const q = iaK(txt), st = iaEstado();
+    if (st.aguarda) { const t = st.aguarda; st.aguarda = ''; iaSalvar(); return /^(cancel|deixa|nao quero)/.test(q) ? 'Tudo bem, cancelado.' : iaConsulta(t, txt); }
+    if (/minha escala|(o que|qual).*(eu )?(tenho|e a minha).*escala/.test(q)) return iaConsulta('minhaesc');
+    if (/escala|quem (pega|faz|fica|vai|cuida)/.test(q) && !/faa|paciente/.test(q)) { if (!iaTokens(q).length) { iaPedir('esc'); return null; } return iaConsulta('esc', txt); }
+    if (/quem (esta|ta|pegou|tem)|com quem/.test(q)) { if (!iaTokens(q).length) { iaPedir('quem'); return null; } return iaConsulta('quem', txt); }
+    if (/(vence|vencem|venc).*hoje|hoje.*venc/.test(q)) return iaConsulta('hoje');
+    if (/proxim/.test(q)) return iaConsulta('prox');
+    if (/atras/.test(q)) return iaConsulta('atr');
+    if (/dias|faltam|falta|quando vence|vence em|prazo|vence/.test(q)) { if (!iaTokens(q).length) { iaPedir('dias'); return null; } return iaConsulta('dias', txt); }
+    if (/pend|aberta|execu|minhas|o que tenho/.test(q)) return iaConsulta('meu');
+    if (/resumo|como estou|panorama/.test(q)) return iaConsulta('dia');
+    if (/^(oi|ola|bom dia|boa tarde|boa noite)/.test(q)) return 'Oi! Use as respostas prontas aqui embaixo ou me pergunte, por exemplo: "quantos dias faltam para a FAA de Maria".';
+    return IA_AJUDA;
   }
   function iaEnviar(txt) {
     const st = iaEstado(); st.msgs.push({ id: iaId(), t: Date.now(), tipo: 'eu', texto: txt, lida: true }); iaSalvar();
-    const q = txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    let r;
-    if (/atras|venc/.test(q)) r = iaLista('atr');
-    else if (/pend|falta|aberta|execu|minhas|o que tenho/.test(q)) r = iaLista('meu');
-    else if (/^(oi|ola|bom dia|boa tarde|boa noite)/.test(q)) r = 'Oi! Quer ver suas "pendências" ou as "atrasadas"?';
-    else if (/ajuda|o que voce faz|como funciona/.test(q)) r = IA_BOAS;
-    else r = 'Eu faço perguntas automáticas sobre prazos das FAAs que você pegou. Você pode me escrever "pendências" ou "atrasadas".';
-    iaAdd({ tipo: 'ia', texto: r, lida: true }); renderIA(true);
+    const r = iaEntender(txt); if (r) iaAdd({ tipo: 'ia', texto: r, lida: true }); renderIA(true);
   }
+  function iaChip(i) {
+    const c = IA_CHIPS[i]; if (!c) return;
+    const st = iaEstado(); st.aguarda = ''; st.msgs.push({ id: iaId(), t: Date.now(), tipo: 'eu', texto: c.r, lida: true }); iaSalvar();
+    if (c.t.slice(-1) === '?') iaPedir(c.t.slice(0, -1)); else { iaAdd({ tipo: 'ia', texto: c.t === 'ajuda' ? IA_AJUDA : iaConsulta(c.t), lida: true }); renderIA(true); }
+  }
+  g('cf-ia-sug').addEventListener('click', e => {
+    const b = e.target.closest('[data-sug]'); if (!b) return;
+    if (b.dataset.sug === 'toggle') { try { localStorage.setItem('fluxo_ia_sug', g('cf-ia-sug').classList.contains('fechado') ? '1' : '0'); } catch (x) {} iaSugRender(); }
+    else iaChip(+b.dataset.sug);
+  });
   g('cf-msgs').addEventListener('click', e => { const b = e.target.closest('[data-iaa]'); if (b) iaAgir(b.dataset.iaa, +b.dataset.i); });
   setInterval(iaVerificar, 5 * 60 * 1000);
   setTimeout(() => { iaVerificar(); iaAtualizarBadge(); }, 4000);
@@ -3220,7 +3346,7 @@ function registoParaPdf(r) {
   }
   g('cf-apagar-conv').addEventListener('click', async () => {
     if (!atual) return;
-    if (atual === IA) { if (confirm('Limpar a conversa com a Fluxo IA?')) { const st = iaEstado(); st.msgs = [{ id: iaId(), t: Date.now(), tipo: 'ia', texto: IA_BOAS, lida: true }]; iaSalvar(); renderIA(true); } return; }
+    if (atual === IA) { if (confirm('Limpar a conversa com o Fluxo Bot?')) { const st = iaEstado(); st.msgs = [{ id: iaId(), t: Date.now(), tipo: 'ia', texto: IA_BOAS, lida: true }]; iaSalvar(); renderIA(true); } return; }
     const alvo = atual, p = pessoaDe(alvo), nome = p ? (p.nome || p.usuario) : '@' + alvo;
     if (!confirm('Apagar TODA a conversa com ' + nome + '?\nAs mensagens e os PDFs somem para os dois lados e não dá para desfazer.')) return;
     const { data, error } = await db.rpc('chat_apagar_conversa', { p_usuario: alvo });
