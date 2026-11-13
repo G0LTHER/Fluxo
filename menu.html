@@ -2835,7 +2835,7 @@ function construirPdf(o) {
 /* ===== entregar PDF: nova guia no navegador; visor dentro da página no app/celular; compartilhar/baixar ===== */
 const ehAppPdf = () => !!window.Capacitor || (/Android/i.test(navigator.userAgent) && /; wv\)/.test(navigator.userAgent)) || (window.navigator.standalone === true);
 async function entregarPdf(blob, nome, acao, aba) {
-  const arq = new File([blob], nome, { type: 'application/pdf' });
+  const arq = new File([blob], nome, { type: blob.type || 'application/pdf' });
   if (acao === 'baixar') {
     if (ehAppPdf() && navigator.canShare && navigator.canShare({ files: [arq] })) { try { await navigator.share({ files: [arq], title: nome }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
     const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = nome; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
@@ -2916,8 +2916,8 @@ function registoParaPdf(r) {
     <div class="cf-msgs" id="cf-msgs"></div>
     <div class="cf-ia-sug" id="cf-ia-sug" hidden></div>
     <form class="cf-envio" id="cf-envio" autocomplete="off">
-      <button type="button" class="cf-ic" id="cf-anexo" title="Enviar PDF (até 5 MB)" aria-label="Enviar PDF"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
-      <input type="file" id="cf-arquivo" accept="application/pdf,.pdf" class="cf-oculto">
+      <button type="button" class="cf-ic" id="cf-anexo" title="Enviar arquivo: PDF, imagem ou TXT (até 5 MB)" aria-label="Enviar arquivo"><svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg></button>
+      <input type="file" id="cf-arquivo" accept="application/pdf,image/png,image/jpeg,image/gif,image/webp,text/plain,.pdf,.png,.jpg,.jpeg,.gif,.webp,.txt" class="cf-oculto">
       <textarea id="cf-texto" rows="1" maxlength="2000" placeholder="Escreva uma mensagem..."></textarea>
       <button type="submit" class="cf-send" id="cf-enviar" title="Enviar" aria-label="Enviar"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
     </form>
@@ -2946,7 +2946,12 @@ function registoParaPdf(r) {
   const foto = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
   const av = p => { const f = foto(p.foto), n = p.nome || p.usuario || '?'; return f ? '<img src="' + E(f) + '" alt="">' : E(n.trim().charAt(0).toUpperCase()); };
   const hhmm = iso => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  const PDF_RE = /^\[pdf:(\d+)\]\s*(.*)$/;
+  const PDF_RE = /^\[(?:pdf|arq):(\d+)\]\s*(.*)$/;
+  const EXT_TIPO = { pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', txt: 'text/plain' };
+  const tipoDe = n => EXT_TIPO[String(n || '').split('.').pop().toLowerCase()] || '';
+  const rotuloArq = n => { const t = tipoDe(n); return t.indexOf('image/') === 0 ? 'Imagem' : t === 'text/plain' ? 'Texto' : 'PDF'; };
+  const ICONE_IMG = '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>';
+  const iconeArq = n => tipoDe(n).indexOf('image/') === 0 ? ICONE_IMG : ICONE_PDF;
   const ICONE_PDF = '<svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
 
   let PESSOAS = [], RESUMO = {}, atual = null, ultimo = '', enviando = false, USO = null, ultimoUso = 0, tPoll = null, aberto = false;
@@ -2976,9 +2981,9 @@ function registoParaPdf(r) {
   function conteudo(texto) {
     const m = PDF_RE.exec(String(texto || ''));
     if (!m) return formatar(texto);
-    return '<div class="cf-arq" data-arq="' + m[1] + '" role="button" tabindex="0">' + ICONE_PDF + '<span class="cf-arq-i"><span class="cf-arq-n">' + E(m[2] || 'arquivo.pdf') + '</span><span class="cf-arq-s">PDF · toque para abrir</span></span></div>';
+    return '<div class="cf-arq" data-arq="' + m[1] + '" role="button" tabindex="0">' + iconeArq(m[2]) + '<span class="cf-arq-i"><span class="cf-arq-n">' + E(m[2] || 'arquivo') + '</span><span class="cf-arq-s">' + rotuloArq(m[2]) + ' · toque para abrir</span></span></div>';
   }
-  function resumoTxt(t) { const m = PDF_RE.exec(String(t || '')); return m ? 'PDF · ' + (m[2] || 'PDF') : String(t || '').replace(/\s+/g, ' '); }
+  function resumoTxt(t) { const m = PDF_RE.exec(String(t || '')); return m ? rotuloArq(m[2]) + ' · ' + (m[2] || 'arquivo') : String(t || '').replace(/\s+/g, ' '); }
   const pessoaDe = u => PESSOAS.find(p => String(p.usuario).toLowerCase() === u) || null;
 
   /* ===== FLUXO IA: perguntas automáticas dentro do chat ===== */
@@ -3355,38 +3360,45 @@ function registoParaPdf(r) {
   });
   const lerB64 = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = () => rej(r.error); r.readAsDataURL(f); });
   g('cf-anexo').addEventListener('click', () => { if (atual && !enviando) g('cf-arquivo').click(); });
+  const EXT_OK = /\.(pdf|png|jpe?g|gif|webp|txt)$/i;
   g('cf-arquivo').addEventListener('change', async () => {
     const f = g('cf-arquivo').files[0]; g('cf-arquivo').value = '';
-    if (!f || !atual || enviando) return;
-    if (!(f.type === 'application/pdf' || /\.pdf$/i.test(f.name))) { alert('Só é possível enviar arquivos PDF.'); return; }
-    if (f.size > 5 * 1024 * 1024) { alert('Este PDF tem ' + fmtBytes(f.size) + '. O limite é 5 MB.'); return; }
+    if (!f || !atual || enviando || atual === IA) return;
+    if (!EXT_OK.test(f.name)) { alert('Tipo de arquivo não aceito. Envie PDF, imagem (PNG, JPG, GIF ou WEBP) ou TXT.'); return; }
+    if (f.size > 5 * 1024 * 1024) { alert('Este arquivo tem ' + fmtBytes(f.size) + '. O limite é 5 MB.'); return; }
     enviando = true; g('cf-enviar').disabled = true; g('cf-anexo').disabled = true;
     const alvo = atual, box = g('cf-msgs');
     const vz = box.querySelector('.cf-vazio'); if (vz) vz.remove();
     const tmp = document.createElement('div'); tmp.className = 'cf-bolha minha env';
-    tmp.innerHTML = '<div class="cf-arq">' + ICONE_PDF + '<span class="cf-arq-i"><span class="cf-arq-n">' + E(f.name) + '</span><span class="cf-arq-s">A enviar...</span></span></div><time>…</time>';
+    tmp.innerHTML = '<div class="cf-arq">' + iconeArq(f.name) + '<span class="cf-arq-i"><span class="cf-arq-n">' + E(f.name) + '</span><span class="cf-arq-s">A enviar...</span></span></div><time>…</time>';
     box.appendChild(tmp); box.scrollTop = box.scrollHeight;
     let erro = '';
     try {
-      const { data, error } = await db.rpc('chat_enviar_pdf', { p_usuario: alvo, p_nome: f.name, p_base64: await lerB64(f) });
-      if (error) erro = error.message;
-      else if (data !== 'ok') erro = ({ arquivo_grande: 'O PDF passa de 5 MB.', arquivo_invalido: 'O arquivo não é um PDF válido.', sem_permissao: 'Essa pessoa não está na sua lista.', nao_encontrado: 'Utilizador não encontrado.' })[data] || 'Erro ao enviar.';
+      const b64 = await lerB64(f);
+      let r = await db.rpc('chat_enviar_arquivo', { p_usuario: alvo, p_nome: f.name, p_base64: b64 });
+      if (r.error && /chat_enviar_arquivo|PGRST202|schema cache|could not find/i.test(String(r.error.message || '') + String(r.error.code || ''))) {
+        if (/\.pdf$/i.test(f.name)) r = await db.rpc('chat_enviar_pdf', { p_usuario: alvo, p_nome: f.name, p_base64: b64 });
+        else r = { error: { message: 'O banco ainda não aceita imagem e TXT. Rode o arquivo sql-chat-arquivos.sql no Supabase.' } };
+      }
+      if (r.error) erro = r.error.message;
+      else if (r.data !== 'ok') erro = ({ arquivo_grande: 'O arquivo passa de 5 MB.', arquivo_invalido: 'Tipo não aceito ou arquivo corrompido. Envie PDF, imagem ou TXT.', sem_permissao: 'Essa pessoa não está na sua lista.', nao_contato: 'Essa pessoa não está na sua lista.', sem_sessao: 'Sua sessão expirou, entre de novo.', nao_encontrado: 'Usuário não encontrado.', proprio: 'Você não pode enviar para si mesmo.' })[r.data] || ('Erro ao enviar (' + r.data + ').');
     } catch (x) { erro = 'Não foi possível ler o arquivo.'; }
     enviando = false; g('cf-enviar').disabled = false; g('cf-anexo').disabled = false; tmp.remove();
-    if (erro) { alert('Não foi possível enviar o PDF: ' + erro); return; }
+    if (erro) { alert('Não foi possível enviar o arquivo: ' + erro); return; }
     if (alvo === atual) await carregarConversa(true);
     carregarResumo(); carregarUso();
   });
-  async function abrirPdf(id, el) {
+  async function abrirPdf(id, el) {   // abre PDF, imagem ou TXT
     if (el.classList.contains('carregando')) return;
     el.classList.add('carregando');
     try {
       const { data, error } = await db.rpc('chat_arquivo_obter', { p_id: id });
-      if (error || !data || !data.base64) { alert('Não foi possível abrir o PDF. Ele pode ter sido apagado.'); return; }
+      if (error || !data || !data.base64) { alert('Não foi possível abrir o arquivo. Ele pode ter sido apagado.'); return; }
+      const nome = data.nome || 'arquivo', tipo = data.tipo || tipoDe(nome) || 'application/pdf';
       const bin = atob(data.base64), bytes = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-      entregarPdf(new Blob([bytes], { type: 'application/pdf' }), data.nome || 'arquivo.pdf', 'ver', null);
-    } catch (x) { alert('Não foi possível abrir o PDF.'); }
+      entregarPdf(new Blob([bytes], { type: tipo === 'text/plain' ? 'text/plain;charset=utf-8' : tipo }), nome, 'ver', null);
+    } catch (x) { alert('Não foi possível abrir o arquivo.'); }
     finally { el.classList.remove('carregando'); }
   }
 
