@@ -1255,6 +1255,7 @@ async function verificarSessao() {
 }
 
 async function iniciarControleSessao() {
+  if (localStorage.getItem('fluxo_expirar_inatividade') !== 'true') localStorage.removeItem('fluxo_ultima_atividade');
   await verificarSessao();
   marcarAtividade();
   ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach(ev => document.addEventListener(ev, marcarAtividade, { passive: true, capture: true }));
@@ -3455,5 +3456,6 @@ function registoParaPdf(r) {
   })();
 })();
 </script>
+<script src="email-gate.js"></script>
 </body>
 </html>

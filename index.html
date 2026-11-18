@@ -1,516 +1,359 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Fluxo - Login</title>
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --bg-dark: #031016;
-      --bg-teal: #1a807d;
-      --bg-mid: #072a39;
-      --text-main: #ffffff;
-      --text-mut: #9ca3af;
-      --input-border: #215e63;
-      --input-border-focus: #2dd4bf;
-      --input-bg: transparent;
-      --btn-bg: #ffffff;
-      --btn-text: #0f172a;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-    }
-
-    body {
-      background: radial-gradient(circle at top left, var(--bg-teal) 0%, var(--bg-mid) 40%, var(--bg-dark) 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 40px 24px;
-    }
-
-    .login-container {
-      width: 100%;
-      max-width: 400px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-
-    .logo-icon {
-      width: 52px;
-      height: 52px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-    .logo-icon svg {
-      width: 24px;
-      height: 24px;
-      stroke: #ffffff;
-      fill: none;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    h1 {
-      font-size: 42px;
-      font-weight: 900;
-      letter-spacing: -1px;
-      margin-bottom: 12px;
-    }
-    .subtitle {
-      color: var(--text-main);
-      font-size: 15px;
-      line-height: 1.5;
-      margin-bottom: 32px;
-      opacity: 0.9;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .input-group {
-      position: relative;
-      width: 100%;
-    }
-
-    .input-group input {
-      width: 100%;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 14px;
-      padding: 16px;
-      color: var(--text-main);
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.3s;
-    }
-    
-    .input-group input::placeholder {
-      color: var(--text-mut);
-    }
-
-    .input-group input:focus {
-      border-color: var(--input-border-focus);
-    }
-
-    .btn-eye {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--text-mut);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px;
-    }
-    .btn-eye:hover {
-      color: var(--text-main);
-    }
-    .btn-eye svg {
-      width: 20px;
-      height: 20px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .checkbox-group {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-top: 8px;
-      margin-bottom: 16px;
-      cursor: pointer;
-    }
-
-    .custom-checkbox {
-      width: 20px;
-      height: 20px;
-      border: 1.5px solid var(--text-mut);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      margin-top: 2px;
-      transition: all 0.2s;
-    }
-    
-    .checkbox-group input[type="checkbox"] {
-      display: none;
-    }
-
-    .checkbox-group input[type="checkbox"]:checked + .custom-checkbox {
-      background: var(--input-border-focus);
-      border-color: var(--input-border-focus);
-    }
-    
-    .custom-checkbox svg {
-      width: 14px;
-      height: 14px;
-      stroke: var(--bg-dark);
-      fill: none;
-      stroke-width: 3;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      opacity: 0;
-      transform: scale(0.5);
-      transition: all 0.2s;
-    }
-
-    .checkbox-group input[type="checkbox"]:checked + .custom-checkbox svg {
-      opacity: 1;
-      transform: scale(1);
-    }
-
-    .checkbox-text {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .checkbox-text b {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-main);
-    }
-    .checkbox-text span {
-      font-size: 12px;
-      color: var(--text-mut);
-      line-height: 1.4;
-    }
-
-    .msg-erro {
-      display: none;
-      color: #f87171;
-      font-size: 14px;
-      font-weight: 500;
-      text-align: center;
-      background: rgba(248, 113, 113, 0.1);
-      border: 1px solid rgba(248, 113, 113, 0.3);
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 8px;
-    }
-
-    .btn-submit {
-      width: 100%;
-      background: var(--btn-bg);
-      color: var(--btn-text);
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: transform 0.2s, opacity 0.2s;
-    }
-    .btn-submit:hover:not(:disabled) {
-      opacity: 0.9;
-      transform: scale(0.99);
-    }
-    .btn-submit:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-    .btn-submit svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2.5;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
-
-    .links-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 24px;
-    }
-    .links-row a {
-      color: var(--text-main);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .links-row a:hover {
-      opacity: 0.7;
-      text-decoration: underline;
-    }
-
-    .footer {
-      margin-top: auto;
-      padding-top: 40px;
-      font-size: 12px;
-      color: var(--text-mut);
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fluxo - Entrar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+  // tema igual ao do app: claro, escuro ou automático (segue o aparelho)
+  (function () {
+    var m = 'auto'; try { m = localStorage.getItem('fluxo_tema') || 'auto'; } catch (e) {}
+    var dark = m === 'dark' || (m !== 'light' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  })();
+</script>
+<style>
+  :root[data-theme="light"]{--bg:#fff;--page:#f1eff7;--card:#fff;--tx:#111114;--mut:#6f6b7a;--bd:#e4e1ec;--inp:#fff;--pri:#111114;--on-pri:#fff;--lilac:#e7def7;--err:#e5484d;--ok:#16a34a;--sh:0 20px 50px rgba(60,40,110,.12)}
+  :root[data-theme="dark"]{--bg:#131316;--page:#0b0b0e;--card:#1b1b20;--tx:#f7f7f9;--mut:#bdbac8;--bd:rgba(255,255,255,.14);--inp:#1f1f24;--pri:#e7def7;--on-pri:#111114;--lilac:#2b2638;--err:#ff8a8f;--ok:#4ade80;--sh:0 20px 50px rgba(0,0,0,.5)}
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%;background:var(--page);color:var(--tx)}
+  body{display:flex;justify-content:center;padding:0}
+  .app{width:100%;max-width:440px;min-height:100dvh;display:flex;flex-direction:column;background:var(--bg);
+    padding:calc(18px + env(safe-area-inset-top,0px)) 24px calc(24px + env(safe-area-inset-bottom,0px))}
+  @media (min-width:600px){body{align-items:center;padding:32px 0}.app{min-height:0;border-radius:32px;box-shadow:var(--sh);padding-top:24px}}
+  .topo{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;margin-bottom:8px}
+  .topo h1{text-align:center;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .ic-btn{width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:none;color:var(--tx);cursor:pointer}
+  .ic-btn:active{background:var(--lilac)}
+  .ic-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .marca{text-align:center;margin:28px 0 20px}
+  .marca b{font-size:38px;font-weight:700;letter-spacing:-.03em}
+  .marca p,.sub{color:var(--mut);font-size:14px;line-height:1.5;text-align:center}
+  .hero{width:96px;height:96px;margin:24px auto 16px;border-radius:32px;display:grid;place-items:center;background:var(--lilac)}
+  .hero svg{width:44px;height:44px;stroke:var(--tx);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  form{display:flex;flex-direction:column;gap:14px;margin-top:20px}
+  label.l{font-size:14px;font-weight:600;margin-bottom:6px;display:block}
+  .campo{position:relative}
+  input[type=text],input[type=email],input[type=password]{width:100%;height:54px;padding:0 16px;font-size:16px;color:var(--tx);background:var(--inp);border:1px solid var(--bd);border-radius:16px;outline:none}
+  input::placeholder{color:var(--mut);opacity:.8}
+  input:focus{border-color:var(--tx)}
+  .campo.eye input{padding-right:52px}
+  .eye button{position:absolute;right:4px;top:5px;width:44px;height:44px;border:0;background:none;color:var(--mut);cursor:pointer;display:grid;place-items:center}
+  .eye svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .linha{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .chk{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mut);cursor:pointer;min-height:44px}
+  .chk input{width:20px;height:20px;accent-color:var(--pri)}
+  a.lk{font-size:14px;font-weight:600;color:var(--tx);cursor:pointer;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+  .btn{height:56px;border:0;border-radius:999px;background:var(--pri);color:var(--on-pri);font-size:16px;font-weight:700;cursor:pointer;width:100%}
+  .btn:disabled{opacity:.55}.btn:active{transform:scale(.985)}
+  .rodape{margin-top:18px;text-align:center;font-size:14px;color:var(--mut)}
+  .rodape a{color:var(--tx);font-weight:700;cursor:pointer}
+  .msg{display:none;padding:12px 14px;border-radius:14px;font-size:14px;font-weight:600;line-height:1.4}
+  .msg.e{display:block;color:var(--err);background:color-mix(in srgb,var(--err) 12%,transparent)}
+  .msg.o{display:block;color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,transparent)}
+  .dica{font-size:12px;color:var(--mut);margin-top:6px}
+  .dois{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .otp{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+  .otp input{width:100%;min-width:0;height:58px;padding:0;text-align:center;font-size:22px;font-weight:700;border-radius:14px;color:var(--tx);background:var(--inp);border:1px solid var(--bd);outline:none}.otp input:focus{border-color:var(--tx)}
+  .reenviar{text-align:center;font-size:14px;color:var(--mut)}
+  .reenviar a{font-weight:700;color:var(--tx);cursor:pointer}
+  .espaco{flex:1}
+  .foot{margin-top:28px;text-align:center;font-size:12px;color:var(--mut)}
+  [hidden]{display:none!important}
+</style>
 </head>
 <body>
-
-  <div class="login-container">
-    
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24">
-        <path d="M4 12c2.5 0 3-4 6-4s3.5 4 6 4 3-4 6-4" />
-      </svg>
-    </div>
-
-    <h1 id="titulo-topo">Fluxo</h1>
-    <p class="subtitle" id="sub-topo">Entre com o seu utilizador e senha.</p>
-
-    <form id="form-auth" onsubmit="enviarAuth(event)">
-      
-      <div class="input-group" id="grupo-nome" style="display:none;">
-        <input type="text" id="nome-input" placeholder="Nome" autocomplete="given-name">
-      </div>
-
-      <div class="input-group" id="grupo-sobrenome" style="display:none;">
-        <input type="text" id="sobrenome-input" placeholder="Sobrenome" autocomplete="family-name">
-      </div>
-
-      <div class="input-group" id="grupo-email-cad" style="display:none;">
-        <input type="email" id="email-cad-input" placeholder="E-mail de contato" autocomplete="email">
-      </div>
-
-      <div class="input-group">
-        <input type="text" id="username-input" placeholder="Utilizador ou E-mail" required autocomplete="username" autocapitalize="none">
-      </div>
-
-      <div class="input-group" id="grupo-codigo" style="display:none;">
-        <input type="text" id="codigo-input" placeholder="Código de recuperação" autocomplete="off">
-      </div>
-
-      <div class="input-group">
-        <input type="password" id="senha-input" placeholder="Senha" required minlength="6" autocomplete="current-password">
-        <button type="button" class="btn-eye" onclick="toggleSenha('senha-input', this)" title="Mostrar/Ocultar senha">
-          <svg id="icon-senha-input" viewBox="0 0 24 24">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </div>
-
-      <div class="input-group" id="grupo-senha2" style="display:none;">
-        <input type="password" id="senha2-input" placeholder="Repita a senha" minlength="6" autocomplete="new-password">
-        <button type="button" class="btn-eye" onclick="toggleSenha('senha2-input', this)" title="Mostrar/Ocultar senha">
-          <svg id="icon-senha2-input" viewBox="0 0 24 24">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-      </div>
-
-      <label class="checkbox-group" id="label-manter-logado">
-        <input type="checkbox" id="manter-logado">
-        <div class="custom-checkbox">
-          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        </div>
-        <div class="checkbox-text">
-          <b>Mantenha-me logado</b>
-          <span>Se não marcar, a sessão expira após 30 minutos de inatividade.</span>
-        </div>
-      </label>
-
-      <div id="msg-erro" class="msg-erro"></div>
-
-      <button type="submit" class="btn-submit" id="btn-auth">
-        Entrar
-        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>
-
-    </form>
-
-    <div class="links-row">
-      <a id="link-modo" onclick="setModo(modo === 'entrar' ? 'cadastro' : 'entrar')">Criar conta</a>
-      <a id="link-esq" onclick="setModo('reset')">Esqueci a senha</a>
-    </div>
-
-    <div class="footer">
-      © 2026 Fluxo · Ruan Henrique
-    </div>
-
+<main class="app">
+  <div class="topo">
+    <button class="ic-btn" id="voltar" type="button" aria-label="Voltar" style="visibility:hidden"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h1 id="titulo">Entrar</h1>
+    <button class="ic-btn" id="btn-tema" type="button" aria-label="Alternar tema claro e escuro"><svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg></button>
   </div>
 
-  <!-- Biblioteca Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
-  
-  <script>
-    const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
-    const DOMINIO = 'fluxo.com';
-    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <!-- ENTRAR -->
+  <section data-tela="entrar">
+    <div class="marca"><b>Fluxo</b><p>Entre com o seu utilizador ou e-mail.</p></div>
+    <form id="f-entrar" novalidate>
+      <div><label class="l" for="e-id">Utilizador ou e-mail</label>
+        <div class="campo"><input type="text" id="e-id" placeholder="seu.utilizador ou email@exemplo.com" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false"></div></div>
+      <div><label class="l" for="e-senha">Senha</label>
+        <div class="campo eye"><input type="password" id="e-senha" placeholder="Sua senha" autocomplete="current-password">
+          <button type="button" data-eye="e-senha" aria-label="Mostrar ou ocultar senha"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <div class="linha">
+        <label class="chk"><input type="checkbox" id="e-manter"> Manter-me conectado</label>
+        <a class="lk" data-ir="esqueci">Esqueci a senha</a>
+      </div>
+      <div class="msg" id="m-entrar" role="alert"></div>
+      <button class="btn" type="submit" id="b-entrar">Entrar</button>
+    </form>
+    <p class="rodape">Não tem conta? <a data-ir="cadastro">Criar conta</a></p>
+  </section>
 
-    const key = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    let modo = 'entrar';
+  <!-- CRIAR CONTA -->
+  <section data-tela="cadastro" hidden>
+    <p class="sub" style="margin-top:12px">Preencha os dados. O e-mail serve para recuperar a senha.</p>
+    <form id="f-cadastro" novalidate>
+      <div class="dois">
+        <div><label class="l" for="c-nome">Nome</label><div class="campo"><input type="text" id="c-nome" autocomplete="given-name"></div></div>
+        <div><label class="l" for="c-sobrenome">Sobrenome</label><div class="campo"><input type="text" id="c-sobrenome" autocomplete="family-name"></div></div>
+      </div>
+      <div><label class="l" for="c-user">Utilizador</label><div class="campo"><input type="text" id="c-user" placeholder="3 a 30 caracteres" autocomplete="username" autocapitalize="none" spellcheck="false"></div></div>
+      <div><label class="l" for="c-email">E-mail</label><div class="campo"><input type="email" id="c-email" placeholder="email@exemplo.com" autocomplete="email" autocapitalize="none"></div></div>
+      <div><label class="l" for="c-senha">Senha</label>
+        <div class="campo eye"><input type="password" id="c-senha" autocomplete="new-password">
+          <button type="button" data-eye="c-senha" aria-label="Mostrar ou ocultar senha"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <p class="dica">Mínimo 6 caracteres, com 1 caractere especial (ex: ! @ # $).</p></div>
+      <div><label class="l" for="c-senha2">Repita a senha</label>
+        <div class="campo eye"><input type="password" id="c-senha2" autocomplete="new-password">
+          <button type="button" data-eye="c-senha2" aria-label="Mostrar ou ocultar senha"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <div class="msg" id="m-cadastro" role="alert"></div>
+      <button class="btn" type="submit" id="b-cadastro">Criar conta</button>
+    </form>
+    <p class="rodape">Já tem conta? <a data-ir="entrar">Entrar</a></p>
+  </section>
 
-    // Verifica se veio de um logout explícito para limpar os dados e evitar loops
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('logout') === 'true') {
-      db.auth.signOut();
-      localStorage.clear();
-    } else {
-      // Se já estiver logado, redireciona pro menu
-      db.auth.getSession().then(({ data }) => {
-        if (data && data.session) {
-          window.location.href = 'menu.html';
-        }
-      });
+  <!-- ESQUECI A SENHA -->
+  <section data-tela="esqueci" hidden>
+    <div class="hero"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2.5"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16.5" r="1.2"/></svg></div>
+    <p class="sub">Tudo bem, acontece. Informe o seu utilizador ou e-mail e enviaremos um código para o e-mail confirmado da conta.</p>
+    <form id="f-esqueci" novalidate>
+      <div><label class="l" for="q-id">Utilizador ou e-mail</label>
+        <div class="campo"><input type="text" id="q-id" placeholder="seu.utilizador ou email@exemplo.com" autocomplete="username" autocapitalize="none" spellcheck="false"></div></div>
+      <div class="msg" id="m-esqueci" role="alert"></div>
+      <button class="btn" type="submit" id="b-esqueci">Enviar código</button>
+    </form>
+    <p class="rodape"><a data-ir="redefinir" data-modo="rec">Tenho um código de recuperação</a></p>
+  </section>
+
+  <!-- NOVA SENHA -->
+  <section data-tela="redefinir" hidden>
+    <p class="sub" id="r-sub" style="margin-top:12px"></p>
+    <form id="f-redefinir" novalidate>
+      <div id="r-id-grupo" hidden><label class="l" for="r-id">Utilizador ou e-mail</label>
+        <div class="campo"><input type="text" id="r-id" autocomplete="username" autocapitalize="none" spellcheck="false"></div></div>
+      <div id="r-otp-grupo"><label class="l">Código de 6 dígitos</label>
+        <div class="otp" id="otp"><input inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Dígito 1"><input inputmode="numeric" maxlength="1" aria-label="Dígito 2"><input inputmode="numeric" maxlength="1" aria-label="Dígito 3"><input inputmode="numeric" maxlength="1" aria-label="Dígito 4"><input inputmode="numeric" maxlength="1" aria-label="Dígito 5"><input inputmode="numeric" maxlength="1" aria-label="Dígito 6"></div></div>
+      <div id="r-rec-grupo" hidden><label class="l" for="r-rec">Código de recuperação</label>
+        <div class="campo"><input type="text" id="r-rec" placeholder="XXXX-XXXX-XXXX-XXXX" autocapitalize="characters" autocomplete="off" spellcheck="false"></div></div>
+      <div><label class="l" for="r-senha">Nova senha</label>
+        <div class="campo eye"><input type="password" id="r-senha" autocomplete="new-password">
+          <button type="button" data-eye="r-senha" aria-label="Mostrar ou ocultar senha"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <p class="dica">Mínimo 6 caracteres, com 1 caractere especial.</p></div>
+      <div><label class="l" for="r-senha2">Repita a nova senha</label>
+        <div class="campo eye"><input type="password" id="r-senha2" autocomplete="new-password">
+          <button type="button" data-eye="r-senha2" aria-label="Mostrar ou ocultar senha"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+      <div class="msg" id="m-redefinir" role="alert"></div>
+      <button class="btn" type="submit" id="b-redefinir">Redefinir senha</button>
+      <p class="reenviar" id="r-reenviar"></p>
+      <p class="reenviar"><a id="r-alt"></a></p>
+    </form>
+  </section>
+
+  <div class="espaco"></div>
+  <p class="foot">© 2026 Fluxo · Ruan Henrique</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<script>
+  const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
+  const DOMINIO = 'fluxo.com';
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const $ = id => document.getElementById(id);
+  const key = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const ESPECIAL = /[!@#$%^&*(),.?":{}|<>\-_+=~`[\]\\/|;']/;
+  const TITULOS = { entrar: 'Entrar', cadastro: 'Criar conta', esqueci: 'Esqueci a senha', redefinir: 'Nova senha' };
+  let tela = 'entrar', ctx = { usuario: '', email: '', mascarado: '' }, modoRed = 'otp', timer = null;
+
+  // logout explícito: sai, limpa dados e mantém só o tema
+  const params = new URLSearchParams(location.search);
+  if (params.get('logout') === 'true') {
+    let t = null; try { t = localStorage.getItem('fluxo_tema'); } catch (e) {}
+    db.auth.signOut(); localStorage.clear();
+    if (t) try { localStorage.setItem('fluxo_tema', t); } catch (e) {}
+  } else {
+    db.auth.getSession().then(({ data }) => { if (data && data.session) location.href = 'menu.html'; });
+  }
+
+  // ---- tema ----
+  function temaAtual() { return document.documentElement.getAttribute('data-theme'); }
+  function pintarTema() {
+    $('btn-tema').innerHTML = temaAtual() === 'dark'
+      ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
+      : '<svg viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>';
+  }
+  $('btn-tema').onclick = () => {
+    const n = temaAtual() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', n);
+    try { localStorage.setItem('fluxo_tema', n); } catch (e) {}
+    pintarTema();
+  };
+  pintarTema();
+
+  // ---- telas ----
+  function msg(id, texto, tipo) { const m = $(id); m.className = 'msg' + (texto ? (tipo === 'ok' ? ' o' : ' e') : ''); m.textContent = texto || ''; }
+  function ir(t, modo) {
+    tela = t; clearInterval(timer);
+    document.querySelectorAll('[data-tela]').forEach(s => s.hidden = s.dataset.tela !== t);
+    $('titulo').textContent = TITULOS[t];
+    $('voltar').style.visibility = t === 'entrar' ? 'hidden' : 'visible';
+    ['m-entrar', 'm-cadastro', 'm-esqueci', 'm-redefinir'].forEach(i => msg(i, ''));
+    if (t === 'redefinir') prepararRedefinir(modo);
+  }
+  $('voltar').onclick = () => ir(tela === 'redefinir' ? 'esqueci' : 'entrar');
+  document.addEventListener('click', e => {
+    const a = e.target.closest('[data-ir]'); if (a) { e.preventDefault(); ir(a.dataset.ir, a.dataset.modo); }
+    const b = e.target.closest('[data-eye]'); if (b) {
+      const i = $(b.dataset.eye); i.type = i.type === 'password' ? 'text' : 'password'; b.style.color = i.type === 'text' ? 'var(--tx)' : '';
     }
+  });
+  function ocupado(btn, on, texto) { btn.disabled = on; btn.textContent = on ? 'Aguarde...' : texto; }
 
-    function toggleSenha(idInput, btn) {
-      const input = document.getElementById(idInput), svg = document.getElementById('icon-' + idInput);
-      if (input.type === 'password') {
-        input.type = 'text';
-        svg.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
-      } else {
-        input.type = 'password';
-        svg.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
-      }
+  // ---- identificar por utilizador OU e-mail cadastrado ----
+  async function resolver(ident) {
+    ident = (ident || '').trim();
+    if (!ident) return { erro: 'Informe o utilizador ou e-mail.' };
+    if (!ident.includes('@')) { const u = key(ident); return { usuario: u, email: u + '@' + DOMINIO }; }
+    const baixo = ident.toLowerCase();
+    if (baixo.endsWith('@' + DOMINIO)) { const u = key(baixo.split('@')[0]); return { usuario: u, email: baixo }; }
+    const { data, error } = await db.rpc('resolver_login', { p_ident: baixo });
+    if (error || !data || !data.usuario) {
+      if (data && data.erro === 'ambiguo') return { erro: 'Esse e-mail está em mais de uma conta. Use o seu utilizador.' };
+      return { erro: 'E-mail não encontrado ou ainda não confirmado. Entre com o utilizador.' };
     }
+    return { usuario: data.usuario, email: data.email };
+  }
+  function senhaValida(s) {
+    if (s.length < 6) return 'A senha precisa ter ao menos 6 caracteres.';
+    if (!ESPECIAL.test(s)) return 'A senha deve ter pelo menos um caractere especial (ex: !, @, #, $).';
+    return '';
+  }
+  function guardarSessao(manter) {
+    if (!manter) { localStorage.setItem('fluxo_expirar_inatividade', 'true'); localStorage.setItem('fluxo_ultima_atividade', String(Date.now())); }
+    else { localStorage.removeItem('fluxo_expirar_inatividade'); localStorage.removeItem('fluxo_ultima_atividade'); }
+  }
 
-    function setModo(m) {
-      modo = m;
-      const cad = (m === 'cadastro'), rst = (m === 'reset');
-
-      document.getElementById('grupo-nome').style.display = cad ? 'block' : 'none';
-      document.getElementById('grupo-sobrenome').style.display = cad ? 'block' : 'none';
-      document.getElementById('grupo-email-cad').style.display = cad ? 'block' : 'none';
-      document.getElementById('grupo-senha2').style.display = (cad || rst) ? 'block' : 'none';
-      document.getElementById('grupo-codigo').style.display = rst ? 'block' : 'none';
-      document.getElementById('label-manter-logado').style.display = m === 'entrar' ? 'flex' : 'none';
-
-      document.getElementById('nome-input').required = cad;
-      document.getElementById('sobrenome-input').required = cad;
-      document.getElementById('email-cad-input').required = cad;
-      document.getElementById('senha2-input').required = (cad || rst);
-      document.getElementById('codigo-input').required = rst;
-
-      document.getElementById('senha-input').placeholder = rst ? 'Nova senha (mín. 6 chars com 1 caractere especial)' : 'Senha (mínimo 6 caracteres)';
-      document.getElementById('btn-auth').innerHTML = (cad ? 'Criar Conta' : rst ? 'Redefinir Senha' : 'Entrar') + ` <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
-      document.getElementById('link-modo').textContent = m === 'entrar' ? 'Criar conta' : 'Já tenho conta';
-      document.getElementById('link-esq').style.display = m === 'entrar' ? 'block' : 'none';
-      document.getElementById('sub-topo').textContent = cad ? 'Preencha os dados de cadastro.' : rst ? 'Informe o utilizador, o código e a nova senha.' : 'Entre com o seu utilizador e senha.';
-      
-      document.getElementById('msg-erro').style.display = 'none';
+  // ---- entrar ----
+  $('f-entrar').onsubmit = async e => {
+    e.preventDefault(); msg('m-entrar', '');
+    const senha = $('e-senha').value;
+    if (!$('e-id').value.trim() || !senha) return msg('m-entrar', 'Preencha o utilizador (ou e-mail) e a senha.');
+    ocupado($('b-entrar'), true);
+    const r = await resolver($('e-id').value);
+    if (r.erro) { ocupado($('b-entrar'), false, 'Entrar'); return msg('m-entrar', r.erro); }
+    const { error } = await db.auth.signInWithPassword({ email: r.email, password: senha });
+    if (error) {
+      ocupado($('b-entrar'), false, 'Entrar');
+      return msg('m-entrar', error.message.toLowerCase().includes('invalid login') ? 'Utilizador ou senha incorretos.' : 'Erro: ' + error.message);
     }
+    guardarSessao($('e-manter').checked);
+    location.href = 'menu.html';
+  };
 
-    function mostrarErro(msg) {
-      const el = document.getElementById('msg-erro');
-      el.textContent = msg;
-      el.style.display = 'block';
+  // ---- criar conta ----
+  $('f-cadastro').onsubmit = async e => {
+    e.preventDefault(); msg('m-cadastro', '');
+    const u = key($('c-user').value.trim().split('@')[0]), nome = $('c-nome').value.trim(), sobrenome = $('c-sobrenome').value.trim();
+    const mail = $('c-email').value.trim().toLowerCase(), s = $('c-senha').value;
+    if (!nome || !sobrenome) return msg('m-cadastro', 'Informe nome e sobrenome.');
+    if (!/^[a-z0-9._-]{3,30}$/.test(u)) return msg('m-cadastro', 'Utilizador: 3 a 30 caracteres (letras, números, ponto, _ ou -).');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) return msg('m-cadastro', 'Digite um e-mail válido.');
+    const v = senhaValida(s); if (v) return msg('m-cadastro', v);
+    if (s !== $('c-senha2').value) return msg('m-cadastro', 'As senhas não coincidem.');
+    ocupado($('b-cadastro'), true);
+    const { data, error } = await db.auth.signUp({ email: u + '@' + DOMINIO, password: s, options: { data: { usuario: u, nome, sobrenome, email_contato: mail } } });
+    if (error) {
+      ocupado($('b-cadastro'), false, 'Criar conta');
+      return msg('m-cadastro', error.message.toLowerCase().includes('already') ? 'Esse utilizador já existe.' : 'Erro: ' + error.message);
     }
+    if (!data.session) { ocupado($('b-cadastro'), false, 'Criar conta'); ir('entrar'); return msg('m-entrar', 'Conta criada! Faça login.', 'ok'); }
+    guardarSessao(true);
+    location.href = 'perfil.html';
+  };
 
-    async function enviarAuth(e) {
-      e.preventDefault();
-      const msgErro = document.getElementById('msg-erro');
-      msgErro.style.display = 'none';
+  // ---- esqueci a senha: envia o código por e-mail ----
+  async function enviarCodigo(idMsg) {
+    const { data, error } = await db.functions.invoke('recuperar-senha', { body: { acao: 'recuperar', usuario: ctx.usuario } });
+    if (error) { msg(idMsg, 'Não foi possível enviar o e-mail agora. Tente de novo em instantes ou use o código de recuperação.'); return false; }
+    if (!data || !data.enviado) { msg(idMsg, 'Esta conta ainda não tem e-mail confirmado. Use o código de recuperação.'); return false; }
+    ctx.mascarado = data.email || ''; return true;
+  }
+  $('f-esqueci').onsubmit = async e => {
+    e.preventDefault(); msg('m-esqueci', '');
+    ocupado($('b-esqueci'), true);
+    const r = await resolver($('q-id').value);
+    if (r.erro) { ocupado($('b-esqueci'), false, 'Enviar código'); return msg('m-esqueci', r.erro); }
+    ctx.usuario = r.usuario; ctx.email = r.email;
+    const ok = await enviarCodigo('m-esqueci');
+    ocupado($('b-esqueci'), false, 'Enviar código');
+    if (ok) ir('redefinir', 'otp');
+  };
 
-      const inputVal = document.getElementById('username-input').value.trim();
-      const email = inputVal.includes('@') ? inputVal : (key(inputVal) + '@' + DOMINIO);
-      const u = key(inputVal.split('@')[0]);
-      const s = document.getElementById('senha-input').value;
-
-      if (!/^[a-z0-9._-]{3,30}$/.test(u)) {
-        return mostrarErro('Utilizador: 3 a 30 caracteres válidos.');
-      }
-      if (s.length < 6) {
-        return mostrarErro('A senha precisa ter ao menos 6 caracteres.');
-      }
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>\-_+=~`[\]\\/|;']/.test(s);
-      if (!hasSpecialChar) {
-        return mostrarErro('A senha deve conter pelo menos um caractere especial (ex: !, @, #, $, etc.).');
-      }
-
-      if (modo === 'cadastro' && s !== document.getElementById('senha2-input').value) {
-        return mostrarErro('As senhas não coincidem.');
-      }
-
-      const btnAuth = document.getElementById('btn-auth');
-      btnAuth.disabled = true;
-      btnAuth.textContent = 'Processando...';
-
-      if (modo === 'reset') {
-        const { data: ok, error: er } = await db.rpc('redefinir_senha', { p_usuario: u, p_codigo: document.getElementById('codigo-input').value, p_nova: s });
-        if (er || !ok) {
-          btnAuth.disabled = false;
-          btnAuth.innerHTML = `Redefinir Senha <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
-          return mostrarErro('Utilizador ou código de recuperação incorreto.');
-        }
-      }
-
-      const isCadastro = (modo === 'cadastro');
-      const metadata = isCadastro ? { 
-        usuario: u, 
-        nome: document.getElementById('nome-input').value.trim(), 
-        sobrenome: document.getElementById('sobrenome-input').value.trim(), 
-        email_contato: document.getElementById('email-cad-input').value.trim()
-      } : { usuario: u };
-
-      const { data, error } = isCadastro
-        ? await db.auth.signUp({ email, password: s, options: { data: metadata } })
-        : await db.auth.signInWithPassword({ email, password: s });
-        
-      btnAuth.disabled = false;
-      if (error) {
-        btnAuth.innerHTML = `Entrar <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>`;
-        const m = error.message.toLowerCase();
-        return mostrarErro(m.includes('already') ? 'Esse e-mail ou utilizador já existe.' : m.includes('invalid login') ? 'Utilizador ou senha incorretos.' : 'Erro: ' + error.message);
-      }
-      
-      if (!data.session) {
-        return mostrarErro('Conta criada! Faça login com suas credenciais.');
-      }
-
-      const manterLogado = document.getElementById('manter-logado').checked;
-      if (!manterLogado && modo === 'entrar') {
-        localStorage.setItem('fluxo_expirar_inatividade', 'true');
-      } else {
-        localStorage.removeItem('fluxo_expirar_inatividade');
-      }
-
-      if (isCadastro) {
-        window.location.href = 'perfil.html';
-      } else if (modo === 'reset') {
-        window.location.href = 'perfil.html#recuperacao';
-      } else {
-        window.location.href = 'menu.html';
-      }
+  // ---- nova senha ----
+  const caixas = () => Array.from(document.querySelectorAll('#otp input'));
+  caixas().forEach((c, i, todas) => {
+    c.addEventListener('input', () => {
+      c.value = c.value.replace(/\D/g, '').slice(-1);
+      if (c.value && todas[i + 1]) todas[i + 1].focus();
+    });
+    c.addEventListener('keydown', ev => { if (ev.key === 'Backspace' && !c.value && todas[i - 1]) todas[i - 1].focus(); });
+    c.addEventListener('paste', ev => {
+      const t = (ev.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6); if (!t) return;
+      ev.preventDefault(); t.split('').forEach((d, k) => todas[k].value = d); todas[Math.min(t.length, 5)].focus();
+    });
+  });
+  function contagem() {
+    let s = 60; const el = $('r-reenviar');
+    const pintar = () => {
+      if (s > 0) el.textContent = 'Reenviar código (0:' + String(s).padStart(2, '0') + ')';
+      else el.innerHTML = '<a id="r-reenv">Reenviar código</a>';
+    };
+    pintar(); clearInterval(timer);
+    timer = setInterval(() => { s--; pintar(); if (s <= 0) clearInterval(timer); }, 1000);
+  }
+  document.addEventListener('click', async e => {
+    if (e.target.id !== 'r-reenv') return;
+    msg('m-redefinir', ''); const ok = await enviarCodigo('m-redefinir');
+    if (ok) { msg('m-redefinir', 'Novo código enviado para ' + ctx.mascarado + '.', 'ok'); contagem(); }
+  });
+  function prepararRedefinir(modo) {
+    modoRed = modo === 'rec' ? 'rec' : 'otp';
+    const otp = modoRed === 'otp';
+    $('r-otp-grupo').hidden = !otp; $('r-rec-grupo').hidden = otp; $('r-id-grupo').hidden = otp;
+    $('r-reenviar').hidden = !otp;
+    $('r-sub').textContent = otp ? 'Enviamos um código de 6 dígitos para ' + (ctx.mascarado || 'o seu e-mail') + '. Ele vale por 10 minutos.' : 'Informe o utilizador, o código de recuperação guardado no perfil e a nova senha.';
+    $('r-alt').textContent = otp ? 'Usar código de recuperação' : 'Receber código por e-mail';
+    $('r-alt').onclick = () => otp ? ir('redefinir', 'rec') : ir('esqueci');
+    caixas().forEach(c => c.value = ''); $('r-rec').value = ''; $('r-senha').value = ''; $('r-senha2').value = '';
+    if (otp) { contagem(); caixas()[0].focus(); }
+  }
+  $('f-redefinir').onsubmit = async e => {
+    e.preventDefault(); msg('m-redefinir', '');
+    const otp = modoRed === 'otp', s = $('r-senha').value;
+    let usuario = ctx.usuario, email = ctx.email;
+    const cod = otp ? caixas().map(c => c.value).join('') : $('r-rec').value.trim();
+    if (otp && cod.length !== 6) return msg('m-redefinir', 'Digite os 6 dígitos do código.');
+    if (!otp && !cod) return msg('m-redefinir', 'Informe o código de recuperação.');
+    const v = senhaValida(s); if (v) return msg('m-redefinir', v);
+    if (s !== $('r-senha2').value) return msg('m-redefinir', 'As senhas não coincidem.');
+    ocupado($('b-redefinir'), true);
+    if (!otp) {
+      const r = await resolver($('r-id').value);
+      if (r.erro) { ocupado($('b-redefinir'), false, 'Redefinir senha'); return msg('m-redefinir', r.erro); }
+      usuario = r.usuario; email = r.email;
     }
-  </script>
+    const { data: ok, error } = otp
+      ? await db.rpc('redefinir_senha_email', { p_usuario: usuario, p_codigo: cod, p_nova: s })
+      : await db.rpc('redefinir_senha', { p_usuario: usuario, p_codigo: cod, p_nova: s });
+    if (error || !ok) { ocupado($('b-redefinir'), false, 'Redefinir senha'); return msg('m-redefinir', 'Código incorreto ou expirado.'); }
+    const { error: e2 } = await db.auth.signInWithPassword({ email, password: s });
+    if (e2) { ocupado($('b-redefinir'), false, 'Redefinir senha'); ir('entrar'); return msg('m-entrar', 'Senha redefinida! Faça login.', 'ok'); }
+    guardarSessao(true);
+    location.href = 'perfil.html#recuperacao';
+  };
+</script>
 </body>
 </html>

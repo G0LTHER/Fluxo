@@ -662,6 +662,24 @@
           </div>
         </div>
 
+        <div class="section-card" style="margin-top: 24px;">
+          <h3>Alterar senha</h3>
+          <p class="subtitle">Informe a senha atual e escolha uma nova (mín. 6 caracteres, com 1 caractere especial).</p>
+          <div style="display:grid; gap:12px; margin-top:16px;">
+            <input type="password" id="pw-atual" placeholder="Senha atual" autocomplete="current-password">
+            <input type="password" id="pw-nova" placeholder="Nova senha" autocomplete="new-password">
+            <input type="password" id="pw-rep" placeholder="Repita a nova senha" autocomplete="new-password">
+            <button class="btn" type="button" id="btn-alt-senha" onclick="alterarSenha()">Alterar senha</button>
+          </div>
+        </div>
+
+        <div class="section-card" style="margin-top: 24px;">
+          <h3>E-mail de recuperação</h3>
+          <p class="subtitle">Usado para redefinir a senha caso você esqueça. Enviamos um código para confirmar.</p>
+          <div id="email-rec-status" style="margin-top:12px;"></div>
+          <div style="margin-top:16px;"><button class="btn" type="button" onclick="abrirEmailRecuperacao(true)">Cadastrar ou alterar e-mail</button></div>
+        </div>
+
         <!-- Área de Exclusão e Logout (Fica dentro de segurança para melhor organização) -->
         <div class="section-card" style="margin-top: 24px; border-color: #fca5a5;">
           <h3 style="color: #ef4444;">Zona de Perigo</h3>
@@ -1042,6 +1060,25 @@ function baixarCodigo() {
   a.click();
 }
 
+async function alterarSenha() {
+  const atual = $('pw-atual').value, nova = $('pw-nova').value, rep = $('pw-rep').value;
+  if (!atual || !nova) return aviso('Preencha a senha atual e a nova.');
+  if (nova.length < 6) return aviso('A nova senha precisa ter ao menos 6 caracteres.');
+  if (!/[!@#$%^&*(),.?":{}|<>\-_+=~`[\]\\/|;']/.test(nova)) return aviso('A nova senha deve ter ao menos um caractere especial.');
+  if (nova !== rep) return aviso('As senhas não coincidem.');
+  if (nova === atual) return aviso('A nova senha deve ser diferente da atual.');
+  const btn = $('btn-alt-senha'); btn.disabled = true;
+  try {
+    const { data: { user } } = await db.auth.getUser();
+    const { error: e1 } = await db.auth.signInWithPassword({ email: user.email, password: atual });
+    if (e1) return aviso('Senha atual incorreta.');
+    const { error: e2 } = await db.auth.updateUser({ password: nova });
+    if (e2) return aviso('Não foi possível alterar: ' + e2.message);
+    ['pw-atual', 'pw-nova', 'pw-rep'].forEach(i => $(i).value = '');
+    aviso('Senha alterada com sucesso!');
+  } finally { btn.disabled = false; }
+}
+
 async function apagarConta() {
   if (!confirm('Tem a certeza absoluta de que quer apagar a sua conta? Todos os seus dados, relatórios e conversas serão eliminados. Esta ação não pode ser desfeita.')) return;
   const { error } = await db.rpc('apagar_minha_conta');
@@ -1128,5 +1165,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   if (['perfil', 'pessoas', 'recuperacao', 'aparencia', 'armazenamento'].indexOf(abaPedida) !== -1) mudarAba(abaPedida);
 });
 </script>
+<script src="email-gate.js"></script>
 </body>
 </html>
