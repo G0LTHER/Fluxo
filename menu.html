@@ -859,9 +859,9 @@
         <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
         <span class="sb-item-tx">FAAs</span>
       </button>
-      <button type="button" class="sb-item" id="sb-sameprov" onclick="mudarAbaMenu('sameprov')" title="SAME / Provisória">
+      <button type="button" class="sb-item" id="sb-sameprov" onclick="mudarAbaMenu('sameprov')" title="SAME / Provisória / Óbito">
         <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
-        <span class="sb-item-tx">SAME / Provisória</span>
+        <span class="sb-item-tx">SAME / Provisória / Óbito</span>
       </button>
       <button type="button" class="sb-item" id="sb-escala" onclick="window.location.href='escala.html'" title="Escala">
         <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h3M14 14h3"/></svg>
@@ -983,6 +983,7 @@
               <select id="tipo-entrada" onchange="alterarTipoSameProv()">
                 <option value="same">Pastas / SAME</option>
                 <option value="prov">Provisória</option>
+                <option value="obito">Óbito</option>
               </select>
             </div>
 
@@ -1138,7 +1139,7 @@
 
           <div id="rel-arq" style="display:none">
             <div id="arq-pastas" class="pastas-grid"></div>
-            <p class="mut" id="arq-dica" style="margin:14px 0 0">Aqui ficam guardadas as <b>Pastas SAME</b> e <b>Provisórias</b> assim que são concluídas.</p>
+            <p class="mut" id="arq-dica" style="margin:14px 0 0">Aqui ficam guardadas as <b>Pastas SAME</b>, <b>Provisórias</b> e <b>Óbitos</b> assim que são concluídas.</p>
             <div id="arq-busca" style="display:none">
               <div class="arq-topo">
                 <button type="button" class="ghost" onclick="fecharPasta()">← Pastas</button>
@@ -1227,7 +1228,7 @@ const hoje = () => new Date().toLocaleDateString('pt-BR');
 const TITULOS_MENU = {
   dash: ['Dashboard', 'Fichas de atendimento (FAA)'],
   faa:  ['Fichas FAA', 'Nova ficha de atendimento'],
-  sameprov: ['Pastas SAME / Provisórias', 'Registo e conferência']
+  sameprov: ['Pastas SAME / Provisórias / Óbitos', 'Registo e conferência']
 };
 
 const SESSAO_LIMITE_MS = 30 * 60 * 1000;
@@ -1302,7 +1303,7 @@ function mudarAbaMenu(aba) {
     abrirRelatorio();
   } else if (aba === 'sameprov') {
     // Ao clicar em same/prov, prepara a tela
-    abaAtiva = $('tipo-entrada').value; // 'same' ou 'prov'
+    abaAtiva = tipoSel(); // 'same' ou 'prov'
     mudarAba('sameprov');
   } else {
     mudarAba(aba);
@@ -2188,7 +2189,7 @@ window.addEventListener('resize', aplicarSidebar);
 
 const PASTAS = {
   same: { nome: 'Pastas / SAME', ph: 'Nome do paciente ou nº do SAME', svg: '<path d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>' },
-  prov: { nome: 'Provisória', ph: 'Nº da pasta ou data', svg: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' }
+  prov: { nome: 'Provisória / Óbito', ph: 'Nº da pasta ou data', svg: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>' }
 };
 let arqCat = null;
 
@@ -2494,7 +2495,7 @@ async function salvarRelatorio() {
 
   if (abaAtiva === 'prov') {
     if (!P_PROV.length) return aviso('Nada para guardar.');
-    desc = P_PROV.length === 1 ? `Provisória: Pasta ${P_PROV[0]}` : `Provisória (${P_PROV.length} pastas)`; 
+    desc = P_PROV.length === 1 ? `${rotProv()}: Pasta ${P_PROV[0]}` : `${rotProv()} (${P_PROV.length} pastas)`; 
     det = P_PROV.map(n => 'Pasta ' + n).join('\n');
   } else if (abaAtiva === 'same') {
     if (!P_SAME.length) return aviso('Nada para guardar.');
@@ -2546,8 +2547,13 @@ async function carregarPerfil() {
   PERFIL = { nome: (data && data.nome) || '', foto: (data && data.foto) || '', usuario: (data && data.usuario) || '' }; aplicarPerfil();
 }
 
+let OBITO = false;
+function tipoSel() { const v = $('tipo-entrada').value; OBITO = v === 'obito'; return OBITO ? 'prov' : v; }
+const rotProv = () => OBITO ? 'Óbito' : 'Provisória';
+const ehObito = r => /^[ÓO]bito/i.test((r && r.descricao) || '');
+
 function alterarTipoSameProv() {
-  abaAtiva = $('tipo-entrada').value; // 'same' ou 'prov'
+  abaAtiva = tipoSel(); // 'same' ou 'prov'
   T[abaAtiva] = $('txt').value;
   $('txt').value = T[abaAtiva];
   
@@ -2555,7 +2561,7 @@ function alterarTipoSameProv() {
     $('titulo-input').textContent = '1. Lista de Pastas / SAME'; 
     $('txt').placeholder = 'Cole a lista (número, nome ou os dois)'; 
   } else { 
-    $('titulo-input').textContent = '1. Lista Provisória'; 
+    $('titulo-input').textContent = '1. Lista ' + rotProv(); 
     $('txt').placeholder = 'Cole apenas os números das pastas'; 
   }
   render();
@@ -2566,14 +2572,14 @@ function mudarAba(aba) {
   
   if (aba === 'sameprov') {
     $('seletor-same-prov').style.display = 'block';
-    abaAtiva = $('tipo-entrada').value; 
+    abaAtiva = tipoSel(); 
     $('txt').value = T[abaAtiva];
     
     if(abaAtiva === 'same') { 
       $('titulo-input').textContent = '1. Lista de Pastas / SAME'; 
       $('txt').placeholder = 'Cole a lista (número, nome ou os dois)'; 
     } else { 
-      $('titulo-input').textContent = '1. Lista Provisória'; 
+      $('titulo-input').textContent = '1. Lista ' + rotProv(); 
       $('txt').placeholder = 'Cole apenas os números das pastas'; 
     }
   } else if(aba === 'faa') { 
@@ -2679,7 +2685,7 @@ function desenharFolha() {
     const ps = P_SAME.filter(p => p.nome.trim() || p.same.trim());
     if (ps.length) h = '<div class="ft"><b>Lista de Pastas / SAME</b><span>' + dataEscolhida + '</span></div><div class="cols"><ul class="same-list">' + ps.map(p => '<li><i></i><span>' + [p.same ? '<b>' + esc(p.same) + '</b>' : '', esc(p.nome)].filter(Boolean).join(' - ') + '</span></li>').join('') + '</ul></div>';
   } else if (P_PROV.length) {
-    h = '<div class="ft"><b>Provisória de ' + esc(nomeUsuario()) + '</b><span>' + dataEscolhida + '</span></div><div class="cols"><ul class="prov-list">' + P_PROV.map(n => '<li>Pasta: ' + n + '</li>').join('') + '</ul></div><div class="prov-footer-stamp">' + timeStamp + '</div>';
+    h = '<div class="ft"><b>' + rotProv() + ' de ' + esc(nomeUsuario()) + '</b><span>' + dataEscolhida + '</span></div><div class="cols"><ul class="prov-list">' + P_PROV.map(n => '<li>Pasta: ' + n + '</li>').join('') + '</ul></div><div class="prov-footer-stamp">' + timeStamp + '</div>';
   }
   el.innerHTML = h || '<p class="vazio">Adicione os dados na entrada para visualizar</p>';
 }
@@ -2722,7 +2728,7 @@ function pdfRegistoResumo(id, acao) {
   const cores = { amarela: [245, 158, 11], vermelha: [220, 38, 38], azul: [37, 99, 235], roxa: [220, 38, 38] };
   doc.setFillColor(...cores[st.cor]); doc.circle(M + 2, y - 1.3, 2, 'F'); doc.setFontSize(11); doc.text(pdfTxt(st.rot + (prazo ? ' (' + prazo + ')' : '')), M + 7, y); y += 10;
 
-  const campos = [['Categoria', catNome[r.categoria] || r.categoria], ['Data do pedido', dtBR(r.data)], ['Prazo até', dtBR(somaDias(baseDe(r), PP))], ['Responsável pelo registo', r.responsavel || '-'], ['Executor', r.executor || '-']];
+  const campos = [['Categoria', (r.categoria === 'prov' && ehObito(r) ? 'Óbito' : catNome[r.categoria]) || r.categoria], ['Data do pedido', dtBR(r.data)], ['Prazo até', dtBR(somaDias(baseDe(r), PP))], ['Responsável pelo registo', r.responsavel || '-'], ['Executor', r.executor || '-']];
   doc.setFontSize(10);
   campos.forEach(([k, v]) => { doc.setFont('helvetica', 'normal'); doc.setTextColor(100, 116, 139); doc.text(pdfTxt(k), M, y); doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 42); doc.text(pdfTxt(v), M + 58, y); doc.setDrawColor(226, 232, 240); doc.line(M, y + 2.2, W - M, y + 2.2); y += 8; });
 
@@ -2794,7 +2800,7 @@ function construirPdf(o) {
       } });
     });
   } else {
-    titulo = 'Provisória de ' + (o.nomeProv || nomeUsuario());
+    titulo = (o.obito ? 'Óbito' : 'Provisória') + ' de ' + (o.nomeProv || nomeUsuario());
     (o.prov || []).forEach(n => {
       const pad = 0.4 * fs * MM;
       un.push({ h: lh + 2 * pad, draw: (x, y) => {
@@ -2829,7 +2835,7 @@ function construirPdf(o) {
     setF('normal', 10); doc.setTextColor(100, 116, 139);
     rodape.forEach((t, i) => doc.text(pdfTxt(t), PG.R, fy + 6 + i * 5, { align: 'right' }));
   }
-  const rot = { faa: 'FAAs', same: 'SAME', prov: 'Provisoria' }[aba] || 'Registo';
+  const rot = { faa: 'FAAs', same: 'SAME', prov: o.obito ? 'Obito' : 'Provisoria' }[aba] || 'Registo';
   return { doc, nome: 'Fluxo-' + rot + '-' + String(o.dataTxt || '').replace(/\//g, '-') + '.pdf' };
 }
 
@@ -2857,14 +2863,14 @@ function pdfVisor(blob, nome) {
 
 async function pdf() {
   const dataEscolhida = $('data-workspace') && $('data-workspace').value ? dtBR($('data-workspace').value) : hoje();
-  const r = construirPdf({ aba: abaAtiva, faa: P_FAA, same: P_SAME, prov: P_PROV, obs: obsFaa(), dataTxt: dataEscolhida, nomeProv: nomeUsuario(), hora: new Date().toLocaleTimeString('pt-BR'), fmt: fmtAtual() });
+  const r = construirPdf({ obito: OBITO, aba: abaAtiva, faa: P_FAA, same: P_SAME, prov: P_PROV, obs: obsFaa(), dataTxt: dataEscolhida, nomeProv: nomeUsuario(), hora: new Date().toLocaleTimeString('pt-BR'), fmt: fmtAtual() });
   if (r) entregarPdf(r.doc.output('blob'), r.nome, 'baixar');
 }
 
 /* Reconstrói, a partir do registo guardado, os mesmos dados usados na hora de criar o documento */
 function registoParaPdf(r) {
   const det = String(r.detalhe || '').trim(); if (!det) return null;
-  const o = { aba: r.categoria, faa: [], same: [], prov: [], obs: '', dataTxt: dtBR(r.data), nomeProv: r.responsavel || '', executor: r.executor || '', hora: r.concluido_em ? new Date(r.concluido_em).toLocaleTimeString('pt-BR') : '', fmt: FMT[r.categoria] || FMT.faa };
+  const o = { obito: ehObito(r), aba: r.categoria, faa: [], same: [], prov: [], obs: '', dataTxt: dtBR(r.data), nomeProv: r.responsavel || '', executor: r.executor || '', hora: r.concluido_em ? new Date(r.concluido_em).toLocaleTimeString('pt-BR') : '', fmt: FMT[r.categoria] || FMT.faa };
   const parteObs = det.split(/\n\nObserva[çc][ãa]o: /);
   const linhas = parteObs[0].split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   if (r.categoria === 'faa') {
