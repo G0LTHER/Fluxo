@@ -62,10 +62,51 @@
   .reenviar a{font-weight:700;color:var(--tx);cursor:pointer}
   .espaco{flex:1}
   .foot{margin-top:28px;text-align:center;font-size:12px;color:var(--mut)}
+
+  /* ===== versão PC: duas colunas, minimalista ===== */
+  .lado{display:none}
+  @media (min-width:900px){
+    body{display:block;padding:0}
+    .web{display:grid;grid-template-columns:minmax(440px,1.05fr) minmax(520px,1fr);min-height:100vh}
+    .lado{display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;padding:56px 64px;
+      background:linear-gradient(155deg,var(--lilac) 0%,#d6f1fb 100%);color:#111114}
+    :root[data-theme="dark"] .lado{background:linear-gradient(155deg,#2b2638 0%,#10222b 100%);color:#f7f7f9}
+    .lado::before,.lado::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+    .lado::before{width:560px;height:560px;right:-200px;bottom:-180px;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.6),rgba(255,255,255,0) 70%)}
+    .lado::after{width:360px;height:360px;left:-130px;top:40%;border:1.5px solid rgba(17,17,20,.12)}
+    :root[data-theme="dark"] .lado::before{background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.10),rgba(255,255,255,0) 70%)}
+    :root[data-theme="dark"] .lado::after{border-color:rgba(255,255,255,.14)}
+    .lado>*{position:relative;z-index:1}
+    .lado-marca{display:flex;align-items:center;gap:12px;font-weight:700;font-size:22px;letter-spacing:-.01em}
+    .lado-marca i{width:40px;height:40px;border-radius:13px;background:#111114;color:#fff;display:grid;place-items:center;font-style:normal;font-size:20px}
+    :root[data-theme="dark"] .lado-marca i{background:#e7def7;color:#111114}
+    .lado h2{margin:0;max-width:11em;font-size:clamp(36px,3.8vw,60px);line-height:1.06;letter-spacing:-.035em;font-weight:700}
+    .lado p{margin-top:18px;max-width:27em;font-size:17px;line-height:1.55;opacity:.7}
+    .lado small{font-size:13px;opacity:.6}
+    .app{max-width:none;min-height:100vh;border-radius:0;box-shadow:none;background:var(--bg);padding:32px 56px;justify-content:center}
+    .app>.topo,.app>section,.app>.foot{width:100%;max-width:400px;margin-left:auto;margin-right:auto}
+    .app>.espaco{display:none}
+    .topo{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+    .topo h1{flex:1;margin-left:4px;text-align:left;font-size:34px;letter-spacing:-.025em}
+    #voltar[style*="hidden"]{display:none}
+    .marca{text-align:left;margin:4px 0 8px}.marca b{display:none}
+    .marca p,.sub{text-align:left;font-size:15px}
+    .hero{margin-left:0}
+    .foot{display:none}
+  }
   [hidden]{display:none!important}
 </style>
 </head>
 <body>
+<div class="web">
+<aside class="lado" aria-hidden="true">
+  <div class="lado-marca"><i>F</i>Fluxo</div>
+  <div class="lado-texto">
+    <h2>Fichas, escala e agenda em um só lugar.</h2>
+    <p>Acompanhe os pedidos da equipe, a escala do dia e os prazos sem sair da tela.</p>
+  </div>
+  <small>© 2026 Fluxo · Ruan Henrique</small>
+</aside>
 <main class="app">
   <div class="topo">
     <button class="ic-btn" id="voltar" type="button" aria-label="Voltar" style="visibility:hidden"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -155,6 +196,7 @@
   <div class="espaco"></div>
   <p class="foot">© 2026 Fluxo · Ruan Henrique</p>
 </main>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <script>
