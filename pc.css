@@ -1,0 +1,29 @@
+/* Fluxo PC: menu lateral flutuante e arredondado (diferente do menu do celular) */
+@media (min-width: 761px) {
+  .sidebar { top: 12px; left: 12px; height: calc(100vh - 24px); height: calc(100dvh - 24px); width: 248px;
+    border: 1px solid var(--bd); border-radius: 26px; box-shadow: 0 10px 30px rgba(30,40,80,.10); padding-top: 16px; padding-bottom: 12px; overflow: hidden; }
+  .sidebar.recolhida { width: 76px; }
+  .app-layout { margin-left: 276px; }
+  .sidebar.recolhida ~ .app-layout { margin-left: 104px; }
+  .sb-topo { padding: 2px 16px 14px; }
+  .sb-marca-ic { width: 32px; height: 32px; border-radius: 12px; }
+  .sb-nav { gap: 4px; }
+  .sb-item { padding: 12px 14px; border-radius: 16px; }
+  .sb-item:hover { background: var(--pri-light); color: var(--tx); }
+  .sb-item.active { background: var(--pri); color: #fff; box-shadow: 0 8px 18px rgba(0,0,0,.16); }
+  .sidebar.recolhida .sb-item { justify-content: center; padding: 12px 0; }
+  .sb-pessoas { margin: 0 8px; border-top: 0; background: var(--bg); border-radius: 20px; padding: 12px 6px; }
+  .sb-pessoa { border-radius: 14px; }
+
+  /* calendário do mês: dias mais baixos (não ficam enormes em tela larga) */
+  .cal-dia { aspect-ratio: auto; min-height: 46px; }
+
+  /* tela de perfil (menu próprio) */
+  .sidebar:has(.sidebar-nav) { margin: 12px 0 12px 12px; height: calc(100vh - 24px); height: calc(100dvh - 24px); width: 248px; }
+  .sidebar.collapsed:has(.sidebar-nav) { width: 76px; }
+  .nav-item { border-radius: 16px; }
+  .nav-item:hover { background: var(--pri-light); color: var(--tx); }
+  .nav-item.active { background: var(--pri); color: #fff; }
+}
+/* telas largas: usa o espaço; telas pequenas: cartões se reorganizam */
+@media (max-width: 1280px) and (min-width: 761px) { .dash-grid-extra { grid-template-columns: 1fr !important; } }

@@ -167,7 +167,7 @@
   .screen { display: none; }
   .screen.active { display: flex; flex-direction: column; min-height: 100vh; }
 
-  .app-layout { display: flex; flex-direction: column; flex: 1; width: 100%; max-width: 1400px; margin: 0 auto; }
+  .app-layout { display: flex; flex-direction: column; flex: 1; width: auto; min-width: 0; max-width: none; margin: 0; }
 
   header { display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; background: transparent; border: none; box-shadow: none; position: relative; z-index: 50; }
 
@@ -662,12 +662,13 @@
     .esc-bloco { flex-basis: 180px; }
   }
     /* cards de status: quatro alinhados + um grandão (Jurídico / Urgente) */
-  .dash-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
-  .metric-card.grande { grid-column: 1 / -1; padding: 22px 26px !important; border-color: #dc2626 !important; background: var(--urg-bg) !important; }
-  .metric-card.grande span { font-size: 14px !important; color: var(--urg-tx) !important; }
-  .metric-card.grande b { font-size: 64px !important; line-height: 1; color: var(--urg-tx); }
-  .metric-card.grande small { font-size: 13px; font-weight: 600; color: var(--mut); }
-  @media (max-width: 720px) { .dash-metrics { grid-template-columns: 1fr 1fr !important; } .metric-card.grande b { font-size: 52px !important; } }
+  .dash-metrics { grid-template-columns: repeat(5, minmax(0, 1fr)) !important; }
+  .metric-card.grande { grid-column: auto; padding: 16px !important; border-color: rgba(220,38,38,.5) !important; background: var(--urg-bg) !important; }
+  .metric-card.grande span { font-size: 12px !important; color: var(--urg-tx) !important; }
+  .metric-card.grande b { font-size: 26px !important; line-height: 1; color: var(--urg-tx); }
+  .metric-card.grande small { font-size: 11px; font-weight: 600; color: var(--mut); }
+  @media (max-width: 1100px) { .dash-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; } }
+  @media (max-width: 720px) { .dash-metrics { grid-template-columns: 1fr 1fr !important; } .metric-card.grande { grid-column: 1 / -1; } }
   /* escala dentro do calendário semanal */
   .cs-esc-tit { margin: 8px 0 2px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--mut); }
   .cal-esc { display: block; border-radius: 8px; padding: 5px 8px; background: rgba(13,148,136,.13); font-size: 12px; line-height: 1.25; }
@@ -834,7 +835,9 @@
     .cf-panel { inset: 0; width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; border-radius: 0; border: 0; padding-top: env(safe-area-inset-top, 0px); }
     .cf-busca input, .cf-envio textarea { font-size: 16px; }
   }
-  </style>
+    #obito-sinal .mini-btn.on { background: var(--pri); color: #fff; border-color: var(--pri); }
+</style>
+<link rel="stylesheet" href="pc.css">
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
@@ -985,6 +988,7 @@
                 <option value="prov">Provisória</option>
                 <option value="obito">Óbito</option>
               </select>
+            <div id="obito-sinal" hidden><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px"><span style="font-size:13px;color:var(--mut);font-weight:700">Números sem sinal contam como:</span><button type="button" class="mini-btn on" data-s="1" onclick="setSinalObito(1)">+ Mais</button><button type="button" class="mini-btn" data-s="-1" onclick="setSinalObito(-1)">− Menos</button></div><div style="font-size:12px;color:var(--mut);margin-top:6px">Digite com sinal (ex.: -91, menos 88) para marcar só aquele número. Use ± na lista para trocar.</div></div>
             </div>
 
             <textarea id="txt" oninput="agenda()" placeholder="Cole o texto aqui..."></textarea>
@@ -2162,7 +2166,7 @@ $('sb-pessoas-lista').addEventListener('click', e => {
 /* ===== MENU LATERAL (expandir/recolher) ===== */
 function sidebarPreferida() {
   try { const v = localStorage.getItem('fluxo_sidebar'); if (v === 'aberta' || v === 'fechada') return v; } catch (e) {}
-  return window.innerWidth < 760 ? 'fechada' : 'aberta';
+  return window.innerWidth < 1280 ? 'fechada' : 'aberta';
 }
 const ehMobile = () => window.innerWidth <= 760;
 function aplicarSidebar() {
@@ -2548,7 +2552,7 @@ async function carregarPerfil() {
 }
 
 let OBITO = false;
-function tipoSel() { const v = $('tipo-entrada').value; OBITO = v === 'obito'; return OBITO ? 'prov' : v; }
+function tipoSel() { const v = $('tipo-entrada').value; OBITO = v === 'obito'; const bx = $('obito-sinal'); if (bx) { bx.hidden = !OBITO; if (OBITO) marcarSinal(); } return OBITO ? 'prov' : v; }
 const rotProv = () => OBITO ? 'Óbito' : 'Provisória';
 const ehObito = r => /^[ÓO]bito/i.test((r && r.descricao) || '');
 
@@ -2630,11 +2634,23 @@ function lerSAMEs() {
   P_SAME = lista.sort((a, b) => (a.num ?? 1e12) - (b.num ?? 1e12)); render();
 }
 
+let SINAL_OBITO = 1; /* número sem sinal conta como: 1 = mais, -1 = menos */
+const ordenaProv = (a, b) => ((a < 0) - (b < 0)) || (Math.abs(a) - Math.abs(b));
 function lerProvisoria() {
-  const nums = [];
-  $('txt').value.split(/\r?\n/).forEach(l => { const matches = l.match(/\b\d{1,8}\b/g); if(matches) matches.forEach(m => { const val = parseInt(m, 10); if(!isNaN(val) && !nums.includes(val)) nums.push(val); }); });
-  P_PROV = nums.sort((a, b) => a - b); render();
+  const nums = [], add = v => { if (!isNaN(v) && !nums.includes(v)) nums.push(v); };
+  $('txt').value.split(/\r?\n/).forEach(l => {
+    if (OBITO) {
+      const re = /(^|[^\w])(?:(menos)\s+|([-−–])\s?|(\+)\s?)?(\d{1,8})(?!\d)/gi; let m;
+      while ((m = re.exec(l))) { const v = parseInt(m[5], 10), neg = (m[2] || m[3]) ? true : (m[4] ? false : SINAL_OBITO < 0); add(neg ? -v : v); }
+    } else {
+      const ms = l.match(/\b\d{1,8}\b/g); if (ms) ms.forEach(m => add(parseInt(m, 10)));
+    }
+  });
+  P_PROV = nums.sort(ordenaProv); render();
 }
+function marcarSinal() { document.querySelectorAll('#obito-sinal [data-s]').forEach(b => b.classList.toggle('on', +b.dataset.s === SINAL_OBITO)); }
+function setSinalObito(v) { SINAL_OBITO = v; marcarSinal(); if ($('txt').value.trim()) lerProvisoria(); }
+function inverterSinal(i) { P_PROV[i] = -P_PROV[i]; P_PROV.sort(ordenaProv); render(); }
 
 function exemplo() {
   if (abaAtiva === 'faa') $('txt').value = '[29/10/2026 08:15] Barracão: Maria da Silva 20/05/2024, 12/03/2024\n[29/10/2026 08:16] Barracão: João Pereira\n18/12/2023\n03/11/2023';
@@ -2655,7 +2671,7 @@ function conf() {
     $('conf').innerHTML = P_SAME.map((p, i) => '<div style="margin-top:8px" class="lin"><input style="width:110px;font-weight:700" value="' + esc(p.same) + '" oninput="P_SAME[' + i + '].same=this.value;folha()"><input value="' + esc(p.nome) + '" oninput="P_SAME[' + i + '].nome=this.value;folha()"><button class="x" onclick="rp(' + i + ')">Remover</button></div>').join('');
   } else {
     if (!P_PROV.length) { $('conf').innerHTML = '<p class="mut">Nenhum número lido.</p>'; return; }
-    $('conf').innerHTML = '<div class="items-list">' + P_PROV.map((n, i) => '<span class="chip-item" style="font-size:14px;padding:6px 10px">Pasta: ' + n + ' <button class="x" onclick="rp(' + i + ')" aria-label="Remover"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></span>').join('') + '</div>';
+    $('conf').innerHTML = '<div class="items-list">' + P_PROV.map((n, i) => '<span class="chip-item" style="font-size:14px;padding:6px 10px">Pasta: ' + n + (OBITO ? ' <button class="x" onclick="inverterSinal(' + i + ')" aria-label="Trocar sinal" title="Trocar + / −" style="font-weight:800">±</button>' : '') + ' <button class="x" onclick="rp(' + i + ')" aria-label="Remover"><svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg></button></span>').join('') + '</div>';
   }
 }
 
@@ -2841,15 +2857,55 @@ function construirPdf(o) {
 
 /* ===== entregar PDF: nova guia no navegador; visor dentro da página no app/celular; compartilhar/baixar ===== */
 const ehAppPdf = () => !!window.Capacitor || (/Android/i.test(navigator.userAgent) && /; wv\)/.test(navigator.userAgent)) || (window.navigator.standalone === true);
-async function entregarPdf(blob, nome, acao, aba) {
-  const arq = new File([blob], nome, { type: blob.type || 'application/pdf' });
-  if (acao === 'baixar') {
-    if (ehAppPdf() && navigator.canShare && navigator.canShare({ files: [arq] })) { try { await navigator.share({ files: [arq], title: nome }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
-    const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = nome; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 60000); return;
+const ehMovel = () => ehAppPdf() || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+const blobBase64 = blob => new Promise(ok => { const f = new FileReader(); f.onload = () => ok(String(f.result).split(',')[1] || ''); f.onerror = () => ok(''); f.readAsDataURL(blob); });
+async function salvarPeloApp(blob, nome) {
+  const P = window.Capacitor && window.Capacitor.Plugins; if (!P || !P.Filesystem) return false;
+  try {
+    const r = await P.Filesystem.writeFile({ path: nome, data: await blobBase64(blob), directory: 'CACHE' });
+    if (P.Share) await P.Share.share({ title: nome, url: r.uri, dialogTitle: 'Salvar ou compartilhar PDF' });
+    return true;
+  } catch (e) { return false; }
+}
+async function compartilharPdf(blob, nome) {
+  const arq = new File([blob], nome, { type: 'application/pdf' });
+  if (navigator.canShare && navigator.canShare({ files: [arq] })) {
+    try { await navigator.share({ files: [arq], title: nome }); return 'ok'; } catch (e) { if (e && e.name === 'AbortError') return 'cancelou'; }
   }
+  return 'nao';
+}
+function baixarArquivo(blob, nome) {
+  const url = URL.createObjectURL(blob), a = document.createElement('a'); a.href = url; a.download = nome; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+async function entregarPdf(blob, nome, acao, aba) {
   if (aba && !aba.closed) { const url = URL.createObjectURL(blob); aba.location.href = url; setTimeout(() => URL.revokeObjectURL(url), 120000); return; }
-  pdfVisor(blob, nome);
+  if (!ehMovel()) { if (acao === 'baixar') baixarArquivo(blob, nome); else pdfVisor(blob, nome); return; }
+  /* celular/app: o navegador do celular não mostra PDF dentro da página; por isso: compartilhar, baixar ou abrir */
+  if (acao === 'baixar') {
+    if (await salvarPeloApp(blob, nome)) return;
+    const r = await compartilharPdf(blob, nome); if (r !== 'nao') return;
+    baixarArquivo(blob, nome);
+  }
+  pdfPronto(blob, nome);
+}
+function pdfPronto(blob, nome) {
+  const ant = document.getElementById('pdf-pronto'); if (ant) ant.remove();
+  const url = URL.createObjectURL(blob), el = document.createElement('div'); el.id = 'pdf-pronto';
+  el.setAttribute('style', 'position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;padding:12px;background:rgba(10,10,20,.5)');
+  el.innerHTML = '<div style="width:100%;max-width:440px;padding:18px;border-radius:28px;background:var(--card);color:var(--tx);box-shadow:0 20px 50px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:10px"><b style="font-size:18px">PDF pronto</b><span style="font-size:13px;color:var(--mut);word-break:break-all"></span><button type="button" class="mini-btn pri" data-pp="share">Compartilhar / salvar</button><button type="button" class="mini-btn" data-pp="baixar">Baixar</button><button type="button" class="mini-btn" data-pp="abrir">Abrir</button><button type="button" class="mini-btn" data-pp="fechar">Fechar</button><small style="color:var(--mut)">Se o download não começar, use "Compartilhar / salvar" ou "Abrir".</small></div>';
+  el.querySelector('span').textContent = nome;
+  const fechar = () => { el.remove(); setTimeout(() => URL.revokeObjectURL(url), 60000); };
+  el.addEventListener('click', async e => {
+    if (e.target === el) return fechar();
+    const b = e.target.closest('[data-pp]'); if (!b) return;
+    const k = b.dataset.pp;
+    if (k === 'fechar') fechar();
+    else if (k === 'baixar') baixarArquivo(blob, nome);
+    else if (k === 'abrir') { const w = window.open(url, '_blank'); if (!w) location.href = url; }
+    else { if (await salvarPeloApp(blob, nome)) return; const r = await compartilharPdf(blob, nome); if (r === 'nao') baixarArquivo(blob, nome); }
+  });
+  document.body.appendChild(el);
 }
 function pdfVisor(blob, nome) {
   const ant = document.getElementById('pdf-visor'); if (ant) ant.remove();
