@@ -836,6 +836,8 @@
     .cf-busca input, .cf-envio textarea { font-size: 16px; }
   }
     #obito-sinal .mini-btn.on { background: var(--pri); color: #fff; border-color: var(--pri); }
+  /* sem o botão da conta (letra) no topo: ficam busca, resumo e notificações */
+  .topo-avatar, .menu-conta { display: none !important; }
 </style>
 <link rel="stylesheet" href="pc.css">
 </head>
@@ -1071,7 +1073,7 @@
               </div>
               <div class="cal-ctrl">
                 <button type="button" class="mini-btn" onclick="calHoje()">Hoje</button>
-                <div class="seg" id="cal-modo">
+                <div class="seg" id="cal-modo" hidden>
                   <button type="button" data-m="mes" onclick="calModo('mes')">Mês</button>
                   <button type="button" data-m="semana" onclick="calModo('semana')">Semana</button>
                 </div>
@@ -1259,6 +1261,15 @@ async function verificarSessao() {
   } catch (e) {}
 }
 
+// abre numa aba específica quando vem de outra página (ex.: menu.html?aba=faa)
+function abaDaUrl() {
+  try {
+    const a = (new URLSearchParams(location.search).get('aba') || '').trim();
+    if (a && TITULOS_MENU[a]) { history.replaceState(null, '', location.pathname); return a; }
+  } catch (e) {}
+  return 'dash';
+}
+
 async function iniciarControleSessao() {
   if (localStorage.getItem('fluxo_expirar_inatividade') !== 'true') localStorage.removeItem('fluxo_ultima_atividade');
   await verificarSessao();
@@ -1362,7 +1373,7 @@ function iniciarPresenca() {
 
 async function entrar(user) {
   uid = user.id; currentUser = tc(user.email.split('@')[0]);
-  atualizarConta(user); iniciarPresenca(); iniciarControleSessao(); await carregarPerfil(); await carregar(); mudarAbaMenu('dash'); carregarPessoas(); iniciarNotificacoes(); abrirFaaDaUrl();
+  atualizarConta(user); iniciarPresenca(); iniciarControleSessao(); await carregarPerfil(); await carregar(); mudarAbaMenu(abaDaUrl()); carregarPessoas(); iniciarNotificacoes(); abrirFaaDaUrl();
 }
 
 async function sair() {
@@ -1784,12 +1795,15 @@ function atualizarMetricasDashboard() {
 const MESES_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const DIAS_SEMANA_PT = ['D','S','T','Q','Q','S','S'];
 
-let CAL_MODO = (function () { try { return localStorage.getItem('fluxo_cal_modo') === 'semana' ? 'semana' : 'mes'; } catch (e) { return 'mes'; } })();
+let CAL_MODO = 'semana';   // o calendário da dashboard é só a semana
+let ESC_SEM = { ini: '', lista: [] };
+async function carregarEscalaSemana(ini) { const { data, error } = await db.rpc('escala_semana_geral', { p_ini: ini }); ESC_SEM = { ini, lista: (!error && Array.isArray(data)) ? data : [] }; renderCalendarioDash(); }
 let CAL_REF = new Date();
 const MES_CURTO = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const DIA_NOME = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
 
 function calModo(m) {
+  return;
   CAL_MODO = m; try { localStorage.setItem('fluxo_cal_modo', m); } catch (e) {}
   renderCalendarioDash();
 }
@@ -1831,12 +1845,13 @@ function renderCalendarioDash() {
       ? ini.getDate() + ' – ' + fim.getDate() + ' de ' + MESES_PT[fim.getMonth()] + ' de ' + fim.getFullYear()
       : ini.getDate() + ' ' + MES_CURTO[ini.getMonth()] + ' – ' + fim.getDate() + ' ' + MES_CURTO[fim.getMonth()] + ' ' + fim.getFullYear();
     grid.className = 'cal-semana';
+    if (ESC_SEM.ini !== isoDe(ini)) { ESC_SEM = { ini: isoDe(ini), lista: [] }; carregarEscalaSemana(isoDe(ini)); }
     let h = '';
     for (let i = 0; i < 7; i++) {
       const d = new Date(ini.getFullYear(), ini.getMonth(), ini.getDate() + i), iso = isoDe(d);
       const chips = (ped[iso] || []).map(r => '<button type="button" class="cal-chip ped' + (r.status === 'concluido' ? ' conc' : '') + '" data-id="' + r.id + '" title="Pedido: ' + esc(r.descricao) + '"><i></i><span>' + esc(r.descricao) + '</span></button>').join('')
         + (ven[iso] || []).map(r => '<button type="button" class="cal-chip ven" data-id="' + r.id + '" title="Vence: ' + esc(r.descricao) + '"><i></i><span>Vence: ' + esc(r.descricao) + '</span></button>').join('');
-      const escDia = (iso === hojeIso && ESC_LISTA.length) ? '<div class="cs-esc-tit">Escala</div>' + ESC_LISTA.map(x => { const nm = x.eu ? 'Você' : String(x.nome || x.usuario || '').trim().split(' ')[0], tf = escItens(x.tarefas).join(', '); return '<div class="cal-esc"><b>' + esc(nm) + '</b><span>' + (tf ? esc(tf) : 'Sem função hoje') + '</span></div>'; }).join('') : '';
+      const doDia = ESC_SEM.lista.filter(x => x.data === iso), escDia = doDia.length ? '<div class="cs-esc-tit">Escala</div>' + doDia.map(x => '<div class="cal-esc" title="' + esc(x.nome + ' · ' + x.setor + ': ' + x.tipo) + '"><b>' + esc(x.eu ? 'Você' : String(x.nome).trim().split(' ')[0]) + ' <small style="font-weight:600;opacity:.75">· ' + esc(x.setor) + '</small></b><span>' + esc(x.tipo) + '</span></div>').join('') : '';
       h += '<div class="cs-dia' + (iso === hojeIso ? ' hoje' : '') + '"><div class="cs-cab"><span>' + DIA_NOME[i] + '</span><b>' + d.getDate() + '</b></div><div class="cs-lista">' + (chips || '<span class="cs-vazio">—</span>') + escDia + '</div></div>';
     }
     grid.innerHTML = h; return;

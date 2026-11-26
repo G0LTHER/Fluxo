@@ -34,576 +34,469 @@
   </script>
 
   <style>
-  :root[data-theme="light"] { --bg: #f4f6fa; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --bd: #e6eaf0; --shadow: 0 4px 12px -1px rgba(0,0,0,0.08); }
-  :root[data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --tx: #f8fafc; --mut: #9ca3af; --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; --bd: #334155; --shadow: 0 4px 12px -1px rgba(0,0,0,0.4); }
-  :root[data-theme="dark"][data-bg="eclipse"] { --bg: #000000; --card: #111111; --bd: #222222; }
-  :root[data-theme="dark"][data-bg="ocean"] { --bg: #020617; --card: #0f172a; --bd: #1e293b; }
-  :root[data-theme="dark"][data-bg="scarlet"] { --bg: #2a0808; --card: #3f0c0c; --bd: #5c1414; }
-  :root[data-theme="dark"][data-bg="amethyst"] { --bg: #1e0a2d; --card: #2d1045; --bd: #4a1d6e; }
-  :root[data-theme="dark"][data-bg="volcano"] { --bg: #2a1104; --card: #3f1a06; --bd: #5c260a; }
-  :root[data-theme="light"][data-accent="blue"] { --pri: #2563eb; --pri-hover: #1f54c8; --pri-light: #e9effd; }
-  :root[data-theme="dark"][data-accent="blue"] { --pri: #5585ef; --pri-hover: #2563eb; --pri-light: #132349; }
-  :root[data-theme="light"][data-accent="purple"] { --pri: #7c3aed; --pri-hover: #6931c9; --pri-light: #f2ebfd; }
-  :root[data-theme="dark"][data-accent="purple"] { --pri: #9965f1; --pri-hover: #7c3aed; --pri-light: #201d49; }
-  :root[data-theme="light"][data-accent="red"] { --pri: #dc2626; --pri-hover: #bb2020; --pri-light: #fce9e9; }
-  :root[data-theme="dark"][data-accent="red"] { --pri: #e45656; --pri-hover: #dc2626; --pri-light: #301929; }
-  :root[data-theme="light"][data-accent="orange"] { --pri: #ea580c; --pri-hover: #c74b0a; --pri-light: #fdeee7; }
-  :root[data-theme="dark"][data-accent="orange"] { --pri: #ef7d41; --pri-hover: #ea580c; --pri-light: #322125; }
-  :root[data-theme="light"][data-accent="pink"] { --pri: #db2777; --pri-hover: #ba2165; --pri-light: #fbe9f1; }
-  :root[data-theme="dark"][data-accent="pink"] { --pri: #e35795; --pri-hover: #db2777; --pri-light: #301a36; }
-  :root[data-theme="light"][data-accent="green"] { --pri: #16a34a; --pri-hover: #138b3f; --pri-light: #e8f6ed; }
-  :root[data-theme="dark"][data-accent="green"] { --pri: #49b772; --pri-hover: #16a34a; --pri-light: #102d2f; }
+  :root[data-theme="light"] {
+    --bg: #f8fafc; --card: #ffffff; --tx: #0f172a; --mut: #64748b;
+    --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --bd: #e2e8f0;
+    --shadow: 0 4px 12px -1px rgba(0,0,0,0.08); --folha-bg: #ffffff; --dock-bg: #ffffff;
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #0f172a; --card: #1e293b; --tx: #f8fafc; --mut: #9ca3af;
+    --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; --bd: #334155;
+    --shadow: 0 4px 12px -1px rgba(0,0,0,0.4); --folha-bg: #ffffff; --dock-bg: #1e293b;
+  }
+
+  :root[data-theme="dark"][data-bg="eclipse"] { --bg: #000000; --card: #111111; --bd: #222222; --dock-bg: #111111; }
+  :root[data-theme="dark"][data-bg="ocean"] { --bg: #020617; --card: #0f172a; --bd: #1e293b; --dock-bg: #0f172a; }
+  :root[data-theme="dark"][data-bg="scarlet"] { --bg: #2a0808; --card: #3f0c0c; --bd: #5c1414; --dock-bg: #3f0c0c; }
+  :root[data-theme="dark"][data-bg="amethyst"] { --bg: #1e0a2d; --card: #2d1045; --bd: #4a1d6e; --dock-bg: #2d1045; }
+  :root[data-theme="dark"][data-bg="volcano"] { --bg: #2a1104; --card: #3f1a06; --bd: #5c260a; --dock-bg: #3f1a06; }
+
+  :root { --pri-rgb: 13, 148, 136; --shadow-pri: rgba(var(--pri-rgb), 0.3); }
+  :root[data-theme="light"][data-accent="teal"] { --pri: #0d9488; --pri-hover: #0f766e; --pri-light: #f0fdf4; --pri-rgb: 13, 148, 136; }
+  :root[data-theme="dark"][data-accent="teal"] { --pri: #14b8a6; --pri-hover: #0d9488; --pri-light: #042f2e; --pri-rgb: 20, 184, 166; }
+  :root[data-theme="light"][data-accent="blue"] { --pri: #2563eb; --pri-hover: #1f54c8; --pri-light: #e9effd; --pri-rgb: 37, 99, 235; }
+  :root[data-theme="dark"][data-accent="blue"] { --pri: #5585ef; --pri-hover: #2563eb; --pri-light: #132349; --pri-rgb: 85, 133, 239; }
+  :root[data-theme="light"][data-accent="purple"] { --pri: #7c3aed; --pri-hover: #6931c9; --pri-light: #f2ebfd; --pri-rgb: 124, 58, 237; }
+  :root[data-theme="dark"][data-accent="purple"] { --pri: #9965f1; --pri-hover: #7c3aed; --pri-light: #201d49; --pri-rgb: 153, 101, 241; }
+  :root[data-theme="light"][data-accent="red"] { --pri: #dc2626; --pri-hover: #bb2020; --pri-light: #fce9e9; --pri-rgb: 220, 38, 38; }
+  :root[data-theme="dark"][data-accent="red"] { --pri: #e45656; --pri-hover: #dc2626; --pri-light: #301929; --pri-rgb: 228, 86, 86; }
+  :root[data-theme="light"][data-accent="orange"] { --pri: #ea580c; --pri-hover: #c74b0a; --pri-light: #fdeee7; --pri-rgb: 234, 88, 12; }
+  :root[data-theme="dark"][data-accent="orange"] { --pri: #ef7d41; --pri-hover: #ea580c; --pri-light: #322125; --pri-rgb: 239, 125, 65; }
+  :root[data-theme="light"][data-accent="pink"] { --pri: #db2777; --pri-hover: #ba2165; --pri-light: #fbe9f1; --pri-rgb: 219, 39, 119; }
+  :root[data-theme="dark"][data-accent="pink"] { --pri: #e35795; --pri-hover: #db2777; --pri-light: #301a36; --pri-rgb: 227, 87, 149; }
+  :root[data-theme="light"][data-accent="green"] { --pri: #16a34a; --pri-hover: #138b3f; --pri-light: #e8f6ed; --pri-rgb: 22, 163, 74; }
+  :root[data-theme="dark"][data-accent="green"] { --pri: #49b772; --pri-hover: #16a34a; --pri-light: #102d2f; --pri-rgb: 73, 183, 114; }
+
   :root[data-theme="light"][data-fonte="preto"] { --tx: #000000; }
   :root[data-theme="dark"][data-fonte="branco"] { --tx: #ffffff; }
+  :root:not([data-theme="dark"]) body, :root[data-theme="light"] body { background: #f4f6fa !important; }
+  :root:not([data-theme="dark"]) { --bg: #f4f6fa; --card: #ffffff; --tx: #0f172a; --mut: #64748b; --bd: #e6eaf0; }
+  :root:not([data-theme="dark"]) { --trilho: #eef1f5; --alerta-bg: #fdecec; --alerta-tx: #b91c1c; --atraso-bg: #fff5f5; --urg-bg: #fef2f2; --urg-tx: #b91c1c; }
+  :root[data-theme="dark"] { --trilho: rgba(255,255,255,0.08); --alerta-bg: rgba(220,38,38,0.16); --alerta-tx: #fca5a5; --atraso-bg: rgba(220,38,38,0.14); --urg-bg: rgba(220,38,38,0.18); --urg-tx: #fca5a5; }
+  .avatar-grad, .topo-avatar, .mc-av, .pessoa-avatar, .pessoa-av, .profile-avatar-large {
+    background: linear-gradient(135deg, var(--pri), var(--pri-hover)) !important; color: #ffffff !important;
+  }
+  .topo-avatar, .mc-av { display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; background: var(--bg); color: var(--tx); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; padding-top: env(safe-area-inset-top, 0px); }
-  button, input, select, textarea { font: inherit; color: inherit; }
-  button { cursor: pointer; }
+  body { margin: 0; background: var(--bg); color: var(--tx); font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; min-height: 100vh; position: relative; overflow-x: hidden; padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)); }
+  .app-layout { position: relative; z-index: 2; display: flex; flex-direction: column; flex: 1; min-width: 0; margin: 0; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 20px 8px; background: transparent; position: relative; z-index: 50; }
+  .topo-titulo h1 { font-size: 30px; font-weight: 800; color: var(--tx); line-height: 1.1; margin: 0; }
+  .topo-titulo small { display: block; font-size: 14px; color: var(--mut); margin-top: 4px; }
+  .topo-acoes { display: flex; align-items: center; gap: 10px; position: relative; flex-shrink: 0; }
+  .topo-titulo h1 { font-size: 30px; font-weight: 800; color: var(--tx); line-height: 1.1; margin: 0; }
+  .topo-titulo small { display: block; font-size: 14px; color: var(--mut); margin-top: 4px; }
+
+  /* ===== MENU LATERAL: igual ao do menu.html ===== */
+  /* MENU LATERAL (sidebar) */
+  .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 240px; background: var(--dock-bg); border-right: 1px solid var(--bd); z-index: 95; display: flex; flex-direction: column; padding: 18px 0; padding-top: max(18px, env(safe-area-inset-top, 0px)); transition: width 0.2s ease; }
+  .sidebar.recolhida { width: 76px; }
+
+  .sb-topo { display: flex; align-items: center; gap: 10px; padding: 0 16px 18px; }
+  .sb-toggle { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--bd); background: transparent; color: var(--mut); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+  .sb-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform 0.2s; }
+  .sidebar.recolhida .sb-toggle svg { transform: rotate(180deg); }
+  .sb-marca { display: flex; align-items: center; gap: 8px; font-weight: 800; overflow: hidden; }
+  .sb-marca-ic { width: 28px; height: 28px; border-radius: 8px; background: var(--pri); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .sb-marca-tx { white-space: nowrap; }
+  .sidebar.recolhida .sb-marca-tx { display: none; }
+
+  .sb-nav { display: flex; flex-direction: column; gap: 2px; padding: 0 10px; margin-bottom: 18px; }
+  .sb-grupo-tit { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--mut); padding: 4px 10px; letter-spacing: .04em; }
+  .sidebar.recolhida .sb-grupo-tit { display: none; }
+  .sb-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 0; border-radius: 10px; background: transparent; color: var(--mut); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; text-align: left; white-space: nowrap; overflow: hidden; width: 100%; }
+  .sb-item:hover { background: var(--bg); color: var(--tx); }
+  .sb-item.active { background: var(--pri-light); color: var(--pri); }
+  .sb-item svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .sidebar.recolhida .sb-item-tx { display: none; }
+
+  .sb-pessoas { flex: 1; display: flex; flex-direction: column; min-height: 0; padding: 0 10px; border-top: 1px solid var(--bd); padding-top: 14px; }
+  .sb-grupo-cab { display: flex; align-items: center; justify-content: space-between; padding: 0 10px 6px; }
+  .sidebar.recolhida .sb-grupo-cab { justify-content: center; }
+  .sb-add { width: 24px; height: 24px; border-radius: 7px; background: var(--pri-light); color: var(--pri); display: flex; align-items: center; justify-content: center; flex-shrink: 0; text-decoration: none; }
+  .sb-add svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.4; }
+  .sidebar.recolhida .sb-add { display: none; }
+  .sb-pessoas-lista { overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+  .sb-pessoa { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border: 0; background: transparent; border-radius: 10px; cursor: pointer; text-align: left; color: var(--tx); font: inherit; }
+  .sb-pessoa:hover { background: var(--bg); }
+  .pessoa-av { width: 32px; height: 32px; border-radius: 50%; background: var(--pri-light); color: var(--pri); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; overflow: hidden; }
+  .pessoa-av img { width: 100%; height: 100%; object-fit: cover; }
+  .pessoa-nome { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar.recolhida .pessoa-nome { display: none; }
+  .pessoas-vazio { padding: 10px; text-align: center; color: var(--mut); font-size: 12px; }
+  .sidebar.recolhida .pessoas-vazio { display: none; }
+
+  .app-layout { margin-left: 240px; transition: margin-left 0.2s ease; }
+  .sidebar.recolhida ~ .app-layout { margin-left: 76px; }
+  .sb-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--pri); color: #fff; font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sb-badge[hidden] { display: none; }
+  .sidebar.recolhida .sb-badge { display: none; }
+  .menu-btn { display: none; position: relative; width: 42px; height: 42px; border: 1px solid var(--bd); border-radius: 12px; background: var(--card); color: var(--tx); cursor: pointer; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+  .menu-btn svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .sb-overlay { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 110; }
+  .sb-overlay.on { display: block; }
+  .sb-rodape { flex-shrink: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 10px 0; padding-bottom: env(safe-area-inset-bottom, 0px); border-top: 1px solid var(--bd); }
+  .sb-sair { color: var(--alerta-tx); }
+  .sb-sair:hover { background: var(--alerta-bg); color: var(--alerta-tx); }
+  .sidebar { overflow: hidden; }
+
+  /* ===== conteúdo da escala ===== */
+  svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+  .main-content { flex: 1; min-width: 0; max-width: 1400px; width: 100%; padding: 14px 20px 28px; display: flex; flex-direction: column; gap: 14px; }
+
+
+
+  button, input, select { font: inherit; color: inherit; } button { cursor: pointer; }
   [hidden] { display: none !important; }
-  svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; vertical-align: -3px; }
+  svg.i { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
   .mut { color: var(--mut); }
-
-  .pagina { max-width: 1600px; margin: 0 auto; padding: 14px 14px calc(96px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 14px; }
-  .topo { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .topo h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -.01em; line-height: 1.1; }
-  .topo small { color: var(--mut); font-size: 13px; font-weight: 600; }
-  .topo .tit { flex: 1; min-width: 200px; }
-  .ic { width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--bd); background: var(--card); color: var(--mut); display: inline-flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; }
-  .ic:hover { color: var(--tx); }
-  .dono-pill { display: inline-flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--bd); border-radius: 999px; padding: 4px 6px 4px 14px; font-size: 13px; font-weight: 700; color: var(--mut); }
-  .dono-pill select { border: 0; background: var(--bg); border-radius: 999px; padding: 8px 12px; font-weight: 700; max-width: 200px; }
-
-  /* resumo de hoje */
-  .hero { border-radius: 22px; padding: 16px; color: #fff; background: linear-gradient(145deg, var(--pri) 0%, var(--pri-hover) 100%); box-shadow: var(--shadow); display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-  .hero-dia { display: flex; align-items: center; gap: 12px; min-width: 190px; }
-  .hero-num { font-size: 46px; font-weight: 800; line-height: 1; }
-  .hero-dia b { display: block; text-transform: capitalize; font-size: 15px; }
-  .hero-dia small { opacity: .9; font-size: 12.5px; }
-  .hero-lista { flex: 1; min-width: 220px; display: flex; flex-wrap: wrap; gap: 8px; }
-  .hero-p { background: rgba(255,255,255,.16); border-radius: 14px; padding: 8px 12px; font-size: 13px; max-width: 100%; }
-  .hero-p b { display: block; }
-  .hero-p span { opacity: .92; }
-  .hero-p .troca-tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; background: rgba(255,255,255,.25); border-radius: 999px; padding: 1px 8px; margin-left: 6px; }
-  .hero a { color: #fff; text-decoration: none; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.18); border-radius: 999px; padding: 9px 14px; }
-
   .card { background: var(--card); border: 1px solid var(--bd); border-radius: 22px; padding: 16px; box-shadow: var(--shadow); }
-  .card-t { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
-  .card-t h2 { margin: 0; font-size: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
-  .card-t p { margin: 2px 0 0; color: var(--mut); font-size: 13px; }
-
-  .abas { display: flex; gap: 6px; flex-wrap: wrap; }
-  .aba { border: 1px solid var(--bd); background: var(--bg); border-radius: 999px; padding: 8px 16px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; color: var(--mut); }
-  .aba:hover { color: var(--tx); }
-  .aba.ativa { background: var(--pri); border-color: var(--pri); color: #fff; }
-  .aba .agora { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; border-radius: 999px; padding: 2px 8px; background: color-mix(in srgb, var(--pri) 16%, transparent); color: var(--pri); }
-  .aba.ativa .agora { background: rgba(255,255,255,.25); color: #fff; }
-  .aba .nao-salva { width: 9px; height: 9px; border-radius: 50%; background: #f59e0b; }
-  .aba-nova { border-style: dashed; background: transparent; }
-
-  .barra { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
-  .barra input[type=text] { flex: 1; min-width: 180px; max-width: 320px; padding: 10px 14px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); font-weight: 700; }
-  .btn { border: 0; background: var(--pri); color: #fff; border-radius: 12px; padding: 10px 16px; font-weight: 800; display: inline-flex; align-items: center; gap: 8px; }
+  .ic { width: 36px; height: 36px; border-radius: 12px; border: 1px solid var(--bd); background: var(--card); color: var(--mut); display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+  .ic:hover { color: var(--tx); }
+  .btn { border: 0; background: var(--pri); color: #fff; border-radius: 12px; padding: 9px 14px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
   .btn:hover { background: var(--pri-hover); }
-  .btn:disabled { opacity: .55; cursor: default; }
-  .ghost { border: 1px solid var(--bd); background: transparent; border-radius: 12px; padding: 9px 14px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
-  .ghost:hover { background: var(--bg); }
-  .ghost:disabled { opacity: .5; cursor: default; }
-  .ghost.perigo { color: #dc2626; border-color: rgba(220,38,38,.45); }
-  .ghost.perigo:hover { background: rgba(220,38,38,.08); }
-  .btn.sm, .ghost.sm { padding: 6px 12px; border-radius: 10px; font-size: 13px; }
-
-  .passos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--bd); }
-  .passo { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--mut); font-weight: 600; }
-  .passo i { width: 22px; height: 22px; border-radius: 50%; background: var(--pri-light); color: var(--pri); font-style: normal; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
-  .sugest { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-  .sugest > span:first-child { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--mut); margin-right: 4px; }
-  .chip { border: 1px solid var(--bd); background: var(--bg); border-radius: 999px; padding: 6px 8px 6px 12px; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
-  .chip:hover { border-color: var(--pri); color: var(--pri); }
-  .chip button { border: 0; background: none; color: var(--mut); display: inline-flex; padding: 2px; border-radius: 50%; }
-  .chip button:hover { color: #dc2626; }
-  .chip-add { border-style: dashed; padding: 6px 12px; color: var(--pri); }
-
-  /* planilha */
-  .planilha { overflow-x: auto; background: var(--card); border: 1px solid var(--bd); border-radius: 22px; box-shadow: var(--shadow); -webkit-overflow-scrolling: touch; }
-  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 860px; }
-  th { text-align: center; padding: 12px 6px; font-size: 12px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: var(--mut); background: var(--bg); border-bottom: 1px solid var(--bd); }
-  th small { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+  .ghost { border: 1px solid var(--bd); background: transparent; border-radius: 12px; padding: 8px 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+  .ghost:hover { background: var(--bg); } .ghost.perigo { color: #dc2626; border-color: rgba(220,38,38,.45); }
+  .linha { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .abas { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .aba { border: 1px solid var(--bd); background: var(--bg); border-radius: 999px; padding: 8px 16px; font-weight: 700; color: var(--mut); }
+  .aba.on { background: var(--pri); border-color: var(--pri); color: #fff; }
+  .aba-nova { border-style: dashed; background: transparent; color: var(--pri); }
+  .semana-nav { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+  .planilha { overflow-x: auto; margin-top: 12px; border: 1px solid var(--bd); border-radius: 16px; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 820px; }
+  th { padding: 10px 6px; font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--mut); background: var(--bg); border-bottom: 1px solid var(--bd); }
+  th small { display: block; font-size: 11px; text-transform: none; letter-spacing: 0; }
   th.hoje { color: var(--pri); background: color-mix(in srgb, var(--pri) 12%, var(--bg)); }
-  th.col-pessoa, td.col-pessoa { position: sticky; left: 0; z-index: 2; text-align: left; min-width: 210px; width: 210px; background: var(--card); border-right: 1px solid var(--bd); }
-  th.col-pessoa { background: var(--bg); padding-left: 16px; }
-  td { padding: 6px; border-bottom: 1px solid var(--bd); vertical-align: top; }
-  tr:last-child td { border-bottom: 0; }
-  td.cel textarea { width: 100%; min-height: 64px; resize: none; border: 1px solid transparent; border-radius: 12px; background: var(--bg); padding: 8px 10px; font-size: 13.5px; line-height: 1.35; overflow: hidden; }
-  td.cel textarea:focus { outline: none; border-color: var(--pri); background: var(--card); box-shadow: 0 0 0 3px color-mix(in srgb, var(--pri) 20%, transparent); }
-  td.cel textarea[readonly] { cursor: default; }
-  td.cel.hoje textarea { background: color-mix(in srgb, var(--pri) 11%, var(--bg)); }
-  .pessoa { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px 8px 14px; }
-  .av { width: 36px; height: 36px; border-radius: 50%; background: var(--pri); color: #fff; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .p-nome { flex: 1; min-width: 0; font-weight: 800; display: flex; flex-direction: column; }
-  .p-user, .p-ciclo { font-size: 12px; font-weight: 600; color: var(--mut); }
-  .p-user.conv { color: #b45309; }
-  .p-ciclo b { color: var(--pri); }
-  .rm { border: 0; background: none; color: var(--mut); padding: 6px; border-radius: 8px; }
-  .rm:hover { color: #dc2626; background: rgba(220,38,38,.08); }
-  .linha-add { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
-  .linha-add select { padding: 10px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--card); min-width: 180px; font-weight: 600; }
-  .dica { display: flex; gap: 8px; align-items: flex-start; font-size: 12.5px; color: var(--mut); margin: 12px 2px 0; }
-  .vazio { text-align: center; padding: 28px 16px; color: var(--mut); }
-  .vazio h2 { margin: 0 0 6px; color: var(--tx); font-size: 18px; }
+  td { padding: 6px; border-bottom: 1px solid var(--bd); } tr:last-child td { border-bottom: 0; }
+  th.pes, td.pes { text-align: left; min-width: 190px; padding-left: 12px; position: sticky; left: 0; background: var(--card); z-index: 1; }
+  th.pes { background: var(--bg); }
+  .pn { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+  .av { width: 30px; height: 30px; border-radius: 50%; background: var(--pri); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; flex-shrink: 0; }
+  .av.conv { background: var(--mut); }
+  .tag-conv { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: var(--mut); border: 1px solid var(--bd); border-radius: 999px; padding: 1px 6px; margin-left: 4px; }
+  .rm { margin-left: auto; border: 0; background: none; color: var(--mut); padding: 4px; border-radius: 8px; } .rm:hover { color: #dc2626; }
+  td input { width: 100%; border: 1px solid transparent; border-radius: 10px; background: var(--bg); padding: 9px 8px; font-size: 13px; }
+  td input:focus { outline: none; border-color: var(--pri); background: var(--card); }
+  td input.tem { background: var(--pri-light); color: var(--pri); font-weight: 700; }
+  td input[readonly] { cursor: default; }
+  .vazio { text-align: center; padding: 28px 12px; color: var(--mut); }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--tx); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; z-index: 70; display: none; max-width: 90vw; }
 
-  /* trocas */
-  .troca { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--bd); border-radius: 16px; background: var(--bg); margin-top: 8px; flex-wrap: wrap; }
-  .troca .t-tx { flex: 1; min-width: 200px; }
-  .troca .t-tx b { font-weight: 800; }
-  .troca .t-tx small { display: block; color: var(--mut); font-size: 12.5px; margin-top: 2px; }
-  .troca .t-ac { display: flex; gap: 6px; margin-left: auto; }
-  .troca-g { font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; color: var(--mut); margin: 16px 2px 0; }
-  .troca-g:first-of-type { margin-top: 4px; }
-  .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: #dc2626; color: #fff; font-size: 11px; font-weight: 800; }
 
-  /* barra de salvar */
-  .savebar { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; background: var(--tx); color: var(--bg); border-radius: 999px; padding: 8px 8px 8px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.3); max-width: calc(100vw - 24px); font-weight: 700; }
-  .savebar .btn { background: var(--pri); color: #fff; padding: 9px 16px; border-radius: 999px; }
-  .savebar i { width: 9px; height: 9px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; }
 
-  /* modal */
-  .fundo-m { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; }
-  .modal { background: var(--card); color: var(--tx); border: 1px solid var(--bd); border-radius: 22px; width: 100%; max-width: 440px; max-height: 92dvh; overflow-y: auto; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,.35); }
-  .modal h3 { margin: 0 0 6px; font-size: 18px; }
-  .modal p.sub { margin: 0 0 8px; color: var(--mut); font-size: 13px; }
-  .modal label { display: block; font-size: 12px; font-weight: 800; color: var(--mut); text-transform: uppercase; letter-spacing: .03em; margin: 12px 0 4px; }
-  .modal input, .modal select, .modal textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--bd); border-radius: 12px; background: var(--bg); font-size: 15px; }
-  .m-acoes { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
-  .m-msg { color: #dc2626; font-size: 13px; margin: 10px 0 0; min-height: 16px; }
-  #toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--tx); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-weight: 700; z-index: 70; max-width: 90vw; display: none; }
+  /* widget de calendário (estilo widget do celular): dia à esquerda, mês à direita, ocupa a largura toda */
+  .widget { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(340px, 560px); gap: 24px; align-items: center; padding: 14px 24px; }
+  .w-esq { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .w-sem { color: var(--pri); font-weight: 800; font-size: 16px; }
+  .w-num { font-size: 54px; font-weight: 800; line-height: 1.05; letter-spacing: -.02em; }
+  .w-mes { font-weight: 700; color: var(--mut); }
+  .w-hint { margin-top: 10px; font-size: 13px; color: var(--mut); }
+  .w-hint b { color: var(--tx); }
+  .mini-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-weight: 800; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--pri); }
+  .mini-nav { display: flex; gap: 6px; }
+  .mini-h .ic { width: 28px; height: 28px; border-radius: 9px; }
+  .mini { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px 0; text-align: center; }
+  .mini span { font-size: 12px; font-weight: 800; padding: 2px 0 4px; }
+  .mini button { border: 0; background: none; height: 27px; border-radius: 0; font-size: 13.5px; font-weight: 700; }
+  .mini button:hover { background: var(--pri-light); }
+  .mini button.fora { color: var(--mut); opacity: .45; }
+  .mini button.sem-sel { background: var(--pri-light); }
+  .mini button.hoje { background: var(--tx); color: var(--bg); border-radius: 50%; width: 27px; justify-self: center; }
 
-  @media (max-width: 700px) {
-    .pagina { padding: 10px 10px calc(96px + env(safe-area-inset-bottom, 0px)); }
-    .topo h1 { font-size: 22px; }
-    th.col-pessoa, td.col-pessoa { min-width: 150px; width: 150px; }
-    .hero-num { font-size: 38px; }
-    .barra input[type=text] { max-width: none; }
+  @media (max-width: 760px) {
+    .menu-btn { display: inline-flex; }
+    .sidebar, .sidebar.recolhida { width: 280px; max-width: 86vw; height: 100vh; height: 100dvh; transform: translateX(-100%); transition: transform .25s ease; z-index: 120; }
+    .sidebar.aberta-mobile { transform: translateX(0); box-shadow: 0 0 40px rgba(0,0,0,.35); }
+    .sb-toggle svg, .sidebar.recolhida .sb-toggle svg { transform: rotate(180deg); }
+    .app-layout, .sidebar.recolhida ~ .app-layout { margin-left: 0; }
+    header { padding: 14px 14px 6px; gap: 10px; }
+    .topo-titulo { flex: 1; min-width: 0; }
+    .topo-titulo h1 { font-size: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topo-titulo small { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .main-content { padding: 10px 14px 28px; }
+    input, textarea, select { font-size: 16px !important; }
+    .widget { grid-template-columns: 1fr; gap: 12px; padding: 14px 16px; }
+    .w-num { font-size: 42px; }
   }
+
   </style>
+  <link rel="stylesheet" href="pc.css">
 </head>
 <body>
-<div class="pagina">
-  <header class="topo">
-    <button type="button" class="ic" onclick="location.href='menu.html'" aria-label="Voltar ao menu" title="Voltar ao menu"><svg class="i" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-    <div class="tit"><h1>Escala</h1><small id="sub-topo">A carregar...</small></div>
-    <div class="dono-pill" id="box-dono" hidden><label for="sel-dono">Ver escala de</label><select id="sel-dono" onchange="trocarDono(this.value)"></select></div>
-    <button type="button" class="ic" onclick="location.href='calendario.html'" aria-label="Abrir o calendário" title="Abrir o calendário"><svg class="i" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg></button>
-  </header>
-
-  <section class="hero" id="hero" hidden></section>
-
-  <section class="card">
-    <div class="card-t"><h2><svg class="i" viewBox="0 0 24 24"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg> Semanas do ciclo</h2></div>
-    <div class="abas" id="abas"></div>
-    <div id="area-barra"></div>
-  </section>
-
-  <div id="area-planilha"></div>
-
-  <section class="card" id="card-trocas">
-    <div class="card-t">
-      <div><h2><svg class="i" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg> Trocas de escala <span class="badge" id="qtd-trocas" hidden>0</span></h2><p>Troque as funções de um dia com alguém. A troca só vale depois que a pessoa aceitar.</p></div>
-      <button type="button" class="btn" id="btn-pedir-troca" onclick="abrirTroca()"><svg class="i" viewBox="0 0 24 24"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3"/></svg> Pedir troca</button>
+  <!-- MENU LATERAL (o mesmo do menu.html) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-topo">
+      <button type="button" class="sb-toggle" onclick="toggleSidebar()" title="Expandir/Recolher menu">
+        <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
+      <div class="sb-marca"><span class="sb-marca-ic">F</span><span class="sb-marca-tx">Fluxo</span></div>
     </div>
-    <div id="lista-trocas"><p class="mut" style="margin:0">A carregar...</p></div>
-  </section>
-</div>
 
-<div class="savebar" id="savebar" hidden><i></i><span id="savebar-tx">Alterações não salvas</span><button type="button" class="btn" onclick="salvarSemana()"><svg class="i" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8"/></svg> Salvar semana</button></div>
-<div id="modal-box"></div>
+    <nav class="sb-nav">
+      <span class="sb-grupo-tit">Menu</span>
+      <button type="button" class="sb-item" id="sb-dash" onclick="window.location.href='menu.html?aba=dash'" title="Dashboard">
+        <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/></svg>
+        <span class="sb-item-tx">Dashboard</span>
+      </button>
+      <button type="button" class="sb-item" id="sb-faa" onclick="window.location.href='menu.html?aba=faa'" title="FAAs (Datas)">
+        <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+        <span class="sb-item-tx">FAAs</span>
+      </button>
+      <button type="button" class="sb-item" id="sb-sameprov" onclick="window.location.href='menu.html?aba=sameprov'" title="SAME / Provisória / Óbito">
+        <svg viewBox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+        <span class="sb-item-tx">SAME / Provisória / Óbito</span>
+      </button>
+      <button type="button" class="sb-item active" id="sb-escala" onclick="window.location.href='escala.html'" title="Escala">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h3M8 18h3M14 14h3"/></svg>
+        <span class="sb-item-tx">Escala</span>
+        <span class="sb-badge" id="sb-escala-badge" hidden>0</span>
+      </button>
+      <button type="button" class="sb-item" id="sb-cal" onclick="window.location.href='calendario.html'" title="Calendário">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M7 14h6M11 18h6"/></svg>
+        <span class="sb-item-tx">Calendário</span>
+      </button>
+    </nav>
+
+    <div class="sb-pessoas">
+      <div class="sb-grupo-cab">
+        <span class="sb-grupo-tit">Pessoas</span>
+        <a href="perfil.html#pessoas" class="sb-add" title="Adicionar pessoas">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        </a>
+      </div>
+      <div class="sb-pessoas-lista" id="sb-pessoas-lista">
+        <p class="pessoas-vazio">A carregar...</p>
+      </div>
+    </div>
+
+    <div class="sb-rodape">
+      <button type="button" class="sb-item" id="sb-perfil" onclick="window.location.href='perfil.html'" title="Perfil">
+        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="sb-item-tx">Perfil</span>
+        <span class="sb-badge" id="sb-perfil-badge" hidden>0</span>
+      </button>
+      <button type="button" class="sb-item sb-sair" id="sb-sair" onclick="sair()" title="Sair da conta">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span class="sb-item-tx">Sair</span>
+      </button>
+    </div>
+  </aside>
+  <div class="sb-overlay" id="sb-overlay" onclick="fecharDrawer()"></div>
+
+  <div class="app-layout">
+    <header>
+      <button type="button" class="menu-btn" id="menu-btn" onclick="toggleSidebar()" aria-label="Abrir menu">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <span class="topo-badge" id="menu-btn-badge" hidden>0</span>
+      </button>
+      <div class="topo-titulo">
+        <h1>Escala</h1>
+        <small>Turnos da semana por setor</small>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="card widget">
+        <div class="w-esq"><span class="w-sem" id="d-sem"></span><span class="w-num" id="d-num"></span><span class="w-mes" id="d-mes"></span><span class="w-hint" id="d-hint"></span></div>
+        <div class="w-dir">
+          <div class="mini-h"><span id="m-tit"></span><div class="mini-nav"><button type="button" class="ic" onclick="moverMes(-1)" aria-label="Mês anterior"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><button type="button" class="ic" onclick="moverMes(1)" aria-label="Próximo mês"><svg class="i" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button></div></div>
+          <div class="mini" id="mini"></div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="linha"><div class="abas" id="abas"></div></div>
+        <div class="linha" style="margin-top:12px;justify-content:space-between"><div class="semana-nav"><button type="button" class="ic" onclick="moverSemana(-1)" aria-label="Semana anterior"><svg class="i" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="sem-tit"></span><button type="button" class="ic" onclick="moverSemana(1)" aria-label="Próxima semana"><svg class="i" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button></div><div class="linha" id="acoes-setor"></div></div>
+        <div id="planilha"></div>
+      </section>
+    </main>
+  </div>
 <div id="toast" role="status"></div>
-
+<datalist id="tipos"><option>Manhã</option><option>Tarde</option><option>Noite</option><option>Plantão</option><option>Folga</option><option>Cadastrar provisória</option><option>Pedir FAA</option></datalist>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL = 'https://xsgblgkzeiaxirquvpai.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC';
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+const db = window.supabase.createClient('https://xsgblgkzeiaxirquvpai.supabase.co', 'sb_publishable_yWYJb5jYgn1aBbng1-rr3w_JyHba3YC');
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const DIAS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-const DIAS_LONGO = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+const DIAS_L = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 const MESES = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-const SUGESTOES_PADRAO = ['Cadastrar provisória', 'Guardar arquivos', 'Pedir FAA', 'Pastas SAME', 'Folga'];
-
-/* ícones (traço, no mesmo estilo do site) */
-const ICON = {
-  save: 'M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8',
-  copy: 'M11 9h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-9a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1',
-  pin: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM9 16l2 2 4-4',
-  trash: 'M3 6h18M8 6V4a1 1 0 011-1h6a1 1 0 011 1v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6',
-  plus: 'M12 5v14M5 12h14',
-  userplus: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM19 8v6M22 11h-6',
-  swap: 'M17 1l4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3',
-  check: 'M20 6L9 17l-5-5',
-  x: 'M18 6L6 18M6 6l12 12',
-  send: 'M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z',
-  undo: 'M3 7v6h6M21 17a9 9 0 0 0-15-6.7L3 13',
-  info: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01',
-  cal: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'
-};
-const ic = (n, s) => '<svg class="i" viewBox="0 0 24 24"' + (s ? ' width="' + s + '" height="' + s + '"' : '') + ' aria-hidden="true"><path d="' + ICON[n] + '"/></svg>';
-
-let uid = null, ME = { usuario: '', nome: '' }, CONTATOS = [];
-let DADOS = null, DONO = null, SEM = {};
-let atual = null, SUJAS = new Set(), FOCO = null, tToast;
-let TROCAS = { recebidas: [], enviadas: [], aceitas: [] }, TROCAS_OK = true;
-let SUGESTOES = (function () { try { const v = JSON.parse(localStorage.getItem('fluxo_escala_sugestoes') || 'null'); return Array.isArray(v) ? v : SUGESTOES_PADRAO.slice(); } catch (e) { return SUGESTOES_PADRAO.slice(); } })();
-
-const editavel = () => !DADOS || DADOS.editavel;
-function aviso(m) { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(tToast); tToast = setTimeout(() => { t.style.display = 'none'; }, 3200); }
-const nomeDe = p => p.nome || p.usuario || '?';
-const baixo = s => String(s || '').toLowerCase();
 const isoDe = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-const isoHoje = () => isoDe(new Date());
-const parseIso = iso => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
-const dtBR = iso => iso.split('-').reverse().join('/');
-const diaCurto = iso => { const d = parseIso(iso); return DIAS_LONGO[d.getDay()] + ', ' + dtBR(iso).slice(0, 5); };
+const segDe = d => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+let SETORES = [], SETOR = null, SEMANA = segDe(new Date()), MES = new Date(), DADOS = { pessoas: [], turnos: [] }, CONTATOS = [], ME = '', tT;
+function aviso(m) { const t = $('toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(tT); tT = setTimeout(() => { t.style.display = 'none'; }, 3000); }
 
-function segundaDestaSemana() { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; }
-const diaHojeIdx = () => (new Date().getDay() + 6) % 7;
-
-/* ---------- CICLO POR PESSOA ----------
-   Cada pessoa gira só nas semanas em que aparece (1-2-1-2, 1-2-3-1-2-3...).
-   O servidor diz qual linha vale "agora" (campo l.agora); aqui só mostramos. */
-const chaveLinha = l => l.convidado ? 'c:' + baixo(l.convidado) : 'u:' + baixo(l.usuario);
-function cicloDe(l) {
-  const k = chaveLinha(l);
-  return Object.keys(SEM).map(Number).sort((a, b) => a - b).filter(n => SEM[n].linhas.some(x => chaveLinha(x) === k));
-}
-const semanaTemAgora = n => !!(SEM[n] && SEM[n].salva && SEM[n].linhas.some(l => l.agora));
-function semanaPadrao() {
-  const nums = Object.keys(SEM).map(Number).sort((a, b) => a - b);
-  const minha = nums.find(n => SEM[n].linhas.some(l => l.agora && !l.convidado && baixo(l.usuario) === baixo(ME.usuario)));
-  return minha || nums.find(semanaTemAgora) || nums[0] || null;
-}
-const normalizaDias = d => { const a = Array.isArray(d) ? d.slice(0, 7) : []; while (a.length < 7) a.push(''); return a.map(x => String(x || '')); };
-
-/* ---------- início ---------- */
 window.addEventListener('DOMContentLoaded', async () => {
   const { data } = await db.auth.getSession();
-  if (!data.session) { window.location.href = 'index.html'; return; }
-  uid = data.session.user.id;
-  const email = data.session.user.email || '';
-  const [perf, cont] = await Promise.all([
-    db.from('perfis').select('usuario,nome').eq('user_id', uid).maybeSingle(),
-    db.rpc('listar_contatos')
-  ]);
-  const pu = (perf.data && perf.data.usuario) || email.split('@')[0] || 'eu';
-  ME = { usuario: pu, nome: (perf.data && perf.data.nome) || pu };
-  CONTATOS = (cont.data || []).filter(p => baixo(p.usuario) !== baixo(pu));
-  await carregarDonos();
-  await Promise.all([carregar(), carregarTrocas()]);
-  const t = new URLSearchParams(location.search).get('troca');
-  if (/^\d{4}-\d{2}-\d{2}$/.test(t || '')) abrirTroca(t);
-  setInterval(() => { if (document.visibilityState === 'visible' && !SUJAS.size && !$('modal-box').innerHTML) carregarTrocas(); }, 30000);
+  if (!data.session) { location.href = 'index.html'; return; }
+  const uid = data.session.user.id;
+  const [perf, cont] = await Promise.all([db.from('perfis').select('usuario,nome').eq('user_id', uid).maybeSingle(), db.rpc('listar_contatos')]);
+  ME = (perf.data && perf.data.usuario) || '';
+  CONTATOS = [{ usuario: ME, nome: (perf.data && perf.data.nome) || ME }].concat(cont.data || []);
+  renderData(); renderMini(); carregarPessoas(); await carregarSetores();
 });
-window.addEventListener('beforeunload', e => { if (SUJAS.size) { e.preventDefault(); e.returnValue = ''; } });
 
-async function carregarDonos() {
-  const { data } = await db.rpc('escala_donos');
-  const lista = Array.isArray(data) ? data : [];
-  const box = $('box-dono');
-  if (!lista.length) { box.hidden = true; return; }
-  $('sel-dono').innerHTML = '<option value="">Minha escala</option>' + lista.map(d => '<option value="' + esc(d.dono) + '">' + esc(d.nome || d.usuario) + '</option>').join('');
-  box.hidden = false;
+function renderData() { const h = new Date(), cap = t => t.charAt(0).toUpperCase() + t.slice(1); $('d-sem').textContent = cap(DIAS_L[h.getDay()]); $('d-num').textContent = h.getDate(); $('d-mes').textContent = cap(MESES[h.getMonth()]) + ' de ' + h.getFullYear(); renderHint(); }
+function renderHint() {
+  const el = $('d-hint'); if (!el) return;
+  const hoje = isoDe(new Date()), t = (DADOS.turnos || []).find(x => String(x.usuario).toLowerCase() === String(ME).toLowerCase() && x.data === hoje && String(x.tipo || '').trim());
+  el.innerHTML = t ? 'Seu turno hoje: <b>' + esc(t.tipo) + '</b>' : 'Nenhum turno seu hoje.';
 }
-function trocarDono(v) {
-  if (SUJAS.size && !confirm('Há alterações não salvas. Trocar de escala mesmo assim?')) { $('sel-dono').value = DONO || ''; return; }
-  DONO = v || null; SUJAS.clear(); atual = null; carregar();
+function renderMini() {
+  $('m-tit').textContent = MESES[MES.getMonth()] + ' ' + MES.getFullYear();
+  const prim = new Date(MES.getFullYear(), MES.getMonth(), 1), ini = segDe(prim), hoje = isoDe(new Date()), s0 = isoDe(SEMANA), s1 = isoDe(new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + 6));
+  let h = DIAS.map(d => '<span>' + d[0] + '</span>').join('');
+  for (let i = 0; i < 42; i++) { const d = new Date(ini.getFullYear(), ini.getMonth(), ini.getDate() + i), iso = isoDe(d);
+    h += '<button type="button" data-iso="' + iso + '" class="' + (d.getMonth() !== MES.getMonth() ? 'fora ' : '') + (iso >= s0 && iso <= s1 ? 'sem-sel ' : '') + (iso === hoje ? 'hoje' : '') + '">' + d.getDate() + '</button>'; }
+  $('mini').innerHTML = h;
 }
+$('mini').addEventListener('click', e => { const b = e.target.closest('[data-iso]'); if (!b) return; const [y, m, d] = b.dataset.iso.split('-').map(Number); SEMANA = segDe(new Date(y, m - 1, d)); renderMini(); carregarSemana(); });
+function moverMes(n) { MES = new Date(MES.getFullYear(), MES.getMonth() + n, 1); renderMini(); }
+function moverSemana(n) { SEMANA = new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + 7 * n); MES = new Date(SEMANA); renderMini(); carregarSemana(); }
 
-async function carregar() {
-  const { data, error } = await db.rpc('escala_ver', DONO ? { p_dono: DONO } : {});
-  if (error) {
-    $('area-planilha').innerHTML = '<div class="card vazio"><h2>Escala ainda não ativada</h2>Rode o <b>fluxo_update6_escala.sql</b> no Supabase.<br><small>' + esc(error.message) + '</small></div>';
-    $('abas').innerHTML = ''; $('area-barra').innerHTML = ''; $('hero').hidden = true; return;
-  }
-  DADOS = data;
-  if (!DADOS) { $('area-planilha').innerHTML = '<div class="card vazio"><h2>Escala indisponível</h2>Você não tem acesso a essa escala.</div>'; return; }
-  const antigas = SEM; SEM = {};
-  (DADOS.semanas || []).forEach(s => {
-    SEM[s.numero] = { nome: s.nome || ('Semana ' + s.numero), salva: true, linhas: (s.linhas || []).map(l => ({ usuario: l.usuario || '', convidado: l.convidado || '', agora: !!l.agora, nome: l.nome, dias: normalizaDias(l.dias) })) };
-  });
-  Object.keys(antigas).forEach(n => { if (SUJAS.has(Number(n)) && editavel()) SEM[n] = antigas[n]; });
-  if (!SEM[atual]) atual = semanaPadrao();
-  $('sub-topo').textContent = editavel() ? 'Monte até 4 semanas. Cada pessoa gira só nas semanas em que aparece.' : 'Escala de ' + (DADOS.dono_nome || DADOS.dono_usuario) + ' (somente leitura)';
-  render();
+async function carregarSetores() {
+  const { data, error } = await db.rpc('setores_listar');
+  if (error) { $('planilha').innerHTML = '<div class="vazio"><b>Setores ainda não ativados.</b><br>Rode o <b>supabase/fluxo-banco-completo.sql</b> no Supabase (SQL Editor).</div>'; return; }
+  SETORES = data || [];
+  if (!SETORES.find(s => s.id === SETOR)) SETOR = SETORES.length ? SETORES[0].id : null;
+  renderAbas(); await carregarSemana();
 }
-
-/* ---------- desenho ---------- */
-function render() { renderHero(); renderAbas(); renderBarra(); renderPlanilha(); renderSavebar(); renderTrocas(); }
-
-// trocas aceitas para hoje nesta escala: quem tem as funções de quem
-function aplicarTrocaHoje(lista) {
-  const hoje = isoHoje(), dono = baixo(DADOS && (DADOS.dono_usuario || ME.usuario));
-  (TROCAS.aceitas || []).filter(t => t.data === hoje && baixo(t.dono_usuario) === dono).forEach(t => {
-    const a = lista.find(x => baixo(x.usuario) === baixo(t.de_usuario)), b = lista.find(x => baixo(x.usuario) === baixo(t.para_usuario));
-    if (a && b) { const x = a.tarefas; a.tarefas = b.tarefas; b.tarefas = x; a.troca = b.troca = true; }
-  });
-  return lista;
-}
-function renderHero() {
-  const box = $('hero'), hojeI = diaHojeIdx(), hoje = new Date();
-  const itens = [];
-  Object.keys(SEM).forEach(n => SEM[n].salva && SEM[n].linhas.forEach(l => { if (l.agora) itens.push({ nome: nomeDe(l), usuario: l.usuario, tarefas: String(l.dias[hojeI] || '').split(/[\n;,]+/).map(x => x.trim()).filter(Boolean), troca: false }); }));
-  if (!itens.length) { box.hidden = true; return; }
-  aplicarTrocaHoje(itens);
-  box.hidden = false;
-  box.innerHTML = '<div class="hero-dia"><span class="hero-num">' + hoje.getDate() + '</span><span><b>' + DIAS_LONGO[hoje.getDay()] + '</b><small>' + MESES[hoje.getMonth()] + ' de ' + hoje.getFullYear() + ' · quem faz o quê hoje</small></span></div>' +
-    '<div class="hero-lista">' + itens.map(p => '<div class="hero-p"><b>' + esc(p.nome) + (p.troca ? '<span class="troca-tag">' + ic('swap', 12) + ' troca</span>' : '') + '</b><span>' + (p.tarefas.length ? esc(p.tarefas.join(' · ')) : 'Sem função hoje') + '</span></div>').join('') + '</div>' +
-    '<a href="calendario.html?v=hoje">' + ic('cal', 16) + ' Ver no calendário</a>';
-}
-
 function renderAbas() {
-  const nums = Object.keys(SEM).map(Number).sort((a, b) => a - b);
-  let h = nums.map(n => '<button type="button" class="aba' + (n === atual ? ' ativa' : '') + '" onclick="irSemana(' + n + ')">' + esc(SEM[n].nome || ('Semana ' + n)) +
-    (semanaTemAgora(n) ? '<span class="agora" title="Tem gente nesta semana agora">em vigor</span>' : '') + (SUJAS.has(n) ? '<span class="nao-salva" title="Não salva"></span>' : '') + '</button>').join('');
-  if (editavel() && nums.length < 4) h += '<button type="button" class="aba aba-nova" onclick="novaSemana(false)">' + ic('plus', 16) + ' Nova semana</button>';
-  $('abas').innerHTML = h;
+  $('abas').innerHTML = SETORES.map(s => '<button type="button" class="aba' + (s.id === SETOR ? ' on' : '') + '" onclick="irSetor(' + s.id + ')">' + esc(s.nome) + '</button>').join('') + '<button type="button" class="aba aba-nova" onclick="novoSetor()">+ Setor</button>';
+  $('acoes-setor').innerHTML = SETOR ? '<button type="button" class="ghost perigo" onclick="apagarSetor()">Apagar setor</button>' : '';
 }
-
-function renderBarra() {
-  const box = $('area-barra');
-  if (atual === null) { box.innerHTML = ''; return; }
-  if (!editavel()) { box.innerHTML = '<p class="dica">' + ic('info', 16) + '<span>Esta é a escala de quem te adicionou. Só o dono pode editar. Você pode pedir uma troca de dia aqui embaixo.</span></p>'; return; }
-  const s = SEM[atual], cheio = Object.keys(SEM).length >= 4;
-  box.innerHTML =
-    '<div class="barra">' +
-      '<input type="text" id="nome-semana" value="' + esc(s.nome) + '" maxlength="40" placeholder="Nome da semana" oninput="mudarNomeSemana(this.value)" aria-label="Nome da semana">' +
-      '<button type="button" class="btn" id="btn-salvar" onclick="salvarSemana()">' + ic('save') + ' Salvar semana</button>' +
-      '<button type="button" class="ghost" onclick="definirVigente()" title="Define que a semana de hoje do calendário é a Semana ' + atual + ' do ciclo">' + ic('pin') + ' Esta semana é a Semana ' + atual + '</button>' +
-      '<button type="button" class="ghost" onclick="novaSemana(true)" ' + (cheio ? 'disabled title="Limite de 4 semanas"' : '') + '>' + ic('copy') + ' Duplicar</button>' +
-      '<button type="button" class="ghost perigo" onclick="apagarSemana()">' + ic('trash') + ' Apagar</button>' +
-    '</div>' +
-    '<div class="sugest"><span>Funções rápidas</span>' +
-      SUGESTOES.map((t, i) => '<span class="chip" onclick="inserirSugestao(' + i + ')">' + esc(t) + '<button type="button" onclick="event.stopPropagation();removerSugestao(' + i + ')" aria-label="Remover ' + esc(t) + '">' + ic('x', 14) + '</button></span>').join('') +
-      '<span class="chip chip-add" onclick="novaSugestao()">' + ic('plus', 14) + ' criar</span>' +
-    '</div>' +
-    '<div class="passos"><span class="passo"><i>1</i> Toque numa célula</span><span class="passo"><i>2</i> Escreva ou escolha uma função rápida</span><span class="passo"><i>3</i> Salve a semana</span></div>';
+function irSetor(id) { SETOR = id; renderAbas(); carregarSemana(); }
+async function novoSetor() {
+  const nome = (prompt('Nome do setor (ex.: Same, Barracão):') || '').trim(); if (!nome) return;
+  const { data, error } = await db.rpc('setor_criar', { p_nome: nome });
+  if (error || data !== 'ok') return aviso(data === 'existe' ? 'Você já tem um setor com esse nome.' : data === 'limite' ? 'Limite de 30 setores atingido.' : 'Não foi possível criar o setor.');
+  SETOR = null; await carregarSetores(); const s = SETORES.find(x => x.nome.toLowerCase() === nome.toLowerCase()); if (s) irSetor(s.id);
 }
-
+async function apagarSetor() {
+  const s = SETORES.find(x => x.id === SETOR); if (!s || !confirm('Apagar o setor "' + s.nome + '" e toda a escala dele?')) return;
+  const { data } = await db.rpc('setor_apagar', { p_id: SETOR });
+  if (data !== 'ok') return aviso('Só quem criou o setor pode apagar.');
+  SETOR = null; await carregarSetores();
+}
+async function carregarSemana() {
+  const t = new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + 6);
+  $('sem-tit').textContent = SEMANA.getDate() + '/' + String(SEMANA.getMonth() + 1).padStart(2, '0') + ' – ' + t.getDate() + '/' + String(t.getMonth() + 1).padStart(2, '0');
+  if (!SETOR) { $('planilha').innerHTML = '<div class="vazio"><h2 style="margin:0 0 6px;color:var(--tx)">Nenhum setor ainda</h2>Crie um setor (ex.: Same, Barracão) para montar a escala dele.</div>'; return; }
+  const { data, error } = await db.rpc('setor_semana', { p_setor: SETOR, p_ini: isoDe(SEMANA) });
+  if (error) return aviso('Erro ao carregar: ' + error.message);
+  DADOS = data || { pessoas: [], turnos: [] }; renderPlanilha(); renderHint();
+}
 function renderPlanilha() {
-  const box = $('area-planilha');
-  if (atual === null) {
-    box.innerHTML = '<div class="card vazio"><h2>Nenhuma semana ainda</h2>' + (editavel() ? 'Crie a primeira semana e distribua as funções de cada pessoa por dia.<br><br><button type="button" class="btn" onclick="novaSemana(false)" style="margin:0 auto">' + ic('plus') + ' Criar Semana 1</button>' : 'Quem te adicionou ainda não montou a escala.') + '</div>';
-    return;
-  }
-  const s = SEM[atual], ed = editavel();
-  const algumAgora = semanaTemAgora(atual), seg = segundaDestaSemana(), hojeI = diaHojeIdx();
-
-  let h = '<div class="planilha"><table><thead><tr><th class="col-pessoa">Pessoa</th>';
-  DIAS.forEach((d, i) => {
-    const dt = new Date(seg.getFullYear(), seg.getMonth(), seg.getDate() + i);
-    h += '<th' + (algumAgora && i === hojeI ? ' class="hoje"' : '') + '>' + d + (algumAgora ? '<small>' + String(dt.getDate()).padStart(2, '0') + '/' + String(dt.getMonth() + 1).padStart(2, '0') + (i === hojeI ? ' · hoje' : '') + '</small>' : '') + '</th>';
-  });
+  const hoje = isoDe(new Date()), mapa = {}; const chv = o => o.convidado || o.cid ? 'c' + o.cid : 'u' + String(o.usuario).toLowerCase(); DADOS.turnos.forEach(t => { mapa[chv(t) + '|' + t.data] = t.tipo; });
+  let h = '<div class="planilha"><table><thead><tr><th class="pes">Pessoa</th>';
+  for (let i = 0; i < 7; i++) { const d = new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + i), iso = isoDe(d); h += '<th' + (iso === hoje ? ' class="hoje"' : '') + '>' + DIAS[i] + '<small>' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '</small></th>'; }
   h += '</tr></thead><tbody>';
-  if (!s.linhas.length) h += '<tr><td colspan="8" class="vazio" style="border:0">Adicione pessoas abaixo para montar a escala.</td></tr>';
-  s.linhas.forEach((l, ri) => {
-    const externo = !!l.convidado, ciclo = cicloDe(l), agoraL = !!(l.agora && s.salva);
-    const cicloTxt = (ciclo.length > 1 ? 'Ciclo ' + ciclo.join(' → ') : 'Semana fixa') + (agoraL ? ' · <b>em vigor</b>' : '');
-    h += '<tr><td class="col-pessoa"><div class="pessoa"><span class="av">' + esc(nomeDe(l).trim().charAt(0).toUpperCase()) + '</span><span class="p-nome">' + esc(nomeDe(l)) + '<span class="p-user' + (externo ? ' conv' : '') + '">' + (externo ? 'Convidado' : '@' + esc(l.usuario)) + '</span><span class="p-ciclo">' + cicloTxt + '</span></span>' +
-      (ed ? '<button type="button" class="rm" title="Remover linha" aria-label="Remover linha" onclick="removerLinha(' + ri + ')">' + ic('trash', 16) + '</button>' : '') + '</div></td>';
-    for (let di = 0; di < 7; di++) {
-      h += '<td class="cel' + (agoraL && di === hojeI ? ' hoje' : '') + '"><textarea rows="2" data-r="' + ri + '" data-d="' + di + '" maxlength="500" ' + (ed ? '' : 'readonly ') + 'placeholder="' + (ed ? '—' : '') + '" aria-label="' + esc(nomeDe(l)) + ' - ' + DIAS[di] + '">' + esc(l.dias[di]) + '</textarea></td>';
-    }
+  if (!DADOS.pessoas.length) h += '<tr><td colspan="8" class="vazio" style="border:0">Adicione pessoas a este setor abaixo.</td></tr>';
+  DADOS.pessoas.forEach(p => {
+    const conv = !!p.convidado, chave = conv ? 'c' + p.cid : 'u' + String(p.usuario).toLowerCase();
+    const rm = conv ? 'tirarConvidado(' + Number(p.cid) + ')' : "tirarPessoa('" + esc(p.usuario) + "')";
+    h += '<tr><td class="pes"><div class="pn"><span class="av' + (conv ? ' conv' : '') + '">' + esc((p.nome || '?').charAt(0).toUpperCase()) + '</span><span>' + esc(p.nome) + (conv ? ' <small class="tag-conv">convidado</small>' : '') + '</span><button type="button" class="rm" title="Tirar do setor" onclick="' + rm + '">✕</button></div></td>';
+    for (let i = 0; i < 7; i++) { const iso = isoDe(new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + i)), v = mapa[chave + '|' + iso] || '';
+      h += '<td><input list="tipos" maxlength="60" value="' + esc(v) + '" class="' + (v ? 'tem' : '') + '" ' + (conv ? 'data-c="' + Number(p.cid) + '"' : 'data-u="' + esc(p.usuario) + '"') + ' data-d="' + iso + '" placeholder="—" aria-label="' + esc(p.nome) + ' ' + DIAS[i] + '"></td>'; }
     h += '</tr>';
   });
   h += '</tbody></table></div>';
-
-  if (ed) {
-    const usados = new Set(s.linhas.map(l => baixo(l.usuario)));
-    const todas = [ME].concat(CONTATOS).filter(p => !usados.has(baixo(p.usuario)));
-    h += '<div class="linha-add">' + (todas.length
-      ? '<select id="sel-add" aria-label="Pessoa">' + todas.map(p => '<option value="' + esc(p.usuario) + '">' + esc(nomeDe(p)) + (baixo(p.usuario) === baixo(ME.usuario) ? ' (eu)' : '') + '</option>').join('') + '</select><button type="button" class="ghost" onclick="adicionarLinha()">' + ic('userplus') + ' Adicionar pessoa</button>'
-      : '<span class="mut" style="font-size:13px">Todos os contatos já estão na semana.</span>') +
-      '<button type="button" class="ghost" onclick="adicionarConvidado()">' + ic('userplus') + ' Convidado (sem conta)</button></div>' +
-      '<p class="dica">' + ic('info', 16) + '<span>Quem está nas semanas 1 e 2 faz 1, 2, 1, 2…; quem está nas semanas 1, 2 e 3 faz 1, 2, 3, 1, 2, 3… Para tirar alguém de uma semana, remova a linha dele nela.</span></p>';
-  }
-  box.innerHTML = h;
-  box.querySelectorAll('textarea').forEach(ta => crescer(ta));
+  const usados = new Set(DADOS.pessoas.filter(p => !p.convidado).map(p => String(p.usuario).toLowerCase())), livres = CONTATOS.filter(c => !usados.has(String(c.usuario).toLowerCase()));
+  h += '<div class="linha" style="margin-top:12px">' + (livres.length ? '<select id="sel-add" style="padding:9px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--card)">' + livres.map(c => '<option value="' + esc(c.usuario) + '">' + esc(c.nome || c.usuario) + '</option>').join('') + '</select><button type="button" class="ghost" onclick="addPessoa()">Adicionar ao setor</button>' : '<span class="mut">Todos os seus contatos já estão neste setor.</span>') + '</div>';
+  h += '<div class="linha" style="margin-top:8px"><input id="inp-conv" maxlength="40" placeholder="Nome do convidado (sem conta)" style="padding:9px 12px;border:1px solid var(--bd);border-radius:12px;background:var(--card);min-width:220px" onkeydown="if(event.key===\'Enter\')addConvidado()"><button type="button" class="ghost" onclick="addConvidado()">+ Convidado</button></div>';
+  $('planilha').innerHTML = h;
 }
-
-const crescer = ta => { ta.style.height = 'auto'; ta.style.height = Math.max(64, ta.scrollHeight) + 'px'; };
-$('area-planilha').addEventListener('input', e => {
-  const ta = e.target; if (ta.tagName !== 'TEXTAREA' || !editavel()) return;
-  SEM[atual].linhas[+ta.dataset.r].dias[+ta.dataset.d] = ta.value;
-  crescer(ta); marcarSuja();
+$('planilha').addEventListener('change', async e => {
+  const i = e.target; if (i.tagName !== 'INPUT' || !i.dataset.d) return;
+  const { data, error } = i.dataset.c
+    ? await db.rpc('setor_turno_conv', { p_setor: SETOR, p_data: i.dataset.d, p_id: Number(i.dataset.c), p_tipo: i.value })
+    : await db.rpc('setor_turno', { p_setor: SETOR, p_data: i.dataset.d, p_usuario: i.dataset.u, p_tipo: i.value });
+  if (error || data !== 'ok') return aviso('Não foi possível salvar.');
+  i.classList.toggle('tem', !!i.value.trim()); aviso('Salvo.');
 });
-$('area-planilha').addEventListener('focusin', e => { if (e.target.tagName === 'TEXTAREA') FOCO = e.target; });
+async function addPessoa() { const u = ($('sel-add') || {}).value; if (!u) return; const { data } = await db.rpc('setor_pessoa', { p_setor: SETOR, p_usuario: u, p_add: true }); if (data !== 'ok') return aviso(data === 'nao_contato' ? 'Só dá para adicionar seus contatos.' : data === 'limite' ? 'Setor cheio (60 pessoas).' : 'Não foi possível adicionar.'); carregarSemana(); }
+async function tirarPessoa(u) { if (!confirm('Tirar essa pessoa do setor? Os turnos dela neste setor serão apagados.')) return; await db.rpc('setor_pessoa', { p_setor: SETOR, p_usuario: u, p_add: false }); carregarSemana(); }
 
-function renderSavebar() {
-  const bar = $('savebar'), suja = atual !== null && SUJAS.has(atual) && editavel();
-  bar.hidden = !suja;
-  if (suja) $('savebar-tx').textContent = 'Alterações não salvas em "' + (SEM[atual].nome || 'Semana ' + atual) + '"';
+async function addConvidado() {
+  const el = $('inp-conv'), nome = ((el || {}).value || '').trim(); if (!nome) return aviso('Digite o nome do convidado.');
+  const { data, error } = await db.rpc('setor_convidado_add', { p_setor: SETOR, p_nome: nome });
+  if (error || data !== 'ok') return aviso(data === 'existe' ? 'Já existe um convidado com esse nome neste setor.' : data === 'limite' ? 'Setor cheio (60 convidados).' : 'Não foi possível adicionar. Rode o SQL atualizado no Supabase.');
+  carregarSemana();
 }
-function marcarSuja() { if (!SUJAS.has(atual)) { SUJAS.add(atual); renderAbas(); } renderSavebar(); }
-
-/* ---------- ações ---------- */
-function irSemana(n) { atual = n; FOCO = null; render(); }
-function mudarNomeSemana(v) { SEM[atual].nome = v; marcarSuja(); }
-
-function novaSemana(duplicar) {
-  const livre = [1, 2, 3, 4].find(n => !SEM[n]);
-  if (!livre) return aviso('O limite é de 4 semanas.');
-  const base = duplicar && SEM[atual] ? SEM[atual].linhas.map(l => ({ usuario: l.usuario, convidado: l.convidado || '', nome: l.nome, dias: l.dias.slice() })) : [{ usuario: ME.usuario, nome: ME.nome, dias: ['', '', '', '', '', '', ''] }];
-  SEM[livre] = { nome: duplicar ? (SEM[atual].nome + ' (cópia)').slice(0, 40) : 'Semana ' + livre, salva: false, linhas: base };
-  SUJAS.add(livre); atual = livre; render();
-}
-function adicionarLinha() {
-  const u = ($('sel-add') || {}).value; if (!u) return;
-  const p = [ME].concat(CONTATOS).find(x => baixo(x.usuario) === baixo(u)); if (!p) return;
-  SEM[atual].linhas.push({ usuario: p.usuario, nome: p.nome, dias: ['', '', '', '', '', '', ''] });
-  SUJAS.add(atual); render();
-}
-function adicionarConvidado() {
-  pedirTexto({ titulo: 'Adicionar convidado', sub: 'A pessoa não precisa ter conta no Fluxo.', rotulo: 'Nome do convidado', ph: 'Ex.: Maria (estágio)', max: 40, ok: 'Adicionar' }, nome => {
-    if (SEM[atual].linhas.some(l => l.convidado && baixo(l.convidado) === baixo(nome))) return 'Esse convidado já está na semana.';
-    SEM[atual].linhas.push({ usuario: '', convidado: nome, nome, dias: ['', '', '', '', '', '', ''] });
-    SUJAS.add(atual); render(); return '';
-  });
-}
-function removerLinha(i) {
-  const l = SEM[atual].linhas[i];
-  if (l.dias.some(x => x.trim()) && !confirm('Remover a linha de ' + nomeDe(l) + ' desta semana?')) return;
-  SEM[atual].linhas.splice(i, 1); SUJAS.add(atual); render();
+async function tirarConvidado(id) {
+  if (!confirm('Tirar este convidado do setor? Os turnos dele neste setor serão apagados.')) return;
+  await db.rpc('setor_convidado_rem', { p_setor: SETOR, p_id: id }); carregarSemana();
 }
 
-async function salvarSemana() {
-  const s = SEM[atual], n = atual;
-  const btn = $('btn-salvar'); if (btn) { btn.disabled = true; }
-  const { data, error } = await db.rpc('escala_salvar_semana', { p_numero: n, p_nome: s.nome, p_linhas: s.linhas.map(l => ({ usuario: l.convidado ? null : l.usuario, convidado: l.convidado || null, dias: l.dias })) });
-  if (error || data !== 'ok') { if (btn) btn.disabled = false; return aviso('Não foi possível salvar: ' + (error ? error.message : data)); }
-  SUJAS.delete(n); aviso('Semana salva.');
-  await carregar();
+/* ===== MENU LATERAL (igual ao do menu.html) ===== */
+const fotoOk = f => (typeof f === 'string' && /^data:image\//.test(f)) ? f : '';
+let tPessoasMenu = null;
+async function carregarTrocasBadge() {
+  const el = $('sb-escala-badge'); if (!el) return;
+  const { data, error } = await db.rpc('escala_trocas_qtd');
+  const n = error ? 0 : (Number(data) || 0);
+  el.hidden = !n; el.textContent = n > 99 ? '99+' : n;
+  el.title = n ? n + (n === 1 ? ' pedido de troca para responder' : ' pedidos de troca para responder') : '';
 }
-async function definirVigente() {
-  if (!confirm('Marcar a semana de hoje como a Semana ' + atual + ' do ciclo? Cada pessoa continua girando só nas semanas em que aparece.')) return;
-  const { data, error } = await db.rpc('escala_definir_vigente', { p_numero: atual });
-  if (error || data !== 'ok') return aviso('Não foi possível: ' + (error ? error.message : data));
-  aviso('Ciclo ajustado.'); await carregar();
+async function carregarPedidosBadge() {
+  const el = $('sb-perfil-badge'); if (!el) return;
+  const { data, error } = await db.rpc('contato_pedidos_qtd');
+  const n = error ? 0 : (Number(data) || 0);
+  el.hidden = !n; el.textContent = n > 99 ? '99+' : n;
+  el.title = n ? n + (n === 1 ? ' pedido para aceitar' : ' pedidos para aceitar') : '';
 }
-async function apagarSemana() {
-  const s = SEM[atual];
-  if (!confirm('Apagar "' + s.nome + '"? Isso não pode ser desfeito.')) return;
-  if (s.salva) {
-    const { data, error } = await db.rpc('escala_apagar_semana', { p_numero: atual });
-    if (error || data !== 'ok') return aviso('Não foi possível apagar: ' + (error ? error.message : data));
-  }
-  delete SEM[atual]; SUJAS.delete(atual); atual = null; aviso('Semana apagada.'); await carregar();
+async function carregarPessoas(silencioso) {
+  const lista = $('sb-pessoas-lista'); if (!lista) return;
+  if (!silencioso) lista.innerHTML = '<p class="pessoas-vazio">A carregar...</p>';
+  const [p, r] = await Promise.all([db.rpc('listar_contatos'), db.rpc('chat_resumo')]);
+  if (p.error) { if (!silencioso) lista.innerHTML = '<p class="pessoas-vazio">Não foi possível carregar.</p>'; return; }
+  const nao = {}; let total = 0;
+  (r.data || []).forEach(x => { const n = x.nao_lidas || 0; nao[String(x.usuario).toLowerCase()] = n; total += n; });
+  const mb = $('menu-btn-badge'); if (mb) { mb.hidden = !total; mb.textContent = total > 99 ? '99+' : total; }
+  const vistos = new Set(), data = (p.data || []).filter(x => { const k = String(x.usuario).toLowerCase(); if (vistos.has(k)) return false; vistos.add(k); return true; }).sort((a, b) => String(a.nome || a.usuario).localeCompare(String(b.nome || b.usuario)));
+  if (!data.length) lista.innerHTML = '<p class="pessoas-vazio">Ninguém adicionado ainda.</p>';
+  else lista.innerHTML = data.map(x => {
+    const nome = x.nome || x.usuario || 'Sem nome', f = fotoOk(x.foto), n = nao[String(x.usuario).toLowerCase()] || 0;
+    const av = f ? '<img src="' + esc(f) + '" alt="">' : esc(nome.trim().charAt(0).toUpperCase());
+    return '<button type="button" class="sb-pessoa" data-u="' + esc(x.usuario) + '" title="Conversar com ' + esc(nome) + '"><span class="pessoa-av">' + av + '</span><span class="pessoa-nome">' + esc(nome) + '</span>' + (n ? '<span class="sb-badge">' + (n > 99 ? '99+' : n) + '</span>' : '') + '</button>';
+  }).join('');
+  carregarPedidosBadge(); carregarTrocasBadge();
+  if (!tPessoasMenu) tPessoasMenu = setInterval(() => carregarPessoas(true), 15000);
 }
-
-/* ---------- funções rápidas ---------- */
-function salvarSugestoes() { try { localStorage.setItem('fluxo_escala_sugestoes', JSON.stringify(SUGESTOES)); } catch (e) {} }
-function inserirSugestao(i) {
-  if (!FOCO || !document.body.contains(FOCO)) return aviso('Toque primeiro numa célula da planilha.');
-  const t = SUGESTOES[i], ta = FOCO, v = ta.value.trim();
-  ta.value = v ? v + ', ' + t.toLowerCase() : t;
-  SEM[atual].linhas[+ta.dataset.r].dias[+ta.dataset.d] = ta.value;
-  crescer(ta); marcarSuja();
-}
-function novaSugestao() {
-  pedirTexto({ titulo: 'Nova função rápida', sub: 'Fica salva neste aparelho para você usar nas próximas semanas.', rotulo: 'Função', ph: 'Ex.: Atender balcão', max: 40, ok: 'Criar' }, t => { SUGESTOES.push(t); salvarSugestoes(); renderBarra(); return ''; });
-}
-function removerSugestao(i) { SUGESTOES.splice(i, 1); salvarSugestoes(); renderBarra(); }
-
-/* ---------- janelas (modal) ---------- */
-function abrirModal(html) {
-  $('modal-box').innerHTML = '<div class="fundo-m" id="fundo-m"><div class="modal" role="dialog" aria-modal="true">' + html + '</div></div>';
-  $('fundo-m').addEventListener('mousedown', e => { if (e.target.id === 'fundo-m') fecharModal(); });
-}
-function fecharModal() { $('modal-box').innerHTML = ''; }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharModal(); });
-
-function pedirTexto(o, cb) {
-  abrirModal('<h3>' + esc(o.titulo) + '</h3>' + (o.sub ? '<p class="sub">' + esc(o.sub) + '</p>' : '') + '<label for="pt-in">' + esc(o.rotulo) + '</label><input id="pt-in" type="text" maxlength="' + (o.max || 40) + '" placeholder="' + esc(o.ph || '') + '" autocomplete="off"><p class="m-msg" id="pt-msg"></p>' +
-    '<div class="m-acoes"><button type="button" class="ghost" onclick="fecharModal()">Cancelar</button><button type="button" class="btn" id="pt-ok">' + esc(o.ok || 'OK') + '</button></div>');
-  const ir = () => { const v = $('pt-in').value.trim(); if (!v) { $('pt-msg').textContent = 'Preencha o campo.'; return; } const erro = cb(v.slice(0, o.max || 40)); if (erro) { $('pt-msg').textContent = erro; return; } fecharModal(); };
-  $('pt-ok').onclick = ir; $('pt-in').addEventListener('keydown', e => { if (e.key === 'Enter') ir(); }); setTimeout(() => $('pt-in').focus(), 30);
-}
-
-/* ---------- trocas de escala ---------- */
-async function carregarTrocas() {
-  const { data, error } = await db.rpc('escala_trocas');
-  TROCAS_OK = !error;
-  TROCAS = (!error && data && typeof data === 'object') ? { recebidas: data.recebidas || [], enviadas: data.enviadas || [], aceitas: data.aceitas || [] } : { recebidas: [], enviadas: [], aceitas: [] };
-  renderTrocas(); renderHero();
-}
-
-// quem posso escolher para trocar: pessoas com conta nesta escala que aceitaram o meu pedido
-function candidatosTroca() {
-  const vistos = new Map();
-  Object.keys(SEM).forEach(n => SEM[n].linhas.forEach(l => { if (!l.convidado && l.usuario && baixo(l.usuario) !== baixo(ME.usuario)) vistos.set(baixo(l.usuario), nomeDe(l)); }));
-  const contatos = new Set(CONTATOS.map(c => baixo(c.usuario)));
-  return [...vistos].filter(([u]) => contatos.has(u)).map(([u, n]) => ({ usuario: u, nome: n }));
-}
-const euNaEscala = () => !!(DADOS && (editavel() || Object.keys(SEM).some(n => SEM[n].linhas.some(l => !l.convidado && baixo(l.usuario) === baixo(ME.usuario)))));
-
-function renderTrocas() {
-  const box = $('lista-trocas'), btn = $('btn-pedir-troca');
-  btn.hidden = !DADOS || !euNaEscala();
-  const q = $('qtd-trocas'); q.hidden = !TROCAS.recebidas.length; q.textContent = TROCAS.recebidas.length;
-  if (!TROCAS_OK) { box.innerHTML = '<p class="mut" style="margin:0">As trocas ainda não estão ativas: rode o <b>banco_de_dado_trocas.txt</b> no SQL Editor do Supabase.</p>'; btn.hidden = true; return; }
-  const dono = t => (DADOS && t.dono_usuario && baixo(t.dono_usuario) !== baixo(ME.usuario)) ? ' · escala de ' + esc(t.dono_nome || t.dono_usuario) : '';
-  let h = '';
-  if (TROCAS.recebidas.length) {
-    h += '<div class="troca-g">Para você aceitar</div>' + TROCAS.recebidas.map(t => '<div class="troca"><span class="av">' + esc(nomeDe(t).trim().charAt(0).toUpperCase()) + '</span><div class="t-tx"><b>' + esc(nomeDe(t)) + '</b> quer trocar o dia <b>' + esc(diaCurto(t.data)) + '</b> com você<small>Vocês trocam as funções desse dia' + dono(t) + (t.nota ? ' · "' + esc(t.nota) + '"' : '') + '</small></div><div class="t-ac"><button type="button" class="ghost perigo sm" data-ac="recusar" data-id="' + t.id + '">' + ic('x', 15) + ' Recusar</button><button type="button" class="btn sm" data-ac="aceitar" data-id="' + t.id + '" data-n="' + esc(nomeDe(t)) + '" data-d="' + t.data + '">' + ic('check', 15) + ' Aceitar</button></div></div>').join('');
-  }
-  if (TROCAS.enviadas.length) {
-    h += '<div class="troca-g">Aguardando resposta</div>' + TROCAS.enviadas.map(t => '<div class="troca"><span class="av">' + esc(nomeDe(t).trim().charAt(0).toUpperCase()) + '</span><div class="t-tx">Pedido de troca do dia <b>' + esc(diaCurto(t.data)) + '</b> enviado para <b>' + esc(nomeDe(t)) + '</b><small>Vale quando a pessoa aceitar' + dono(t) + '</small></div><div class="t-ac"><button type="button" class="ghost sm" data-ac="cancelar" data-id="' + t.id + '">' + ic('x', 15) + ' Cancelar</button></div></div>').join('');
-  }
-  if (TROCAS.aceitas.length) {
-    h += '<div class="troca-g">Trocas combinadas</div>' + TROCAS.aceitas.map(t => { const outro = t.eu_sou === 'de' ? { usuario: t.para_usuario, nome: t.para_nome } : { usuario: t.de_usuario, nome: t.de_nome }; return '<div class="troca"><span class="av">' + esc(nomeDe(outro).trim().charAt(0).toUpperCase()) + '</span><div class="t-tx">Dia <b>' + esc(diaCurto(t.data)) + '</b>: você troca de funções com <b>' + esc(nomeDe(outro)) + '</b><small>As funções dos dois ficam trocadas nesse dia' + dono(t) + '</small></div><div class="t-ac"><button type="button" class="ghost sm" data-ac="desfazer" data-id="' + t.id + '">' + ic('undo', 15) + ' Desfazer</button></div></div>'; }).join('');
-  }
-  box.innerHTML = h || '<p class="mut" style="margin:0">Nenhuma troca por enquanto. Use "Pedir troca" para escolher um dia e uma pessoa.</p>';
-}
-
-$('lista-trocas').addEventListener('click', async e => {
-  const b = e.target.closest('[data-ac]'); if (!b) return;
-  const id = Number(b.dataset.id), ac = b.dataset.ac;
-  if (ac === 'aceitar') {
-    if (!confirm('Aceitar a troca do dia ' + dtBR(b.dataset.d) + ' com ' + b.dataset.n + '?\n\nVocês passam a fazer as funções um do outro nesse dia.')) return;
-    const { data, error } = await db.rpc('escala_troca_responder', { p_id: id, p_aceitar: true });
-    if (error) return aviso('Erro: ' + error.message);
-    aviso(data === 'ok' ? 'Troca aceita.' : (data === 'conflito' ? 'Já existe outra troca aceita para essa pessoa nesse dia.' : 'Esse pedido não existe mais.'));
-  } else if (ac === 'recusar') {
-    if (!confirm('Recusar este pedido de troca?')) return;
-    const { error } = await db.rpc('escala_troca_responder', { p_id: id, p_aceitar: false });
-    if (error) return aviso('Erro: ' + error.message); aviso('Pedido recusado.');
-  } else if (ac === 'cancelar' || ac === 'desfazer') {
-    if (ac === 'desfazer' && !confirm('Desfazer esta troca? Cada um volta às suas funções nesse dia.')) return;
-    const { error } = await db.rpc('escala_troca_cancelar', { p_id: id });
-    if (error) return aviso('Erro: ' + error.message); aviso(ac === 'desfazer' ? 'Troca desfeita.' : 'Pedido cancelado.');
-  }
-  await carregarTrocas();
+// o chat flutuante fica no menu: abre lá com a pessoa escolhida
+$('sb-pessoas-lista').addEventListener('click', e => {
+  const b = e.target.closest('.sb-pessoa'); if (!b) return;
+  window.location.href = 'menu.html?chat=' + encodeURIComponent(b.dataset.u);
 });
-
-const MSG_TROCA = { ok: 'Pedido enviado. A troca vale quando a pessoa aceitar.', ja_pendente: 'Você já pediu essa troca para essa pessoa.', conflito: 'Alguém desse par já tem uma troca aceita nesse dia.', nao_contato: 'Só dá para trocar com quem aceitou o seu pedido de contato.', nao_encontrado: 'Pessoa não encontrada.', proprio: 'Escolha outra pessoa.', data_invalida: 'Escolha uma data de hoje em diante (até 120 dias).', sem_permissao: 'Sessão inválida. Entre de novo.' };
-function abrirTroca(dataIso) {
-  const cand = candidatosTroca();
-  if (!cand.length) return aviso('Não há ninguém com conta nesta escala para trocar. Adicione e aceite pessoas no perfil.');
-  const amanha = dataIso || isoDe(new Date(Date.now() + 86400000));
-  abrirModal('<h3>Pedir troca de dia</h3><p class="sub">Vocês trocam as funções desse dia. A troca só vale depois que a pessoa aceitar.</p>' +
-    '<label for="tr-data">Dia</label><input type="date" id="tr-data" value="' + amanha + '" min="' + isoHoje() + '">' +
-    '<label for="tr-quem">Trocar com</label><select id="tr-quem">' + cand.map(c => '<option value="' + esc(c.usuario) + '">' + esc(c.nome) + '</option>').join('') + '</select>' +
-    '<label for="tr-nota">Recado (opcional)</label><input type="text" id="tr-nota" maxlength="200" placeholder="Ex.: consulta médica nesse dia">' +
-    '<p class="m-msg" id="tr-msg"></p><div class="m-acoes"><button type="button" class="ghost" onclick="fecharModal()">Cancelar</button><button type="button" class="btn" id="tr-ok">' + ic('send') + ' Enviar pedido</button></div>');
-  $('tr-ok').onclick = async () => {
-    const d = $('tr-data').value; if (!d) return $('tr-msg').textContent = 'Escolha o dia.';
-    $('tr-ok').disabled = true;
-    const { data, error } = await db.rpc('escala_troca_pedir', { p_dono: DONO ? (DADOS.dono_usuario || DONO) : '', p_data: d, p_usuario: $('tr-quem').value, p_nota: $('tr-nota').value });
-    $('tr-ok').disabled = false;
-    if (error) return $('tr-msg').textContent = /escala_troca_pedir/.test(error.message || '') ? 'Rode o banco_de_dado_trocas.txt no Supabase para ativar as trocas.' : 'Erro: ' + error.message;
-    if (data !== 'ok') return $('tr-msg').textContent = MSG_TROCA[data] || 'Não foi possível enviar.';
-    fecharModal(); aviso(MSG_TROCA.ok); await carregarTrocas();
-  };
+function sidebarPreferida() {
+  try { const v = localStorage.getItem('fluxo_sidebar'); if (v === 'aberta' || v === 'fechada') return v; } catch (e) {}
+  return window.innerWidth < 1280 ? 'fechada' : 'aberta';
 }
+const ehMobile = () => window.innerWidth <= 760;
+function aplicarSidebar() {
+  const sb = $('sidebar'); if (!sb) return;
+  sb.classList.toggle('recolhida', !ehMobile() && sidebarPreferida() === 'fechada');
+  if (!ehMobile()) fecharDrawer();
+}
+function fecharDrawer() {
+  const sb = $('sidebar'), ov = $('sb-overlay');
+  if (sb) sb.classList.remove('aberta-mobile'); if (ov) ov.classList.remove('on');
+}
+function toggleSidebar() {
+  if (ehMobile()) {
+    const sb = $('sidebar'), abrir = !sb.classList.contains('aberta-mobile');
+    sb.classList.toggle('aberta-mobile', abrir); $('sb-overlay').classList.toggle('on', abrir);
+    return;
+  }
+  const nova = sidebarPreferida() === 'aberta' ? 'fechada' : 'aberta';
+  try { localStorage.setItem('fluxo_sidebar', nova); } catch (e) {}
+  aplicarSidebar();
+}
+document.addEventListener('DOMContentLoaded', aplicarSidebar);
+window.addEventListener('resize', aplicarSidebar);
+async function sair() { await db.auth.signOut(); window.location.href = 'index.html'; }
 </script>
 </body>
 </html>
