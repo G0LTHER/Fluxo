@@ -180,6 +180,25 @@
   .rm { margin-left: auto; border: 0; background: none; color: var(--mut); padding: 4px; border-radius: 8px; } .rm:hover { color: #dc2626; }
   td input { width: 100%; border: 1px solid transparent; border-radius: 10px; background: var(--bg); padding: 9px 8px; font-size: 13px; }
   td input:focus { outline: none; border-color: var(--pri); background: var(--card); }
+  .cic-esc { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 12px 0 4px; } .cic-lbl { font-weight: 800; color: var(--mut); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .grade th.t-lbl, .grade td.t-lbl { text-align: left; min-width: 140px; position: sticky; left: 0; z-index: 1; background: var(--card); font-weight: 800; border-left: 4px solid var(--c, var(--pri)); }
+  .grade th.t-lbl { background: var(--bg); border-left-color: transparent; }
+  .grade td.t-cel { vertical-align: top; cursor: pointer; border-left: 4px solid var(--c, var(--pri)); min-width: 132px; height: 92px; padding: 6px 8px; }
+  .grade td.t-cel:hover { background: var(--pri-light); }
+  .t-nome { padding: 5px 0; border-bottom: 1px solid var(--bd); font-size: 13px; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .t-nome:last-child { border-bottom: 0; }
+  .t-mais { color: var(--mut); opacity: .55; text-align: center; font-size: 20px; line-height: 70px; }
+  .cic-pess { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; } .cic-pess span { border: 1px solid var(--bd); border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 700; } .cic-pess b { color: var(--pri); }
+  .cel-modal { position: fixed; inset: 0; background: rgba(15,23,42,.5); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .cel-card { background: var(--card); border: 1px solid var(--bd); border-radius: 20px; padding: 18px; max-width: 420px; width: 100%; max-height: 80vh; overflow: auto; }
+  .cel-row { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 12px; cursor: pointer; font-weight: 700; } .cel-row:hover { background: var(--pri-light); } .cel-row input { width: 18px; height: 18px; accent-color: var(--pri); } .cel-row small { margin-left: auto; color: var(--mut); font-weight: 600; }
+  .t-nome { white-space: normal; word-break: break-word; text-align: left; } .t-nome b { display: block; font-weight: 800; } .t-fun { display: block; font-weight: 500; font-size: 11px; color: var(--mut); white-space: normal; }
+  .cel-pes { border: 1px solid var(--bd); border-radius: 14px; padding: 8px; margin-bottom: 8px; } .cel-pes .cel-row { padding: 4px 6px; } .cel-fun { width: 100%; margin-top: 6px; padding: 9px 10px; border: 1px solid var(--bd); border-radius: 10px; background: var(--bg); font-size: 13px; } .cel-fun:focus { outline: none; border-color: var(--pri); }
+  .cel-dias { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0 12px; }
+  .t-fun { line-height: 1.35; }
+  .cel-lista { list-style: none; margin: 6px 0; padding: 0; } .cel-lista li { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid var(--bd); border-radius: 10px; margin-bottom: 4px; font-size: 13px; background: var(--bg); } .cel-lista li button { margin-left: auto; border: 0; background: none; color: var(--mut); padding: 2px 4px; } .cel-lista li button:hover { color: #dc2626; }
+  .cel-add { display: flex; gap: 6px; } .cel-add .cel-fun { margin-top: 0; flex: 1; }
+  td input.ciclo { background: transparent; color: var(--mut); font-weight: 600; border: 1px dashed var(--bd); }
+  .cic-abas { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 4px; } .cic-info { color: var(--mut); font-size: 12px; margin: 6px 0; } .p-ciclo { font-size: 11px; font-weight: 600; color: var(--mut); display: block; } .p-ciclo b { color: var(--pri); }
   td input.tem { background: var(--pri-light); color: var(--pri); font-weight: 700; }
   td input[readonly] { cursor: default; }
   .vazio { text-align: center; padding: 28px 12px; color: var(--mut); }
@@ -360,14 +379,14 @@ async function carregarSetores() {
   const { data, error } = await db.rpc('setores_listar');
   if (error) { $('planilha').innerHTML = '<div class="vazio"><b>Setores ainda não ativados.</b><br>Rode o <b>supabase/fluxo-banco-completo.sql</b> no Supabase (SQL Editor).</div>'; return; }
   SETORES = data || [];
-  if (!SETORES.find(s => s.id === SETOR)) SETOR = SETORES.length ? SETORES[0].id : null;
+  if (!SETORES.find(s => s.id === SETOR)) { SETOR = SETORES.length ? SETORES[0].id : null; CSEM_OK = false; }
   renderAbas(); await carregarSemana();
 }
 function renderAbas() {
   $('abas').innerHTML = SETORES.map(s => '<button type="button" class="aba' + (s.id === SETOR ? ' on' : '') + '" onclick="irSetor(' + s.id + ')">' + esc(s.nome) + '</button>').join('') + '<button type="button" class="aba aba-nova" onclick="novoSetor()">+ Setor</button>';
-  $('acoes-setor').innerHTML = SETOR ? '<button type="button" class="ghost perigo" onclick="apagarSetor()">Apagar setor</button>' : '';
+  $('acoes-setor').innerHTML = SETOR ? '<button type="button" class="ghost' + (MODO === 'ciclo' ? '' : '') + '" onclick="trocarModo()">' + (MODO === 'ciclo' ? 'Ver semana do calendário' : 'Montar semanas 1 a 4') + '</button><button type="button" class="ghost perigo" onclick="apagarSetor()">Apagar setor</button>' : '';
 }
-function irSetor(id) { SETOR = id; renderAbas(); carregarSemana(); }
+function irSetor(id) { SETOR = id; CSEM_OK = false; renderAbas(); carregarSemana(); }
 async function novoSetor() {
   const nome = (prompt('Nome do setor (ex.: Same, Barracão):') || '').trim(); if (!nome) return;
   const { data, error } = await db.rpc('setor_criar', { p_nome: nome });
@@ -386,9 +405,14 @@ async function carregarSemana() {
   if (!SETOR) { $('planilha').innerHTML = '<div class="vazio"><h2 style="margin:0 0 6px;color:var(--tx)">Nenhum setor ainda</h2>Crie um setor (ex.: Same, Barracão) para montar a escala dele.</div>'; return; }
   const { data, error } = await db.rpc('setor_semana', { p_setor: SETOR, p_ini: isoDe(SEMANA) });
   if (error) return aviso('Erro ao carregar: ' + error.message);
-  DADOS = data || { pessoas: [], turnos: [] }; renderPlanilha(); renderHint();
+  DADOS = data || { pessoas: [], turnos: [] };
+  const cv = await db.rpc('setor_ciclo_ver', { p_setor: SETOR }); CICLO_OK = !cv.error; CICLO = (!cv.error && cv.data) ? cv.data : { linhas: [] };
+  if (!CSEM_OK) { const ns = (CICLO.linhas || []).map(l => l.numero); CSEM = CICLO.vigente_numero || (ns.length ? Math.min.apply(null, ns) : 1); CSEM_OK = true; }
+  const sn = document.querySelector('.semana-nav'); if (sn) sn.style.visibility = MODO === 'ciclo' ? 'hidden' : '';
+  renderPlanilha(); renderHint();
 }
 function renderPlanilha() {
+  if (MODO === 'ciclo') return renderCiclo();
   const hoje = isoDe(new Date()), mapa = {}; const chv = o => o.convidado || o.cid ? 'c' + o.cid : 'u' + String(o.usuario).toLowerCase(); DADOS.turnos.forEach(t => { mapa[chv(t) + '|' + t.data] = t.tipo; });
   let h = '<div class="planilha"><table><thead><tr><th class="pes">Pessoa</th>';
   for (let i = 0; i < 7; i++) { const d = new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + i), iso = isoDe(d); h += '<th' + (iso === hoje ? ' class="hoje"' : '') + '>' + DIAS[i] + '<small>' + String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '</small></th>'; }
@@ -398,8 +422,8 @@ function renderPlanilha() {
     const conv = !!p.convidado, chave = conv ? 'c' + p.cid : 'u' + String(p.usuario).toLowerCase();
     const rm = conv ? 'tirarConvidado(' + Number(p.cid) + ')' : "tirarPessoa('" + esc(p.usuario) + "')";
     h += '<tr><td class="pes"><div class="pn"><span class="av' + (conv ? ' conv' : '') + '">' + esc((p.nome || '?').charAt(0).toUpperCase()) + '</span><span>' + esc(p.nome) + (conv ? ' <small class="tag-conv">convidado</small>' : '') + '</span><button type="button" class="rm" title="Tirar do setor" onclick="' + rm + '">✕</button></div></td>';
-    for (let i = 0; i < 7; i++) { const iso = isoDe(new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + i)), v = mapa[chave + '|' + iso] || '';
-      h += '<td><input list="tipos" maxlength="60" value="' + esc(v) + '" class="' + (v ? 'tem' : '') + '" ' + (conv ? 'data-c="' + Number(p.cid) + '"' : 'data-u="' + esc(p.usuario) + '"') + ' data-d="' + iso + '" placeholder="—" aria-label="' + esc(p.nome) + ' ' + DIAS[i] + '"></td>'; }
+    for (let i = 0; i < 7; i++) { const iso = isoDe(new Date(SEMANA.getFullYear(), SEMANA.getMonth(), SEMANA.getDate() + i)), ov = mapa[chave + '|' + iso] || '', cv = ov ? '' : cicloValor(conv ? 'c:' + p.cid : 'u:' + String(p.usuario).toLowerCase(), iso), v = ov || cv;
+      h += '<td><input list="tipos" maxlength="60" value="' + esc(v) + '" class="' + (v ? 'tem' : '') + (cv ? ' ciclo' : '') + '" ' + (conv ? 'data-c="' + Number(p.cid) + '"' : 'data-u="' + esc(p.usuario) + '"') + ' data-d="' + iso + '" placeholder="—" aria-label="' + esc(p.nome) + ' ' + DIAS[i] + '"></td>'; }
     h += '</tr>';
   });
   h += '</tbody></table></div>';
@@ -414,10 +438,197 @@ $('planilha').addEventListener('change', async e => {
     ? await db.rpc('setor_turno_conv', { p_setor: SETOR, p_data: i.dataset.d, p_id: Number(i.dataset.c), p_tipo: i.value })
     : await db.rpc('setor_turno', { p_setor: SETOR, p_data: i.dataset.d, p_usuario: i.dataset.u, p_tipo: i.value });
   if (error || data !== 'ok') return aviso('Não foi possível salvar.');
-  i.classList.toggle('tem', !!i.value.trim()); aviso('Salvo.');
+  i.classList.toggle('tem', !!i.value.trim()); i.classList.remove('ciclo'); aviso('Salvo.');
+  if (!i.value.trim()) { DADOS.turnos = (DADOS.turnos || []).filter(t => !(t.data === i.dataset.d && (i.dataset.c ? String(t.cid) === i.dataset.c : String(t.usuario).toLowerCase() === String(i.dataset.u).toLowerCase()))); renderPlanilha(); }
 });
 async function addPessoa() { const u = ($('sel-add') || {}).value; if (!u) return; const { data } = await db.rpc('setor_pessoa', { p_setor: SETOR, p_usuario: u, p_add: true }); if (data !== 'ok') return aviso(data === 'nao_contato' ? 'Só dá para adicionar seus contatos.' : data === 'limite' ? 'Setor cheio (60 pessoas).' : 'Não foi possível adicionar.'); carregarSemana(); }
 async function tirarPessoa(u) { if (!confirm('Tirar essa pessoa do setor? Os turnos dela neste setor serão apagados.')) return; await db.rpc('setor_pessoa', { p_setor: SETOR, p_usuario: u, p_add: false }); carregarSemana(); }
+
+/* ---------- CICLO DO SETOR ----------
+   Cada pessoa gira só nas semanas em que aparece (1-2-1-2, 1-2-3-1-2-3...). Um turno digitado direto na
+   semana (data específica) vale mais que o ciclo. */
+let MODO = 'ciclo', CSEM = 1, CSEM_OK = false, CICLO = { linhas: [] }, CICLO_OK = true;
+const pKey = p => p.convidado ? 'c:' + p.cid : 'u:' + String(p.usuario).toLowerCase();
+const lc = s => String(s || '').toLowerCase();
+function cicloLinhasDe(k) { return (CICLO.linhas || []).filter(l => l.chave === k).sort((a, b) => a.numero - b.numero); }
+function cicloValor(k, iso) {
+  const ls = cicloLinhasDe(k); if (!ls.length) return '';
+  const [y, m, d] = iso.split('-').map(Number), dt = new Date(y, m - 1, d), seg = segDe(dt), dia = Math.round((dt - seg) / 864e5);
+  const nums = (CICLO.linhas || []).map(l => l.numero), v = CICLO.vigente_numero || Math.min.apply(null, nums);
+  let s0 = segDe(new Date()); if (CICLO.vigente_segunda) { const [a, b, c] = String(CICLO.vigente_segunda).split('-').map(Number); s0 = new Date(a, b - 1, c); }
+  const off = Math.round((seg - s0) / (7 * 864e5)), i0 = Math.max(0, ls.findIndex(l => l.numero >= v)), pos = (((i0 + off) % ls.length) + ls.length) % ls.length;
+  return String((ls[pos].dias || [])[dia] || '');
+}
+function trocarModo() { MODO = MODO === 'ciclo' ? 'semana' : 'ciclo'; renderAbas(); carregarSemana(); }
+const TCOR = ['var(--pri)', '#6366f1', '#f59e0b', '#ec4899', '#22c55e', '#06b6d4', '#a855f7'];
+const DIAS_L2 = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+let CEL = null;
+function turnosSalvos() { try { const v = localStorage.getItem('fluxo_turnos_' + SETOR); if (v === null) return null; const a = JSON.parse(v); return Array.isArray(a) ? a.filter(x => typeof x === 'string').slice(0, 12) : null; } catch (er) { return null; } }
+function salvarTurnos(a) { try { localStorage.setItem('fluxo_turnos_' + SETOR, JSON.stringify(a)); } catch (er) {} }
+const SEP = ' · ', SEP2 = ' | ';
+const partes = s => { s = String(s || '').trim(); const k = s.indexOf(SEP); return k < 0 ? { t: s, f: '' } : { t: s.slice(0, k).trim(), f: s.slice(k + SEP.length).trim() }; };
+const juntar = (t, f) => f ? t + SEP + f : t;
+// um dia pode ter VÁRIOS turnos (ex.: Manhã e Tarde), separados por " | "
+const entradas = s => String(s || '').split(SEP2).map(x => x.trim()).filter(Boolean).map(partes).filter(x => x.t);
+const codificar = arr => arr.map(x => juntar(x.t, x.f)).join(SEP2);
+const limpaTxt = (s, n) => String(s || '').replace(/[|·]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
+function turnosDoSetor() {   // linhas da grade: os turnos salvos + qualquer turno já usado em alguma semana do setor
+  const out = (turnosSalvos() || ['Manhã', 'Tarde']).slice();
+  (CICLO.linhas || []).forEach(l => (l.dias || []).forEach(d => entradas(d).forEach(x => { if (!out.some(y => lc(y) === lc(x.t))) out.push(x.t); })));
+  return out;
+}
+const usaTurno = t => (CICLO.linhas || []).some(l => (l.dias || []).some(d => entradas(d).some(x => lc(x.t) === lc(t))));
+const tarefasDe = f => String(f || '').split(';').map(x => x.replace(/[,\s]+$/, '').trim()).filter(Boolean);
+function funcoesDoSetor() { const s = new Set(); (CICLO.linhas || []).forEach(l => (l.dias || []).forEach(d => entradas(d).forEach(x => tarefasDe(x.f).forEach(t => s.add(t))))); return [...s]; }
+function nSemanas() { const ns = (CICLO.linhas || []).map(l => l.numero); return Math.min(4, Math.max(1, CICLO.semanas || Math.max.apply(null, [2].concat(ns)))); }
+async function setSemanas(n) {
+  const r = await db.rpc('setor_ciclo_semanas', { p_setor: SETOR, p_n: n });
+  if (r.error) return aviso('Rode o SQL de atualização no Supabase (setor_ciclo_semanas).');
+  if (r.data === 'em_uso') return aviso('Limpe as semanas acima de ' + n + ' antes de diminuir.');
+  if (r.data !== 'ok') return aviso('Não foi possível mudar.');
+  CICLO.semanas = n; if (CSEM > n) CSEM = 1; if (CICLO.vigente_numero > n) CICLO.vigente_numero = null; renderCiclo();
+}
+function renderCiclo() {
+  if (!CICLO_OK) { $('planilha').innerHTML = '<div class="vazio"><b>Ciclo ainda não ativado.</b><br>Rode o <b>supabase/fluxo-banco-completo.sql</b> no Supabase (SQL Editor).</div>'; return; }
+  const linhas = CICLO.linhas || [], NS = nSemanas(), tem = n => linhas.some(l => l.numero === n), nums = linhas.map(l => l.numero), vig = CICLO.vigente_numero || (nums.length ? Math.min.apply(null, nums) : null);
+  if (CSEM > NS) CSEM = 1;
+  let h = '<div class="cic-esc"><span class="cic-lbl">Este setor tem</span><div class="cic-abas" style="margin:0">' + [1, 2, 3, 4].map(n => '<button type="button" class="aba' + (n === NS ? ' on' : '') + '" onclick="setSemanas(' + n + ')">' + n + (n === 1 ? ' semana' : ' semanas') + '</button>').join('') + '</div></div>';
+  h += '<div class="cic-esc"><span class="cic-lbl">Escolha a semana</span><div class="cic-abas" style="margin:0">' + Array.from({ length: NS }, (_, k) => k + 1).map(n => '<button type="button" class="aba' + (n === CSEM ? ' on' : '') + '" onclick="irCiclo(' + n + ')">Semana ' + n + (vig === n && tem(n) ? ' ★' : '') + (tem(n) ? '' : ' ·') + '</button>').join('') + '</div></div>';
+  h += '<div class="cic-info">Clique numa célula, marque quem faz aquele turno e monte a lista de funções de cada um (ex.: pegar FAAs, guardar pastas). Para a mesma função valer de manhã e de tarde, marque os dois turnos na janela. ' + (NS > 1 ? 'Cada pessoa gira só nas semanas em que aparece. ' : '') + (vig && NS > 1 ? 'Em vigor nesta semana do calendário: <b>Semana ' + vig + '</b> ★.' : '') + '</div>';
+  const turnos = turnosDoSetor(), ls = linhas.filter(l => l.numero === CSEM);
+  h += '<div class="planilha"><table class="grade"><thead><tr><th class="t-lbl">Turno</th>' + DIAS_L2.map(d => '<th>' + d + '</th>').join('') + '</tr></thead><tbody>';
+  turnos.forEach((t, ti) => {
+    const cor = TCOR[ti % TCOR.length];
+    h += '<tr><td class="t-lbl" style="--c:' + cor + '">' + esc(t) + '<button type="button" class="rm" data-rt="' + ti + '" title="Apagar este turno">✕</button></td>';
+    for (let i = 0; i < 7; i++) {
+      const q = ls.map(l => ({ l, x: entradas((l.dias || [])[i]).find(y => lc(y.t) === lc(t)) })).filter(o => o.x);
+      h += '<td class="t-cel" style="--c:' + cor + '" data-t="' + ti + '" data-i="' + i + '">' + (q.length ? q.map(o => '<div class="t-nome" title="' + esc(o.l.nome + (o.x.f ? ': ' + tarefasDe(o.x.f).join(', ') : '')) + '"><b>' + esc(o.l.nome) + '</b>' + (o.x.f ? '<span class="t-fun">' + tarefasDe(o.x.f).map(t => '• ' + esc(t)).join('<br>') + '</span>' : '') + '</div>').join('') : '<div class="t-mais">+</div>') + '</td>';
+    }
+    h += '</tr>';
+  });
+  h += '</tbody></table></div>';
+  h += '<div class="linha" style="margin-top:10px"><button type="button" class="ghost" onclick="novoTurno()">+ Novo turno</button>' + (tem(CSEM) && NS > 1 ? '<button type="button" class="ghost" onclick="cicVigente()">★ Esta semana do calendário é a Semana ' + CSEM + '</button>' : '') + (tem(CSEM) && NS > 1 ? '<button type="button" class="ghost" onclick="abrirCopiarSemana()">⧉ Copiar Semana ' + CSEM + ' para…</button>' : '') + (tem(CSEM) ? '<button type="button" class="ghost perigo" onclick="cicLimpar()">Limpar Semana ' + CSEM + '</button>' : '') + '</div>';
+  const ks = []; linhas.forEach(l => { if (!ks.find(x => x.chave === l.chave)) ks.push(l); });
+  if (ks.length && NS > 1) h += '<div class="cic-pess">' + ks.map(l => { const c = cicloLinhasDe(l.chave).map(x => x.numero); return '<span>' + esc(l.nome) + ' · ' + (c.length > 1 ? 'Ciclo <b>' + c.join(' → ') + '</b>' : 'Semana <b>' + c[0] + '</b> fixa') + '</span>'; }).join('') + '</div>';
+  $('planilha').innerHTML = h;
+}
+function irCiclo(n) { CSEM = n; renderCiclo(); }
+function novoTurno() {
+  const nome = limpaTxt(prompt('Nome do turno (ex.: Manhã, Tarde, Noite, Plantão, Folga):'), 40); if (!nome) return;
+  const base = turnosDoSetor(); if (base.some(x => lc(x) === lc(nome))) return aviso('Esse turno já existe.');
+  base.push(nome); salvarTurnos(base); renderCiclo();
+}
+function tirarTurno(ti) {
+  const t = turnosDoSetor()[ti]; if (t === undefined) return;
+  if (usaTurno(t)) return aviso('Tire as pessoas do turno "' + t + '" (em todas as semanas) antes de apagar.');
+  salvarTurnos(turnosDoSetor().filter((x, k) => k !== ti)); renderCiclo();
+}
+$('planilha').addEventListener('click', e => {
+  const rt = e.target.closest('[data-rt]'); if (rt) { e.stopPropagation(); return tirarTurno(Number(rt.dataset.rt)); }
+  const c = e.target.closest('.t-cel'); if (!c) return;
+  const i = Number(c.dataset.i), t = turnosDoSetor()[Number(c.dataset.t)]; CEL = { t, i, dias: new Set([i]), turnos: new Set([t]) }; renderCelModal();
+});
+function fecharCel() { CEL = null; const m = $('cel-modal'); if (m) m.remove(); }
+function minhaEntrada(k) { const l = (CICLO.linhas || []).find(x => x.numero === CSEM && x.chave === k); return entradas(l ? (l.dias || [])[CEL.i] : '').find(x => lc(x.t) === lc(CEL.t)); }
+function getTarefas(k) { if (!CEL.tarefas) CEL.tarefas = {}; if (!CEL.tarefas[k]) { const m = minhaEntrada(k); CEL.tarefas[k] = tarefasDe(m ? m.f : ''); } return CEL.tarefas[k]; }
+function renderCelModal() {
+  if (!CEL) return;
+  let m = $('cel-modal'); if (!m) { m = document.createElement('div'); m.id = 'cel-modal'; m.className = 'cel-modal'; m.addEventListener('click', ev => { if (ev.target === m) fecharCel(); }); document.body.appendChild(m); }
+  const pes = DADOS.pessoas || [], tds = turnosDoSetor();
+  m.innerHTML = '<div class="cel-card"><h3 style="margin:0 0 2px">' + esc(CEL.t) + ' · ' + DIAS_L2[CEL.i] + '</h3><div class="mut">Semana ' + CSEM + '. Marque quem faz e monte a lista do que cada um faz.</div>' +
+    '<div class="cic-lbl" style="margin-top:12px">Turnos onde repetir</div><div class="cel-dias">' + tds.map((t, k) => '<button type="button" class="aba' + (CEL.turnos.has(t) ? ' on' : '') + '" style="padding:5px 12px" data-turno="' + k + '">' + esc(t) + '</button>').join('') + '</div>' +
+    '<div class="cic-lbl">Dias onde repetir</div><div class="cel-dias">' + DIAS.map((d, k) => '<button type="button" class="aba' + (CEL.dias.has(k) ? ' on' : '') + '" style="padding:5px 12px" data-dia="' + k + '">' + d + '</button>').join('') + '</div>' +
+    '<div class="linha" style="margin:-4px 0 12px"><button type="button" class="ghost" data-replicar="1">⧉ Replicar esta célula nos turnos e dias escolhidos</button></div><datalist id="funcoes">' + funcoesDoSetor().map(f => '<option value="' + esc(f) + '"></option>').join('') + '</datalist>' +
+    (pes.length ? pes.map(p => { const k = pKey(p), l = (CICLO.linhas || []).find(x => x.numero === CSEM && x.chave === k), ent = entradas(l ? (l.dias || [])[CEL.i] : ''), mine = ent.find(x => lc(x.t) === lc(CEL.t)), outros = ent.filter(x => lc(x.t) !== lc(CEL.t)).map(x => x.t).join(', '), tar = getTarefas(k);
+      return '<div class="cel-pes"><label class="cel-row"><input type="checkbox" data-k="' + esc(k) + '"' + (mine ? ' checked' : '') + '><span>' + esc(p.nome) + (p.convidado ? ' <small style="margin:0">(convidado)</small>' : '') + '</span>' + (outros ? '<small>também: ' + esc(outros) + '</small>' : '') + '</label>' +
+        (tar.length ? '<ul class="cel-lista">' + tar.map((t, j) => '<li><span>• ' + esc(t) + '</span><button type="button" data-rmk="' + esc(k) + '" data-rmi="' + j + '" title="Tirar da lista">✕</button></li>').join('') + '</ul>' : '') +
+        '<div class="cel-add"><input class="cel-fun" list="funcoes" maxlength="40" data-add="' + esc(k) + '" placeholder="Adicionar função (Enter para incluir)"><button type="button" class="ghost" data-addbtn="' + esc(k) + '" title="Incluir na lista">+</button></div></div>'; }).join('') : '<div class="vazio">Este setor ainda não tem pessoas. Adicione na tela "Ver semana do calendário".</div>') +
+    '<div class="linha" style="margin-top:12px;justify-content:flex-end"><button type="button" class="btn" onclick="concluirCel()">Pronto</button></div></div>';
+  m.querySelectorAll('input[data-k]').forEach(i => i.addEventListener('change', () => aplicarCel(i.dataset.k, i.checked)));
+  m.querySelectorAll('input[data-add]').forEach(i => i.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); addTarefa(i.dataset.add, i.value); } }));
+  m.querySelectorAll('[data-addbtn]').forEach(b => b.addEventListener('click', () => { const i = [...m.querySelectorAll('input[data-add]')].find(x => x.dataset.add === b.dataset.addbtn); if (i) addTarefa(i.dataset.add, i.value); }));
+  m.querySelectorAll('[data-replicar]').forEach(b => b.addEventListener('click', replicarCel));
+  m.querySelectorAll('[data-rmk]').forEach(b => b.addEventListener('click', () => delTarefa(b.dataset.rmk, Number(b.dataset.rmi))));
+  m.querySelectorAll('[data-dia]').forEach(b => b.addEventListener('click', () => { const d = Number(b.dataset.dia); if (CEL.dias.has(d)) { if (CEL.dias.size > 1) CEL.dias.delete(d); } else CEL.dias.add(d); renderCelModal(); }));
+  m.querySelectorAll('[data-turno]').forEach(b => b.addEventListener('click', () => { const t = tds[Number(b.dataset.turno)]; if (t === CEL.t) return; if (CEL.turnos.has(t)) CEL.turnos.delete(t); else CEL.turnos.add(t); renderCelModal(); }));
+  if (CEL.foco) { const fi = [...m.querySelectorAll('input[data-add]')].find(x => x.dataset.add === CEL.foco); if (fi) fi.focus(); CEL.foco = null; }
+}
+async function addTarefa(k, valor) {
+  const t = limpaTxt(valor, 40).replace(/;/g, ','); if (!t || !CEL) return;
+  const arr = getTarefas(k); if (arr.length >= 8) return aviso('No máximo 8 funções por pessoa neste turno.');
+  if (!arr.some(x => lc(x) === lc(t))) arr.push(t);
+  CEL.foco = k; await aplicarCel(k, true);     // incluir uma função já marca a pessoa neste turno
+}
+async function delTarefa(k, j) {
+  const arr = getTarefas(k); arr.splice(j, 1); CEL.foco = null;
+  const c = [...document.querySelectorAll('#cel-modal input[data-k]')].find(x => x.dataset.k === k);
+  if (c && c.checked) await aplicarCel(k, true); else renderCelModal();
+}
+async function concluirCel() {   // inclui o que ficou digitado e não foi confirmado com Enter
+  const pend = [...document.querySelectorAll('#cel-modal input[data-add]')].map(i => [i.dataset.add, i.value]).filter(x => x[1].trim());
+  for (const [k, v] of pend) await addTarefa(k, v);
+  fecharCel();
+}
+async function aplicarCel(k, on) {
+  const p = (DADOS.pessoas || []).find(x => pKey(x) === k); if (!p || !CEL) return;
+  const f = limpaTxt(getTarefas(k).join('; '), 200);
+  const l = CICLO.linhas.find(x => x.numero === CSEM && x.chave === k), dias = l ? l.dias.slice() : ['', '', '', '', '', '', ''], ord = turnosDoSetor().map(lc);
+  CEL.dias.forEach(d => {
+    let arr = entradas(dias[d]);
+    CEL.turnos.forEach(t => { arr = arr.filter(x => lc(x.t) !== lc(t)); if (on) arr.push({ t, f }); });
+    arr.sort((a, b) => ord.indexOf(lc(a.t)) - ord.indexOf(lc(b.t))); dias[d] = codificar(arr);
+  });
+  if (dias.some(x => x.length > 600)) { aviso('Texto grande demais neste dia. Use menos funções ou nomes mais curtos.'); return renderCelModal(); }
+  const vazio = dias.every(x => !String(x).trim());
+  const r = vazio ? await db.rpc('setor_ciclo_linha_rem', { p_setor: SETOR, p_numero: CSEM, p_chave: k })
+                  : await db.rpc('setor_ciclo_linha', { p_setor: SETOR, p_numero: CSEM, p_chave: k, p_nome: p.nome, p_dias: dias });
+  if (r.error || r.data !== 'ok') { aviso('Não foi possível salvar.'); return renderCelModal(); }
+  CICLO.linhas = CICLO.linhas.filter(x => !(x.numero === CSEM && x.chave === k));
+  if (!vazio) CICLO.linhas.push({ numero: CSEM, chave: k, nome: p.nome, dias });
+  renderCiclo(); renderCelModal();
+}
+
+// Replica as listas de quem já está nesta célula nos turnos e dias escolhidos nos botões acima
+async function replicarCel() {
+  if (!CEL) return;
+  if (CEL.dias.size === 1 && CEL.turnos.size === 1) return aviso('Escolha outros turnos ou dias para repetir.');
+  const marcados = (DADOS.pessoas || []).filter(p => minhaEntrada(pKey(p)));
+  if (!marcados.length) return aviso('Marque alguém nesta célula primeiro.');
+  for (const p of marcados) await aplicarCel(pKey(p), true);
+  aviso('Replicado em ' + CEL.turnos.size + (CEL.turnos.size === 1 ? ' turno' : ' turnos') + ' × ' + CEL.dias.size + (CEL.dias.size === 1 ? ' dia.' : ' dias.'));
+}
+// Copia a semana inteira (turnos, pessoas e funções) para outra semana do ciclo
+function abrirCopiarSemana() {
+  const NS = nSemanas(), alvos = Array.from({ length: NS }, (_, k) => k + 1).filter(n => n !== CSEM);
+  if (!alvos.length) return aviso('Este setor só tem 1 semana. Aumente o número de semanas para copiar.');
+  let m = $('copia-modal'); if (m) m.remove();
+  m = document.createElement('div'); m.id = 'copia-modal'; m.className = 'cel-modal';
+  m.addEventListener('click', ev => { if (ev.target === m) m.remove(); });
+  m.innerHTML = '<div class="cel-card"><h3 style="margin:0 0 4px">Copiar Semana ' + CSEM + ' para…</h3><div class="mut" style="margin-bottom:12px">Copia pessoas, turnos e funções. Se a semana de destino já tiver dados, eles são substituídos.</div>' +
+    alvos.map(n => '<button type="button" class="ghost" style="width:100%;justify-content:space-between;margin-bottom:8px" data-alvo="' + n + '"><span>Semana ' + n + '</span><span class="mut">' + ((CICLO.linhas || []).some(l => l.numero === n) ? 'já tem dados' : 'vazia') + '</span></button>').join('') +
+    '<div class="linha" style="justify-content:flex-end"><button type="button" class="ghost" onclick="$(\'copia-modal\').remove()">Cancelar</button></div></div>';
+  document.body.appendChild(m);
+  m.querySelectorAll('[data-alvo]').forEach(b => b.addEventListener('click', () => copiarSemana(Number(b.dataset.alvo))));
+}
+async function copiarSemana(alvo) {
+  const origem = (CICLO.linhas || []).filter(l => l.numero === CSEM), antigas = (CICLO.linhas || []).filter(l => l.numero === alvo);
+  if (!origem.length) return aviso('A Semana ' + CSEM + ' está vazia.');
+  if (antigas.length && !confirm('A Semana ' + alvo + ' já tem dados. Substituir pelo conteúdo da Semana ' + CSEM + '?')) return;
+  const m = $('copia-modal'); if (m) m.remove();
+  for (const l of antigas) await db.rpc('setor_ciclo_linha_rem', { p_setor: SETOR, p_numero: alvo, p_chave: l.chave });
+  CICLO.linhas = CICLO.linhas.filter(l => l.numero !== alvo);
+  let falhas = 0;
+  for (const l of origem) {
+    const r = await db.rpc('setor_ciclo_linha', { p_setor: SETOR, p_numero: alvo, p_chave: l.chave, p_nome: l.nome, p_dias: l.dias });
+    if (!r.error && r.data === 'ok') CICLO.linhas.push({ numero: alvo, chave: l.chave, nome: l.nome, dias: l.dias.slice() }); else falhas++;
+  }
+  CSEM = alvo; renderCiclo(); aviso(falhas ? 'Copiado, mas ' + falhas + ' pessoa(s) não puderam ser copiadas (já saíram do setor).' : 'Semana copiada para a Semana ' + alvo + '.');
+}
+async function cicLimpar() { if (!confirm('Limpar toda a Semana ' + CSEM + ' deste setor?')) return; await db.rpc('setor_ciclo_limpar', { p_setor: SETOR, p_numero: CSEM }); await carregarSemana(); }
+async function cicVigente() {
+  if (!confirm('Marcar a semana de hoje do calendário como a Semana ' + CSEM + ' do ciclo? Cada pessoa continua girando só nas semanas em que aparece.')) return;
+  const { data } = await db.rpc('setor_ciclo_vigente', { p_setor: SETOR, p_numero: CSEM }); if (data !== 'ok') return aviso('Não foi possível ajustar.'); aviso('Ciclo ajustado.'); await carregarSemana();
+}
 
 async function addConvidado() {
   const el = $('inp-conv'), nome = ((el || {}).value || '').trim(); if (!nome) return aviso('Digite o nome do convidado.');
